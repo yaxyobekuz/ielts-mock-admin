@@ -250,7 +250,7 @@ export const storeSlice = createSlice({
 
       const newSection = {
         content: {},
-        questionsCount: 0,
+        questionsCount: 1,
         title: "Section title",
         questionType: sectionType,
         description: "Section description",
@@ -298,6 +298,11 @@ export const storeSlice = createSlice({
           break;
       }
 
+      if (!state[module].parts[partIndex].sections) {
+        state[module].parts[partIndex].sections = [];
+      }
+
+      state[module].parts[partIndex].totalQuestions++;
       state[module].parts[partIndex].sections.push(newSection);
     },
 
