@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- Base --- */
+
+@layer base {
+  body,
+  pre {
+    font-family: "Arial", sans-serif;
+    @apply text-base text-gray-800 font-normal;
+  }
+}
+
+/* --- Components --- */
+
+@layer components {
+  .not-visible {
+    visibility: hidden;
+  }
+
+  .answer-dropzone {
+    @apply text-center font-bold border-dashed;
+  }
+
+  .question-input {
+    @apply w-36;
+  }
+
+  .question-input,
+  .answer-dropzone {
+    @apply inline-block min-w-36 max-w-xl h-6 px-2 border border-gray-500 text-dark rounded outline-none placeholder:text-center placeholder:text-dark placeholder:font-bold focus:border-2 focus:border-blue-500;
+  }
+}
+
+/* --- Utilities --- */
+
+@layer utilities {
+  .container {
+    @apply max-w-7xl w-full px-5 mx-auto;
+  }
+}
+
+a.active {
+  @apply !bg-gray-100 text-blue-500;
+}
