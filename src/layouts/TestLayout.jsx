@@ -8,7 +8,7 @@ import useStore from "../hooks/useStore";
 import questionsType from "../data/questionsType";
 
 // Store (Redux)
-import { addModulePart } from "../store/features/storeSlice";
+import { addModulePart, addModuleSection } from "../store/features/storeSlice";
 
 const TestLayout = () => {
   return (
@@ -35,32 +35,19 @@ const MainNavbar = () => {
         <ul className="flex w-full">
           {/* Listening */}
           <li className="grow h-10">
-            <NavLink
-              to={`/tests/test/${testId}/${pathSegments[3]}/1`}
-              className="flex items-center justify-center size-full bg-white transition-colors duration-200 border-r hover:bg-gray-50"
-            >
+            <NavItem to={`/tests/test/${testId}/${pathSegments[3]}/1`}>
               Listening
-            </NavLink>
+            </NavItem>
           </li>
 
           {/* Reading */}
           <li className="grow h-10">
-            <NavLink
-              to={`/tests/test/${testId}/reading/1`}
-              className="flex items-center justify-center size-full bg-white transition-colors duration-200 border-r hover:bg-gray-50"
-            >
-              Reading
-            </NavLink>
+            <NavItem to={`/tests/test/${testId}/reading/1`}>Reading</NavItem>
           </li>
 
           {/* Writing */}
           <li className="grow h-10">
-            <NavLink
-              to={`/tests/test/${testId}/writing/1`}
-              className="flex items-center justify-center size-full bg-white transition-colors duration-200 hover:bg-gray-50"
-            >
-              Writing
-            </NavLink>
+            <NavItem to={`/tests/test/${testId}/writing/1`}>Writing</NavItem>
           </li>
         </ul>
       </nav>
@@ -112,11 +99,24 @@ const PartsNavbar = () => {
 };
 
 const AddSectionBlock = () => {
+  const { dispatch } = useStore();
+  const { partNumber } = useParams();
+  const pathSegments = location.pathname.split("/").filter(Boolean);
   const [activeQuestion, setActiveQuestion] = useState(questionsType[0]);
 
   const handleSelectOption = (e) => {
     const q = questionsType.find((q) => q.value === e.target.value);
     setActiveQuestion(q);
+  };
+
+  const handleAddSection = () => {
+    dispatch(
+      addModuleSection({
+        partIndex: partNumber - 1,
+        module: pathSegments[3],
+        sectionType: activeQuestion.value,
+      })
+    );
   };
 
   return (
@@ -143,7 +143,10 @@ const AddSectionBlock = () => {
             ))}
           </select>
 
-          <button className="h-9 bg-blue-500 text-white px-5 rounded-md">
+          <button
+            onClick={handleAddSection}
+            className="h-9 bg-blue-500 text-white px-5 rounded-md"
+          >
             Yangi bo'lim qo'shish
           </button>
         </div>
@@ -151,5 +154,14 @@ const AddSectionBlock = () => {
     </div>
   );
 };
+
+const NavItem = ({ to, children }) => (
+  <NavLink
+    to={to}
+    className="flex items-center justify-center size-full bg-white transition-colors duration-200 border-r hover:bg-gray-50"
+  >
+    {children}
+  </NavLink>
+);
 
 export default TestLayout;

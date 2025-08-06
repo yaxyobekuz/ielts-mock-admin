@@ -245,17 +245,60 @@ export const storeSlice = createSlice({
 
     // Update specific section in listening part
     addModuleSection: (state, { payload }) => {
-      const { partIndex, module } = payload;
-      if (!state[module]?.parts[partIndex]) return;
+      const { partIndex, module, sectionType } = payload;
+      if (!state[module]?.parts[partIndex] || !sectionType) return;
 
-      state[module].parts[partIndex].sections.push({
-        content: { text },
-        questionsCount: 10,
-        questionType: "text",
-        title: "Questions 1-10",
-        description:
-          "Complete the notes. Write ONE WORD AND/OR A NUMBER for each answer.",
-      });
+      const newSection = {
+        content: {},
+        questionsCount: 0,
+        title: "Section title",
+        questionType: sectionType,
+        description: "Section description",
+      };
+
+      switch (sectionType) {
+        case "text":
+          newSection.content = { text: "Section text ^" };
+          break;
+        case "text-draggable":
+          newSection.content = {
+            text: "Section text ~",
+            answerChoices: {
+              title: "Answers tite",
+              options: [{ option: "Answer 1" }],
+            },
+          };
+          break;
+        case "flowchart":
+          newSection.content = {
+            flowchartItems: {
+              title: "Flowchart title",
+              items: [{ flowchartText: "Item 1 ~" }],
+            },
+            answerChoices: {
+              title: "Answers title",
+              options: [{ option: "Answer 1" }],
+            },
+          };
+          break;
+        case "radio-group":
+          newSection.content = {
+            questionGroups: [
+              {
+                questionText: "Question",
+                choiceOptions: [
+                  { text: "Answer 1" },
+                  { text: "Answer 2" },
+                  { text: "Answer 3" },
+                  { text: "Answer 4" },
+                ],
+              },
+            ],
+          };
+          break;
+      }
+
+      state[module].parts[partIndex].sections.push(newSection);
     },
 
     // Reset state to initial values
@@ -281,6 +324,7 @@ export const {
   updateSpeaking,
   updateListening,
   updateModulePart,
+  addModuleSection,
   removeModulePart,
   updateModuleSection,
 } = storeSlice.actions;
