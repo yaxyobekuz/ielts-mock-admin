@@ -21,7 +21,7 @@ const Listening = () => {
   const { partNumber } = useParams();
   const pathSegments = location.pathname.split("/").filter(Boolean);
 
-  const { getState, dispatch } = useStore(pathSegments[3]);
+  const { getState } = useStore(pathSegments[3]);
   const { parts } = getState();
 
   // Calculate current part and cumulative question count
@@ -109,7 +109,7 @@ const Section = ({
 
         {/* Edit button */}
         <Link
-          to={`/edit/${pathSegments[3]}/${partNumber}/${index}`}
+          to={`/edit/${pathSegments[3]}/${partNumber}/${questionType}/${index}`}
           className="flex items-center justify-center gap-3.5 h-9 px-5 bg-blue-500 rounded-md text-white"
         >
           <span>Tahrirlash</span>

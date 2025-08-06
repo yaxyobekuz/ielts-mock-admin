@@ -13,6 +13,7 @@ import MainLayout from "./layouts/MainLayout";
 import Home from "./pages/Home";
 import Listening from "./pages/Listening";
 import TestLayout from "./layouts/TestLayout";
+import TextEditor from "./pages/Editors/TextEditor";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -22,6 +23,10 @@ const App = () => {
         <Route element={<TestLayout />} path="tests/test/:testId/">
           <Route path="listening/:partNumber" element={<Listening />} />
         </Route>
+        <Route
+          element={<TextEditor />}
+          path="edit/:module/:partNumber/text/:sectionIndex"
+        />
       </Route>
     )
   );
