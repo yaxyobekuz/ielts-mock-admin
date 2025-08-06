@@ -1,10 +1,17 @@
 import { useMemo } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 
-import questionsType from "../data/questionsType";
+// Components
+import Icon from "../components/Icon";
 
 // Hooks
 import useStore from "../hooks/useStore";
+
+// Icons
+import penIcon from "../assets/icons/pen.svg";
+
+// Data
+import questionsType from "../data/questionsType";
 
 const questionsMap = {};
 questionsType.forEach((q) => (questionsMap[q.value] = q.component));
@@ -64,7 +71,10 @@ const Listening = () => {
 
             return (
               <Section
+                index={index}
                 section={section}
+                partNumber={partNumber}
+                pathSegments={pathSegments}
                 key={`${section.questionType}-${index}`}
                 initialQuestionNumber={
                   prevSectionsTotalQuestionsCount + cumulativeQuestions + 1
@@ -79,15 +89,34 @@ const Listening = () => {
 };
 
 // Individual section component
-const Section = ({ section, initialQuestionNumber }) => {
+const Section = ({
+  index,
+  section,
+  partNumber,
+  pathSegments,
+  initialQuestionNumber,
+}) => {
   const { title, description, questionType, content } = section;
-
   const QuestionComponent = questionsMap[questionType];
 
   return (
     <section className="mb-6 px-5 py-4 bg-gray-50 rounded-xl border">
-      <h2 className="font-bold mb-2">{title}</h2>
-      <p className="mb-4">{description}</p>
+      <div className="flex items-start justify-between gap-5">
+        <div>
+          <h2 className="font-bold mb-2">{title}</h2>
+          <p className="mb-4">{description}</p>
+        </div>
+
+        {/* Edit button */}
+        <Link
+          to={`/edit/${pathSegments[3]}/${partNumber}/${index}`}
+          className="flex items-center justify-center gap-3.5 h-9 px-5 bg-blue-500 rounded-md text-white"
+        >
+          <span>Tahrirlash</span>
+          <Icon src={penIcon} alt="Pen" className="size-5" />
+        </Link>
+      </div>
+
       {QuestionComponent ? (
         <QuestionComponent {...content} initialNumber={initialQuestionNumber} />
       ) : (
