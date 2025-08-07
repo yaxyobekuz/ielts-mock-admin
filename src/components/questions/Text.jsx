@@ -9,7 +9,9 @@ const Text = memo(({ text, initialNumber }) => {
   return (
     <pre
       className="flex-1 overflow-auto max-w-none"
-      dangerouslySetInnerHTML={{ __html: convertToHtml(text, initialNumber) }}
+      dangerouslySetInnerHTML={{
+        __html: convertToHtml(text, initialNumber, true),
+      }}
     />
   );
 });

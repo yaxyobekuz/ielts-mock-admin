@@ -19,13 +19,18 @@ const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<MainLayout />}>
+        {/* Homepage */}
         <Route index element={<Home />} />
+
+        {/* Preview test */}
         <Route element={<TestLayout />} path="tests/test/:testId/">
-          <Route path="listening/:partNumber" element={<Listening />} />
+          <Route path="preview/listening/:partNumber" element={<Listening />} />
         </Route>
+
+        {/* Edit test */}
         <Route
           element={<TextEditor />}
-          path="edit/:module/:partNumber/text/:sectionIndex"
+          path="tests/test/:testId/edit/:module/:partNumber/text/:sectionIndex"
         />
       </Route>
     )

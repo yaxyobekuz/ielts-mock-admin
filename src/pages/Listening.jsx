@@ -18,10 +18,10 @@ questionsType.forEach((q) => (questionsMap[q.value] = q.component));
 
 const Listening = () => {
   const location = useLocation();
-  const { partNumber } = useParams();
+  const { partNumber, testId } = useParams();
   const pathSegments = location.pathname.split("/").filter(Boolean);
 
-  const { getState } = useStore(pathSegments[3]);
+  const { getState } = useStore(pathSegments[4]);
   const { parts } = getState();
 
   // Calculate current part and cumulative question count
@@ -72,6 +72,7 @@ const Listening = () => {
             return (
               <Section
                 index={index}
+                testId={testId}
                 section={section}
                 partNumber={partNumber}
                 pathSegments={pathSegments}
@@ -91,6 +92,7 @@ const Listening = () => {
 // Individual section component
 const Section = ({
   index,
+  testId,
   section,
   partNumber,
   pathSegments,
@@ -109,7 +111,7 @@ const Section = ({
 
         {/* Edit button */}
         <Link
-          to={`/edit/${pathSegments[3]}/${partNumber}/${questionType}/${index}`}
+          to={`/tests/test/${testId}/edit/${pathSegments[4]}/${partNumber}/${questionType}/${index}`}
           className="flex items-center justify-center gap-3.5 h-9 px-5 bg-blue-500 rounded-md text-white"
         >
           <span>Tahrirlash</span>

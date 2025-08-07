@@ -35,7 +35,7 @@ const MainNavbar = () => {
         <ul className="flex w-full">
           {/* Listening */}
           <li className="grow h-10">
-            <NavItem to={`/tests/test/${testId}/${pathSegments[3]}/1`}>
+            <NavItem to={`/tests/test/${testId}/${pathSegments[4]}/1`}>
               Listening
             </NavItem>
           </li>
@@ -60,11 +60,11 @@ const PartsNavbar = () => {
   const location = useLocation();
   const pathSegments = location.pathname.split("/").filter(Boolean);
 
-  const { getState, dispatch } = useStore(pathSegments[3]);
+  const { getState, dispatch } = useStore(pathSegments[4]);
   const module = getState();
 
   const handleAddModulePart = () => {
-    dispatch(addModulePart({ module: pathSegments[3].toLowerCase() }));
+    dispatch(addModulePart({ module: pathSegments[4].toLowerCase() }));
   };
 
   return (
@@ -75,7 +75,7 @@ const PartsNavbar = () => {
           {module.parts.map(({ number }, index) => (
             <li key={index} className="grow h-10">
               <NavLink
-                to={`/tests/test/${testId}/${pathSegments[3]}/${number}`}
+                to={`/tests/test/${testId}/preview/${pathSegments[4]}/${number}`}
                 className="flex items-center justify-center size-full bg-white transition-colors duration-200 border-r hover:bg-gray-50"
               >
                 Part {number}
@@ -113,7 +113,7 @@ const AddSectionBlock = () => {
     dispatch(
       addModuleSection({
         partIndex: partNumber - 1,
-        module: pathSegments[3],
+        module: pathSegments[4],
         sectionType: activeQuestion.value,
       })
     );
