@@ -56,8 +56,7 @@ const listeningTestParts = [
         questionsCount: 10,
         questionType: "text",
         title: "Questions 1-10",
-        description:
-          "Complete the notes. Write ONE WORD AND/OR A NUMBER for each answer.",
+        description: `Complete the notes. Write ONE WORD AND/OR A NUMBER for each answer.`,
       },
     ],
   },
@@ -235,6 +234,9 @@ export const storeSlice = createSlice({
     // Update specific section in listening part
     updateModuleSection: (state, { payload }) => {
       const { partIndex, sectionIndex, sectionData, module } = payload;
+
+      
+
       if (!state[module]?.parts[partIndex]?.sections[sectionIndex]) return;
 
       state[module].parts[partIndex].sections[sectionIndex] = {

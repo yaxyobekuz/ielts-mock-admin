@@ -1,10 +1,18 @@
+import { useNavigate, useParams } from "react-router-dom";
 import { useState, useRef, useCallback, useEffect } from "react";
 
 // Components
 import Icon from "../../components/Icon";
 
+// Hooks
+import useStore from "../../hooks/useStore";
+
 // Helpers
-import { convertToHtml } from "../../lib/helpers";
+import {
+  convertToHtml,
+  countSpecificCharacter,
+  isStringNumber,
+} from "../../lib/helpers";
 
 // Icons
 import undoIcon from "../../assets/icons/undo.svg";
@@ -16,15 +24,35 @@ import trashIcon from "../../assets/icons/trash.svg";
 import italicIcon from "../../assets/icons/italic.svg";
 import squareIcon from "../../assets/icons/square.svg";
 import underlineIcon from "../../assets/icons/underline.svg";
+import { updateModuleSection } from "../../store/features/storeSlice";
 
 const initialContent = `Start typing your *bold text*, _italic text_, |underlined text|, or create lists:\n\n- First item\n- Second item\n- Third item\n\nUse ^ for special inputs \n\nTry the formatting buttons or keyboard shortcuts!`;
 
 const TextEditor = () => {
+  const { testId, partNumber, module, sectionIndex } = useParams();
+  const { getState, dispatch } = useStore(module);
+  const state = getState();
+
+  const sectionData = state?.parts[partNumber - 1]?.sections[sectionIndex];
+  const isCorrectModule = ["listening", "reading", "writing"].includes(module);
+
+  const isInvalidPage =
+    !isCorrectModule ||
+    !isStringNumber(partNumber) ||
+    !isStringNumber(sectionIndex);
+
+  const isInvalidSection = !(sectionData?.questionType === "text");
+
+  if (isInvalidPage || isInvalidSection) return <WrongData />;
+
+  const navigate = useNavigate();
   const textareaRef = useRef(null);
   const containerRef = useRef(null);
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  const [content, setContent] = useState(initialContent);
+  const [content, setContent] = useState(
+    sectionData.content.text || initialContent
+  );
 
   // Initialize history
   useEffect(() => {
@@ -194,6 +222,21 @@ const TextEditor = () => {
     }
   };
 
+  const handleSaveChanges = () => {
+    const questionsCount = countSpecificCharacter(content, "^");
+
+    dispatch(
+      updateModuleSection({
+        module,
+        sectionIndex,
+        partIndex: partNumber - 1,
+        sectionData: { content: { text: content }, questionsCount },
+      })
+    );
+
+    navigate(`/tests/test/${testId}/preview/${module}/${partNumber}`);
+  };
+
   return (
     <div className="h-screen bg-gray-100 flex flex-col">
       {/* Header */}
@@ -205,13 +248,14 @@ const TextEditor = () => {
         historyIndex={historyIndex}
         insertListItem={insertListItem}
         applyFormatting={applyFormatting}
+        onSaveChanges={handleSaveChanges}
       />
 
       {/* Main Content */}
       <div ref={containerRef} className="grid grid-cols-2 h-full">
         {/* Editor Panel */}
         <div className="bg-white border-r border-gray-300 flex flex-col">
-          <div className="sticky top-0 inset-x-0 bg-gray-50 border-b border-gray-300 px-4 py-1.5">
+          <div className="bg-gray-50 border-b border-gray-300 px-4 py-1.5">
             <h2 className="text-sm font-medium text-gray-600">Editor</h2>
           </div>
 
@@ -376,5 +420,7 @@ const PreviewPanel = ({ content }) => {
     </div>
   );
 };
+
+const WrongData = () => <i>Hmmm... Nimadir noto'g'ri ketdi!</i>;
 
 export default TextEditor;
