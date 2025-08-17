@@ -1,19 +1,19 @@
-const RadioGroup = ({ initialNumber, questionGroups }) => {
+const RadioGroup = ({ initialNumber, groups }) => {
   return (
     <ul className="space-y-6">
-      {questionGroups.map(({ questionText, choiceOptions }, index) => {
-        let groupNumber = initialNumber + index;
+      {groups.map(({ text, answers }, index) => {
+        const groupNumber = initialNumber + index;
         return (
           <li key={index}>
             <p className="mb-1">
               <b className="inline-block py-0.5 px-1.5 rounded mr-2 border-2 transition-colors duration-300">
                 {groupNumber}
               </b>
-              <span>{questionText}</span>
+              <span>{text}</span>
             </p>
 
-            {/* Options */}
-            <Options groupNumber={groupNumber} choiceOptions={choiceOptions} />
+            {/* Answers */}
+            <Answers groupNumber={groupNumber} answers={answers} />
           </li>
         );
       })}
@@ -21,19 +21,17 @@ const RadioGroup = ({ initialNumber, questionGroups }) => {
   );
 };
 
-const Options = ({ choiceOptions, groupNumber }) => {
-  return (
-    <ul>
-      {choiceOptions.map(({ text }, index) => (
-        <li key={index}>
-          <label className="flex items-center gap-3.5 h-11 px-3.5 rounded-md cursor-pointer hover:bg-gray-100">
-            <input type="radio" value={text} name={`option-${groupNumber}`} />
-            <span>{text}</span>
-          </label>
-        </li>
-      ))}
-    </ul>
-  );
-};
+const Answers = ({ answers, groupNumber }) => (
+  <ul>
+    {answers.map(({ text }, index) => (
+      <li key={index}>
+        <label className="flex items-center gap-3.5 h-11 px-3.5 rounded-md cursor-pointer hover:bg-gray-100">
+          <input type="radio" value={text} name={`answer-${groupNumber}`} />
+          <span>{text}</span>
+        </label>
+      </li>
+    ))}
+  </ul>
+);
 
 export default RadioGroup;
