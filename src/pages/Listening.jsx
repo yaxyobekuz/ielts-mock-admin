@@ -5,7 +5,7 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import Icon from "../components/Icon";
 
 // Hooks
-import useStore from "../hooks/useStore";
+import useModule from "../hooks/useModule";
 
 // Icons
 import penIcon from "../assets/icons/pen.svg";
@@ -19,10 +19,10 @@ questionsType.forEach((q) => (questionsMap[q.value] = q.component));
 const Listening = () => {
   const location = useLocation();
   const { partNumber, testId } = useParams();
-  const pathSegments = location.pathname.split("/").filter(Boolean);
+  const [, , , , module] = location.pathname.split("/").filter(Boolean);
 
-  const { getState } = useStore(pathSegments[4]);
-  const { parts } = getState();
+  const { getModuleData } = useModule(module, testId);
+  const parts = getModuleData();
 
   // Calculate current part and cumulative question count
   const { currentPart, cumulativeQuestions } = useMemo(() => {
@@ -65,20 +65,20 @@ const Listening = () => {
         {/* Sections content */}
         <div className="w-full">
           {sections?.map((section, index) => {
-            const prevSectionsTotalQuestionsCount = sections
+            const prevSectionsTotalQuestions = sections
               .slice(0, index)
               .reduce((acc, sec) => acc + sec.questionsCount, 0);
 
             return (
               <Section
                 index={index}
+                module={module}
                 testId={testId}
                 section={section}
                 partNumber={partNumber}
-                pathSegments={pathSegments}
                 key={`${section.questionType}-${index}`}
                 initialQuestionNumber={
-                  prevSectionsTotalQuestionsCount + cumulativeQuestions + 1
+                  prevSectionsTotalQuestions + cumulativeQuestions + 1
                 }
               />
             );
@@ -93,37 +93,40 @@ const Listening = () => {
 const Section = ({
   index,
   testId,
+  module,
   section,
   partNumber,
-  pathSegments,
   initialQuestionNumber,
 }) => {
-  const { title, description, questionType, content } = section;
-  const QuestionComponent = questionsMap[questionType];
+  const { title, description, type } = section;
+  const QuestionComponent = questionsMap[type];
 
   return (
     <section className="mb-6 px-5 py-4 bg-gray-50 rounded-xl border">
+      {/* Top */}
       <div className="flex items-start justify-between gap-5">
-        <div>
-          <h2 className="font-bold mb-2">{title}</h2>
-          <p className="mb-4">{description}</p>
+        {/* Section details */}
+        <div className="mb-4 space-y-2">
+          <h2 className="font-bold">{title}</h2>
+          <p>{description}</p>
         </div>
 
         {/* Edit button */}
         <Link
-          to={`/tests/test/${testId}/edit/${pathSegments[4]}/${partNumber}/${questionType}/${index}`}
+          to={`/tests/test/${testId}/edit/${module}/${partNumber}/${type}/${index}`}
           className="flex items-center justify-center gap-3.5 h-9 px-5 bg-blue-500 rounded-md text-white"
         >
           <span>Tahrirlash</span>
-          <Icon src={penIcon} alt="Pen" className="size-5" />
+          <Icon size={20} src={penIcon} alt="Pen" className="size-5" />
         </Link>
       </div>
 
+      {/* Main */}
       {QuestionComponent ? (
-        <QuestionComponent {...content} initialNumber={initialQuestionNumber} />
+        <QuestionComponent {...section} initialNumber={initialQuestionNumber} />
       ) : (
         <div className="bg-gray-50 border rounded p-4 text-yellow-800">
-          Unknown question type: {questionType}
+          Unknown question type: {type}
         </div>
       )}
     </section>
