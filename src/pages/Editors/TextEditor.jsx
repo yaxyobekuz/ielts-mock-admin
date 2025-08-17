@@ -1,426 +1,243 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 
-// Components
-import Icon from "../../components/Icon";
+// Lodash
+import debounce from "lodash/debounce";
 
 // Hooks
-import useStore from "../../hooks/useStore";
+import useModule from "../../hooks/useModule";
+
+// Components
+import RichTextEditor from "../../components/RichTextEditor";
 
 // Helpers
-import {
-  convertToHtml,
-  countSpecificCharacter,
-  isStringNumber,
-} from "../../lib/helpers";
-
-// Icons
-import undoIcon from "../../assets/icons/undo.svg";
-import redoIcon from "../../assets/icons/redo.svg";
-import boldIcon from "../../assets/icons/bold.svg";
-import listIcon from "../../assets/icons/list.svg";
-import codeIcon from "../../assets/icons/code.svg";
-import trashIcon from "../../assets/icons/trash.svg";
-import italicIcon from "../../assets/icons/italic.svg";
-import squareIcon from "../../assets/icons/square.svg";
-import underlineIcon from "../../assets/icons/underline.svg";
-import { updateModuleSection } from "../../store/features/storeSlice";
-
-const initialContent = `Start typing your *bold text*, _italic text_, |underlined text|, or create lists:\n\n- First item\n- Second item\n- Third item\n\nUse ^ for special inputs \n\nTry the formatting buttons or keyboard shortcuts!`;
+import { isNumber, countExactMatches } from "../../lib/helpers";
 
 const TextEditor = () => {
+  // State & Hooks
+  const modules = ["listening", "reading", "writing"];
   const { testId, partNumber, module, sectionIndex } = useParams();
-  const { getState, dispatch } = useStore(module);
-  const state = getState();
+  const { getModuleData, updateSection } = useModule(module, testId);
+  const parts = getModuleData();
 
-  const sectionData = state?.parts[partNumber - 1]?.sections[sectionIndex];
-  const isCorrectModule = ["listening", "reading", "writing"].includes(module);
+  // Data
+  const part = parts?.find((p) => p.number === parseInt(partNumber));
+  const section = part?.sections[sectionIndex];
 
-  const isInvalidPage =
-    !isCorrectModule ||
-    !isStringNumber(partNumber) ||
-    !isStringNumber(sectionIndex);
+  // Validators
+  const isInvalidModule = !modules.includes(module);
+  const isInvalidSectionType = !(section?.type === "text");
+  const isInvalidData = !isNumber(partNumber) || !isNumber(sectionIndex);
 
-  const isInvalidSection = !(sectionData?.questionType === "text");
+  // If invalid data
+  if (isInvalidData || isInvalidSectionType || isInvalidModule) {
+    return <ErrorContent />;
+  }
 
-  if (isInvalidPage || isInvalidSection) return <WrongData />;
-
+  // State
   const navigate = useNavigate();
-  const textareaRef = useRef(null);
-  const containerRef = useRef(null);
-  const [history, setHistory] = useState([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  const [content, setContent] = useState(
-    sectionData.content.text || initialContent
-  );
+  const [answers, setAnswers] = useState([]);
+  const [content, setContent] = useState(section?.text);
+  const [originalContent, setOriginalContent] = useState(section?.text);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Initialize history
-  useEffect(() => {
-    if (history.length === 0) {
-      setHistory([content]);
-      setHistoryIndex(0);
-    }
-  }, []);
+  // Check if content has changed
+  const hasContentChanged = content !== originalContent;
 
-  // Add to history for undo/redo
-  const addToHistory = useCallback(
-    (newContent) => {
-      const newHistory = history.slice(0, historyIndex + 1);
-      newHistory.push(newContent);
-      setHistory(newHistory);
-      setHistoryIndex(newHistory.length - 1);
-    },
-    [history, historyIndex]
-  );
+  // Content updated, no longer saving
+  const handleContentChange = debounce((value) => {
+    setContent(value);
+    setIsSaving(false);
+  }, 1000);
 
-  // Undo functionality
-  const undo = useCallback(() => {
-    if (historyIndex === 0) return;
-
-    const prevIndex = historyIndex - 1;
-    setHistoryIndex(prevIndex);
-    setContent(history[prevIndex]);
-  }, [history, historyIndex]);
-
-  // Redo functionality
-  const redo = useCallback(() => {
-    if (historyIndex < history.length - 1) {
-      const nextIndex = historyIndex + 1;
-      setHistoryIndex(nextIndex);
-      setContent(history[nextIndex]);
-    }
-  }, [history, historyIndex]);
-
-  // Handle content changes
-  const handleContentChange = (e) => {
-    const newContent = e.target.value;
-    setContent(newContent);
-
-    // Add to history after a short delay to avoid too many history entries
-    const timeoutId = setTimeout(() => addToHistory(newContent), 500);
-
-    return () => clearTimeout(timeoutId);
+  // Track when user starts typing
+  const handleContentChangeStart = () => {
+    setIsSaving(true);
   };
 
-  // Get selected text and cursor position
-  const getSelection = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return { start: 0, end: 0, selectedText: "" };
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = content.substring(start, end);
-
-    return { start, end, selectedText };
+  const handleNavigate = () => {
+    const path = `/tests/test/${testId}/preview/${module}/${partNumber}#s-${sectionIndex}`;
+    navigate(path);
   };
 
-  // Apply formatting to selected text
-  const applyFormatting = (startSymbol, endSymbol = null) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
+  const handleSaveContent = () => {
+    // Count answer inputs
+    const target = `<input type="text" data-name="answer-input">`;
+    const totalInputs = countExactMatches(content, target);
 
-    const { start, end, selectedText } = getSelection();
-    const endSymbolToUse = endSymbol || startSymbol;
+    // Update section data from store
+    const sectionData = { text: content, questionsCount: totalInputs, answers };
+    updateSection(partNumber, sectionData, sectionIndex);
 
-    let newContent;
-    let newCursorPos;
+    // Update original content to match current content
+    setOriginalContent(content);
+    setIsSaving(false);
 
-    if (selectedText) {
-      // Wrap selected text
-      const before = content.substring(0, start);
-      const after = content.substring(end);
-      newContent = before + startSymbol + selectedText + endSymbolToUse + after;
-      newCursorPos = end + startSymbol.length + endSymbolToUse.length;
-    } else {
-      // Insert symbols and place cursor between them
-      const before = content.substring(0, start);
-      const after = content.substring(start);
-      newContent = before + startSymbol + endSymbolToUse + after;
-      newCursorPos = start + startSymbol.length;
-    }
-
-    setContent(newContent);
-    addToHistory(newContent);
-
-    // Restore cursor position
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(newCursorPos, newCursorPos);
-    }, 0);
-  };
-
-  // Insert special input
-  const insertSymbol = (symbol) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const { start } = getSelection();
-    const after = content.substring(start);
-    const before = content.substring(0, start);
-    const newContent = before + symbol + after;
-
-    setContent(newContent);
-    addToHistory(newContent);
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + 1, start + 1);
-    }, 0);
-  };
-
-  // Insert list item
-  const insertListItem = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const { start } = getSelection();
-    const before = content.substring(0, start);
-    const after = content.substring(start);
-
-    // Check if we're at the beginning of a line
-    const lineStart = before.lastIndexOf("\n") + 1;
-    const currentLine = before.substring(lineStart);
-    const isStartOfLine = currentLine.trim() === "";
-
-    const listItem = isStartOfLine ? "- " : "\n- ";
-    const newContent = before + listItem + after;
-
-    setContent(newContent);
-    addToHistory(newContent);
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(
-        start + listItem.length,
-        start + listItem.length
-      );
-    }, 0);
-  };
-
-  // Handle keyboard shortcuts
-  const handleKeyDown = (e) => {
-    if (!e.ctrlKey && !e.metaKey) return;
-
-    switch (e.key) {
-      case "b":
-        e.preventDefault();
-        applyFormatting("*");
-        break;
-      case "i":
-        e.preventDefault();
-        applyFormatting("_");
-        break;
-      case "u":
-        e.preventDefault();
-        applyFormatting("|");
-        break;
-      case "z":
-        e.preventDefault();
-        if (e.shiftKey) redo();
-        else undo();
-        break;
-    }
-  };
-
-  const handleSaveChanges = () => {
-    const questionsCount = countSpecificCharacter(content, "^");
-
-    dispatch(
-      updateModuleSection({
-        module,
-        sectionIndex,
-        partIndex: partNumber - 1,
-        sectionData: { content: { text: content }, questionsCount },
-      })
-    );
-
-    navigate(`/tests/test/${testId}/preview/${module}/${partNumber}`);
+    // Navigate user to preview page
+    handleNavigate();
   };
 
   return (
-    <div className="h-screen bg-gray-100 flex flex-col">
+    <>
       {/* Header */}
-      <Header
-        undo={undo}
-        redo={redo}
-        history={history}
-        insertSymbol={insertSymbol}
-        historyIndex={historyIndex}
-        insertListItem={insertListItem}
-        applyFormatting={applyFormatting}
-        onSaveChanges={handleSaveChanges}
-      />
+      <header className="flex items-center h-[68px] border-b">
+        <div className="flex items-center justify-between container">
+          {/* Title */}
+          <h1 className="text-xl font-semibold">Text editor</h1>
 
-      {/* Main Content */}
-      <div ref={containerRef} className="grid grid-cols-2 h-full">
-        {/* Editor Panel */}
-        <div className="bg-white border-r border-gray-300 flex flex-col">
-          <div className="bg-gray-50 border-b border-gray-300 px-4 py-1.5">
-            <h2 className="text-sm font-medium text-gray-600">Editor</h2>
+          <div className="flex gap-5 items-center">
+            {/* Loader */}
+            <div className="flex items-center">
+              <Loader
+                isSaving={isSaving}
+                originalContent={originalContent}
+                hasContentChanged={hasContentChanged}
+              />
+            </div>
+
+            {/* Cancel btn */}
+            <button
+              onClick={handleNavigate}
+              className="flex items-center justify-center w-24 h-9 bg-gray-100 rounded-md text-sm hover:bg-gray-200"
+            >
+              Bekor qilish
+            </button>
+
+            {/* Save btn */}
+            <button
+              onClick={handleSaveContent}
+              disabled={!hasContentChanged || isSaving}
+              className="flex items-center justify-center w-24 h-9 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            >
+              Saqlash
+            </button>
           </div>
+        </div>
+      </header>
 
-          <textarea
-            value={content}
-            ref={textareaRef}
-            spellCheck={false}
-            onKeyDown={handleKeyDown}
+      {/* Editor */}
+      <div className="container">
+        <div className="flex gap-3.5 w-full pb-5">
+          <RichTextEditor
+            initialContent={content}
             onChange={handleContentChange}
-            placeholder="Start typing your markdown here..."
-            className="flex-1 p-4 resize-none outline-none font-mono text-sm leading-relaxed"
+            className="shrink-0 w-2/3 h-full"
+            onChangeStart={handleContentChangeStart}
+          />
+          <Answers
+            content={content}
+            onChange={setAnswers}
+            initialAnwsers={section?.answers || []}
           />
         </div>
-
-        {/* Preview Panel */}
-        <PreviewPanel content={content} />
       </div>
-    </div>
+    </>
   );
 };
 
-const Header = ({
-  undo,
-  redo,
-  history,
-  insertSymbol,
-  historyIndex,
-  onSaveChanges,
-  insertListItem,
-  applyFormatting,
-}) => {
+const Answers = ({ content, onChange, initialAnwsers }) => {
+  const [inputs, setInputs] = useState(initialAnwsers);
+
+  const handleAddInput = useCallback(({ detail: index }) => {
+    setInputs((prev) => {
+      if (typeof index !== "number" || prev.length + 1 !== index) return prev;
+      return [...prev, ""];
+    });
+  }, []);
+
+  const handleDeleteInput = useCallback(({ detail: index }) => {
+    if (typeof index !== "number") return;
+    setInputs((prev) => prev.filter((_, i) => i !== index - 1));
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("addAnswerInput", handleAddInput);
+    window.addEventListener("deleteAnswerInput", handleDeleteInput);
+
+    return () => {
+      window.removeEventListener("addAnswerInput", handleAddInput);
+      window.removeEventListener("deleteAnswerInput", handleDeleteInput);
+    };
+  }, [handleAddInput, handleDeleteInput]);
+
+  const handleInputChange = (e, index) => {
+    setInputs((prev) => {
+      return prev.map((val, i) => {
+        return i === index ? e.target.value : val;
+      });
+    });
+  };
+
+  useEffect(() => {
+    onChange?.(inputs);
+  }, [String(inputs)]);
+
+  useEffect(() => {
+    const target = `<input type="text" data-name="answer-input">`;
+    const totalInputs = countExactMatches(content, target);
+
+    if (totalInputs !== inputs?.length) {
+      setInputs((prev) => prev?.slice(0, totalInputs || 0));
+    }
+  }, [content]);
+
   return (
-    <div className="sticky top-0 inset-x-0 bg-white border-b border-gray-300 p-4">
-      <h1 className="text-xl font-bold text-gray-800 mb-3">Text editor</h1>
+    <div className="sticky top-0 overflow-y-auto w-full max-h-[calc(100vh-20px)] bg-gray-50 p-2.5 rounded-b-xl">
+      <h2 className="mb-3 text-lg font-bold">Javoblar</h2>
 
-      <div className="flex gap-5 justify-between">
-        {/* Toolbar */}
-        <div className="flex gap-2">
-          {/* Bold */}
-          <button
-            title="Bold (Ctrl+B)"
-            onClick={() => applyFormatting("*")}
-            className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium transition-colors"
-          >
-            <Icon src={boldIcon} size={20} className="size-5" alt="Bold icon" />
-          </button>
+      {/* Answers */}
+      <div className="space-y-2">
+        {inputs.map((value, index) => (
+          <div key={index}>
+            <label htmlFor={`answer-${index}`} className="inline-block mb-1">
+              Javob {index + 1}
+            </label>
 
-          {/* Italic */}
-          <button
-            title="Italic (Ctrl+I)"
-            onClick={() => applyFormatting("_")}
-            className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium transition-colors"
-          >
-            <Icon
-              size={20}
-              src={italicIcon}
-              className="size-5"
-              alt="Italic icon"
+            <textarea
+              type="text"
+              value={value}
+              id={`answer-${index}`}
+              style={{ height: "56px" }}
+              placeholder={`Javob ${index + 1}`}
+              onChange={(e) => handleInputChange(e, index)}
+              className="w-full border rounded-md p-2 min-h-12 max-h-40"
             />
-          </button>
-
-          {/* Underline */}
-          <button
-            title="Underline (Ctrl+U)"
-            onClick={() => applyFormatting("|")}
-            className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium transition-colors"
-          >
-            <Icon
-              size={20}
-              className="size-5"
-              src={underlineIcon}
-              alt="Underline icon"
-            />
-          </button>
-
-          {/* List */}
-          <button
-            title="List Item"
-            onClick={insertListItem}
-            className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium transition-colors"
-          >
-            <Icon src={listIcon} size={20} className="size-5" alt="List icon" />
-          </button>
-
-          {/* Input */}
-          <button
-            title="Input Field"
-            onClick={() => insertSymbol("^")}
-            className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium transition-colors"
-          >
-            <Icon
-              src={codeIcon}
-              size={20}
-              className="size-5"
-              alt="Input icon"
-            />
-          </button>
-
-          {/* Dropzone */}
-          <button
-            title="Answer Dropzone"
-            onClick={() => insertSymbol("~")}
-            className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium transition-colors"
-          >
-            <Icon
-              size={20}
-              src={squareIcon}
-              alt="Square icon"
-              className="size-5"
-            />
-          </button>
-
-          <div className="w-px bg-gray-300 mx-2"></div>
-
-          {/* Undo */}
-          <button
-            onClick={undo}
-            title="Undo (Ctrl+Z)"
-            disabled={historyIndex <= 0}
-            className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-100 disabled:opacity-50 rounded transition-colors"
-          >
-            <Icon src={undoIcon} size={20} className="size-5" alt="Undo icon" />
-          </button>
-
-          {/* Redo */}
-          <button
-            onClick={redo}
-            title="Redo (Ctrl+Shift+Z)"
-            disabled={historyIndex >= history.length - 1}
-            className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-100 disabled:opacity-50 rounded transition-colors"
-          >
-            <Icon src={redoIcon} size={20} className="size-5" alt="Redo icon" />
-          </button>
-        </div>
-
-        {/* Actions button */}
-        <div className="flex gap-5">
-          <button
-            title="Ctrl+S"
-            onClick={onSaveChanges}
-            className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 rounded text-sm font-medium text-white"
-          >
-            O'zgarishlarni saqlash
-          </button>
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
-const PreviewPanel = ({ content }) => {
-  return (
-    <div className="w-full bg-white flex flex-col">
-      <div className="bg-gray-50 border-b border-gray-300 px-4 py-1.5">
-        <h2 className="text-sm font-medium text-gray-600">Preview</h2>
+const Loader = ({ isSaving, hasContentChanged, originalContent }) => {
+  if (isSaving) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+        <span className="text-sm text-gray-500">Saqlanmoqda...</span>
       </div>
+    );
+  }
 
-      <pre
-        className="p-4 overflow-auto max-w-none"
-        dangerouslySetInnerHTML={{ __html: convertToHtml(content, 1, true) }}
-      />
-    </div>
-  );
+  if (hasContentChanged) {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="w-2 h-2 bg-green-500 rounded-full" />
+        <span className="text-sm text-green-500">Saqlashga tayyor</span>
+      </div>
+    );
+  }
+
+  if (originalContent) {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="w-2 h-2 bg-blue-500 rounded-full" />
+        <span className="text-sm text-blue-500">O'zgarishlar yo'q</span>
+      </div>
+    );
+  }
 };
 
-const WrongData = () => <i>Hmmm... Nimadir noto'g'ri ketdi!</i>;
+const ErrorContent = () => <i>Hmmm... Nimadir noto'g'ri ketdi!</i>;
 
 export default TextEditor;
