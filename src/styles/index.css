@@ -10,6 +10,10 @@
     font-family: "Arial", sans-serif;
     @apply text-base text-gray-800 font-normal;
   }
+
+  pre {
+    @apply whitespace-pre-wrap;
+  }
 }
 
 /* --- Components --- */
@@ -23,21 +27,53 @@
     @apply text-center font-bold border-dashed;
   }
 
-  .question-input {
+  .answer-input {
     @apply w-36;
   }
 
-  .question-input,
+  .answer-input,
   .answer-dropzone {
     @apply inline-block min-w-36 max-w-xl h-6 px-2 border border-gray-500 text-dark rounded outline-none placeholder:text-center placeholder:text-dark placeholder:font-bold focus:border-2 focus:border-blue-500;
   }
+
+  /* Editor */
+
+  .text-editor {
+    ul {
+      @apply list-disc pl-5;
+    }
+
+    ol {
+      @apply list-decimal pl-5;
+    }
+
+    blockquote {
+      @apply relative border-l-2 border-blue-500 pl-3.5 bg-blue-50 rounded-r;
+    }
+
+    blockquote::after {
+      @apply content-["”"] absolute top-0.5 right-2 text-blue-500 text-lg font-semibold;
+    }
+
+    code {
+      @apply inline-block bg-white p-2.5 border rounded-md;
+    }
+  }
+
+  .node-answer-input {
+    @apply inline-block h-auto;
+  }
+}
+
+.ProseMirror {
+  @apply !outline-none !border-none;
 }
 
 /* --- Utilities --- */
 
 @layer utilities {
   .container {
-    @apply max-w-7xl w-full px-5 mx-auto;
+    @apply max-w-[1480px] w-full px-5 mx-auto;
   }
 }
 
