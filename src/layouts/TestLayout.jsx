@@ -1,107 +1,107 @@
 import { useState } from "react";
-import { NavLink, Outlet, useLocation, useParams } from "react-router-dom";
+import { NavLink, Outlet, useParams } from "react-router-dom";
 
 // Hooks
-import useStore from "../hooks/useStore";
+import useModule from "../hooks/useModule";
 
 // Data
 import questionsType from "../data/questionsType";
 
 // Store (Redux)
-import { addModulePart, addModuleSection } from "../store/features/storeSlice";
+import usePathSegments from "../hooks/usePathSegments";
 
 const TestLayout = () => {
+  const { testId, partNumber } = useParams();
+  const { pathSegments } = usePathSegments();
+  const module = pathSegments[4];
+
+  const { getModuleData, addPart, addSection } = useModule(module, testId);
+  const parts = getModuleData();
+
   return (
     <>
-      <MainNavbar />
+      <MainNavbar testId={testId} module={module} />
+
       <main className="pb-[41px]">
         <Outlet />
-        <AddSectionBlock />
+
+        <AddSectionBlock
+          module={module}
+          partNumber={partNumber}
+          addSection={(type) => addSection(partNumber, type)}
+        />
       </main>
 
-      <PartsNavbar />
+      <PartsNavbar
+        parts={parts}
+        testId={testId}
+        module={module}
+        addPart={addPart}
+      />
     </>
   );
 };
 
-const MainNavbar = () => {
-  const { testId } = useParams();
-  const location = useLocation();
-  const pathSegments = location.pathname.split("/").filter(Boolean);
+const MainNavbar = ({ testId, module }) => (
+  <div className="sticky top-0 inset-x-0 z-10 container">
+    <nav className="w-full overflow-hidden rounded-b-xl border border-t-0">
+      <ul className="flex w-full">
+        {/* Listening */}
+        <li className="grow h-10">
+          <NavItem to={`/tests/test/${testId}/preview/${module}/1`}>
+            Listening
+          </NavItem>
+        </li>
 
-  return (
-    <div className="sticky top-0 inset-x-0 container">
-      <nav className="w-full overflow-hidden rounded-b-xl border border-t-0">
-        <ul className="flex w-full">
-          {/* Listening */}
-          <li className="grow h-10">
-            <NavItem to={`/tests/test/${testId}/${pathSegments[4]}/1`}>
-              Listening
-            </NavItem>
+        {/* Reading */}
+        <li className="grow h-10">
+          <NavItem to={`/tests/test/${testId}/preview/reading/1`}>
+            Reading
+          </NavItem>
+        </li>
+
+        {/* Writing */}
+        <li className="grow h-10">
+          <NavItem to={`/tests/test/${testId}/preview/writing/1`}>
+            Writing
+          </NavItem>
+        </li>
+      </ul>
+    </nav>
+  </div>
+);
+
+const PartsNavbar = ({ testId, module, parts, addPart }) => (
+  <div className="fixed bottom-0 inset-x-0 container">
+    <nav className="flex w-full overflow-hidden rounded-t-xl border border-b-0">
+      {/* Parts */}
+      <ul className="flex w-full">
+        {parts.map(({ number }, index) => (
+          <li key={index} className="grow h-10">
+            <NavLink
+              to={`/tests/test/${testId}/preview/${module}/${number}`}
+              className="flex items-center justify-center size-full bg-white transition-colors duration-200 border-r hover:bg-gray-50"
+            >
+              Part {number}
+            </NavLink>
           </li>
+        ))}
+      </ul>
 
-          {/* Reading */}
-          <li className="grow h-10">
-            <NavItem to={`/tests/test/${testId}/reading/1`}>Reading</NavItem>
-          </li>
+      {/* Add new */}
+      {parts.length < 6 ? (
+        <button
+          onClick={addPart}
+          className="flex items-center justify-center w-20 h-10 bg-white transition-colors duration-200 hover:bg-gray-50"
+        >
+          +
+        </button>
+      ) : null}
+    </nav>
+  </div>
+);
 
-          {/* Writing */}
-          <li className="grow h-10">
-            <NavItem to={`/tests/test/${testId}/writing/1`}>Writing</NavItem>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  );
-};
-
-const PartsNavbar = () => {
-  const { testId } = useParams();
-  const location = useLocation();
-  const pathSegments = location.pathname.split("/").filter(Boolean);
-
-  const { getState, dispatch } = useStore(pathSegments[4]);
-  const module = getState();
-
-  const handleAddModulePart = () => {
-    dispatch(addModulePart({ module: pathSegments[4].toLowerCase() }));
-  };
-
-  return (
-    <div className="fixed bottom-0 inset-x-0 container">
-      <nav className="flex w-full overflow-hidden rounded-t-xl border border-b-0">
-        {/* Parts */}
-        <ul className="flex w-full">
-          {module.parts.map(({ number }, index) => (
-            <li key={index} className="grow h-10">
-              <NavLink
-                to={`/tests/test/${testId}/preview/${pathSegments[4]}/${number}`}
-                className="flex items-center justify-center size-full bg-white transition-colors duration-200 border-r hover:bg-gray-50"
-              >
-                Part {number}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-
-        {/* Add new */}
-        {module.parts.length < 6 ? (
-          <button
-            onClick={handleAddModulePart}
-            className="flex items-center justify-center w-20 h-10 bg-white transition-colors duration-200 hover:bg-gray-50"
-          >
-            +
-          </button>
-        ) : null}
-      </nav>
-    </div>
-  );
-};
-
-const AddSectionBlock = () => {
-  const { dispatch } = useStore();
-  const { partNumber } = useParams();
-  const pathSegments = location.pathname.split("/").filter(Boolean);
+const AddSectionBlock = ({ addSection }) => {
   const [activeQuestion, setActiveQuestion] = useState(questionsType[0]);
 
   const handleSelectOption = (e) => {
@@ -110,13 +110,7 @@ const AddSectionBlock = () => {
   };
 
   const handleAddSection = () => {
-    dispatch(
-      addModuleSection({
-        partIndex: partNumber - 1,
-        module: pathSegments[4],
-        sectionType: activeQuestion.value,
-      })
-    );
+    addSection(activeQuestion.value);
   };
 
   return (
@@ -138,8 +132,10 @@ const AddSectionBlock = () => {
             onChange={handleSelectOption}
             className="h-9 px-5 rounded-md border"
           >
-            {questionsType.map(({ label, value }) => (
-              <option value={value}>{label}</option>
+            {questionsType.map(({ label, value }, index) => (
+              <option key={index} value={value}>
+                {label}
+              </option>
             ))}
           </select>
 
