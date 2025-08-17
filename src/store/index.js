@@ -1,10 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 // Features
-import storeSlice from "./features/storeSlice";
+import moduleSlice from "./features/moduleSlice";
 
 export default configureStore({
   reducer: {
-    store: storeSlice,
+    module: moduleSlice,
   },
 });
