@@ -22,7 +22,7 @@ export const convertToHtml = (
       .replace(/\^(?!\w)/g, () => {
         if (disableInput) return "^";
         const currentNumber = inputCounter++;
-        return `<input type="text" class="question-input" placeholder="${currentNumber}">`;
+        return `<input type="text" class="answer-input" placeholder="${currentNumber}">`;
       })
 
       // Convert special draggable input with counter
@@ -43,7 +43,7 @@ export const convertToHtml = (
 };
 
 // Check if string is a valid number
-export const isStringNumber = (string) => {
+export const isNumber = (string) => {
   // Check if input is string
   if (typeof string !== "string") return false;
 
@@ -56,4 +56,12 @@ export const isStringNumber = (string) => {
 
 export const countSpecificCharacter = (text, char) => {
   return text.split(char).length - 1;
+};
+
+export const countExactMatches = (text, target) => {
+  return (
+    text?.match(
+      new RegExp(target.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")
+    ) || []
+  ).length;
 };
