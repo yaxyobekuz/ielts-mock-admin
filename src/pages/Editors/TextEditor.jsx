@@ -1,6 +1,9 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useCallback, useEffect } from "react";
 
+// Icons
+import { Trash } from "lucide-react";
+
 // Lodash
 import debounce from "lodash/debounce";
 
@@ -36,8 +39,8 @@ const TextEditor = () => {
 
   // State
   const navigate = useNavigate();
-  const [answers, setAnswers] = useState([]);
   const [content, setContent] = useState(section?.text);
+  const [answers, setAnswers] = useState(section?.answers || [""]);
   const [originalContent, setOriginalContent] = useState(section?.text);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -119,46 +122,29 @@ const TextEditor = () => {
       <div className="container">
         <div className="flex gap-3.5 w-full pb-5">
           <RichTextEditor
+            allowInput
             initialContent={content}
             onChange={handleContentChange}
             className="shrink-0 w-2/3 h-full"
             onChangeStart={handleContentChangeStart}
           />
-          <Answers
-            content={content}
-            onChange={setAnswers}
-            initialAnwsers={section?.answers || []}
-          />
+          <Answers onChange={setAnswers} initialAnwsers={answers} />
         </div>
       </div>
     </>
   );
 };
 
-const Answers = ({ content, onChange, initialAnwsers }) => {
+const Answers = ({ onChange, initialAnwsers }) => {
   const [inputs, setInputs] = useState(initialAnwsers);
 
-  const handleAddInput = useCallback(({ detail: index }) => {
-    setInputs((prev) => {
-      if (typeof index !== "number" || prev.length + 1 !== index) return prev;
-      return [...prev, ""];
-    });
+  const handleAddInput = useCallback(() => {
+    setInputs((prev) => (prev.length < 50 ? [...prev, ""] : prev));
   }, []);
 
-  const handleDeleteInput = useCallback(({ detail: index }) => {
-    if (typeof index !== "number") return;
-    setInputs((prev) => prev.filter((_, i) => i !== index - 1));
+  const handleDeleteInput = useCallback((index) => {
+    setInputs((prev) => prev.filter((_, i) => i !== index));
   }, []);
-
-  useEffect(() => {
-    window.addEventListener("addAnswerInput", handleAddInput);
-    window.addEventListener("deleteAnswerInput", handleDeleteInput);
-
-    return () => {
-      window.removeEventListener("addAnswerInput", handleAddInput);
-      window.removeEventListener("deleteAnswerInput", handleDeleteInput);
-    };
-  }, [handleAddInput, handleDeleteInput]);
 
   const handleInputChange = (e, index) => {
     setInputs((prev) => {
@@ -172,15 +158,6 @@ const Answers = ({ content, onChange, initialAnwsers }) => {
     onChange?.(inputs);
   }, [String(inputs)]);
 
-  useEffect(() => {
-    const target = `<input type="text" data-name="answer-input">`;
-    const totalInputs = countExactMatches(content, target);
-
-    if (totalInputs !== inputs?.length) {
-      setInputs((prev) => prev?.slice(0, totalInputs || 0));
-    }
-  }, [content]);
-
   return (
     <div className="sticky top-0 overflow-y-auto w-full max-h-[calc(100vh-20px)] bg-gray-50 p-2.5 rounded-b-xl">
       <h2 className="mb-3 text-lg font-bold">Javoblar</h2>
@@ -189,9 +166,19 @@ const Answers = ({ content, onChange, initialAnwsers }) => {
       <div className="space-y-2">
         {inputs.map((value, index) => (
           <div key={index}>
-            <label htmlFor={`answer-${index}`} className="inline-block mb-1">
-              Javob {index + 1}
-            </label>
+            <div className="flex items-center justify-between">
+              <label htmlFor={`answer-${index}`} className="inline-block mb-1">
+                Javob {index + 1}
+              </label>
+
+              {/* Delete btn */}
+              <button
+                onClick={() => handleDeleteInput(index)}
+                className="flex items-center justify-center size-6"
+              >
+                <Trash color="red" size={16} />
+              </button>
+            </div>
 
             <textarea
               type="text"
@@ -204,6 +191,14 @@ const Answers = ({ content, onChange, initialAnwsers }) => {
             />
           </div>
         ))}
+
+        {/* Add new field */}
+        <button
+          onClick={handleAddInput}
+          className="flex items-center justify-center w-full h-9 bg-blue-100 text-blue-500 rounded-md"
+        >
+          Javob qo'shish +
+        </button>
       </div>
     </div>
   );
