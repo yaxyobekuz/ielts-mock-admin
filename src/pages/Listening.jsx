@@ -102,7 +102,10 @@ const Section = ({
   const QuestionComponent = questionsMap[type];
 
   return (
-    <section className="mb-6 px-5 py-4 bg-gray-50 rounded-xl border">
+    <section
+      id={`s-${index}`}
+      className="mb-6 px-5 py-4 bg-gray-50 rounded-xl border"
+    >
       {/* Top */}
       <div className="flex items-start justify-between gap-5">
         {/* Section details */}
