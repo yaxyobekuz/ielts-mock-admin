@@ -5,14 +5,13 @@
 /* --- Base --- */
 
 @layer base {
-  body,
-  pre {
+  body {
     font-family: "Arial", sans-serif;
     @apply text-base text-gray-800 font-normal;
   }
 
-  pre {
-    @apply whitespace-pre-wrap;
+  label {
+    @apply text-[15px];
   }
 }
 
@@ -66,7 +65,12 @@
 }
 
 .ProseMirror {
-  @apply !outline-none !border-none;
+  @apply !outline-none !border-none whitespace-pre-wrap;
+  word-wrap: break-word;
+}
+
+.ProseMirror-separator {
+  display: none;
 }
 
 /* --- Utilities --- */
