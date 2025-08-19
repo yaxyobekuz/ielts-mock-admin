@@ -14,6 +14,7 @@ import Home from "./pages/Home";
 import Listening from "./pages/Listening";
 import TestLayout from "./layouts/TestLayout";
 import TextEditor from "./pages/Editors/TextEditor";
+import TextDraggableEditor from "./pages/Editors/TextDraggableEditor";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -27,10 +28,16 @@ const App = () => {
           <Route path="preview/listening/:partNumber" element={<Listening />} />
         </Route>
 
-        {/* Edit test */}
+        {/* Text editor */}
         <Route
           element={<TextEditor />}
           path="tests/test/:testId/edit/:module/:partNumber/text/:sectionIndex"
+        />
+
+        {/* Text draggable editor */}
+        <Route
+          element={<TextDraggableEditor />}
+          path="tests/test/:testId/edit/:module/:partNumber/text-draggable/:sectionIndex"
         />
       </Route>
     )

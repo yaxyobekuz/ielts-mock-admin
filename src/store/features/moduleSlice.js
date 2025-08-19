@@ -4,17 +4,6 @@ const text = `<b>Text Editor</b><p>Welcome to text editor! Here are some feature
 
 const flowchartText = `The rover is directed to a ~ which has organic material.`;
 
-const textDraggable = `*People*
-Mary Brown ~
-
-John Stevens ~
-
-Alison Jones ~
-
-Tim Smith ~
-
-Jenny James ~`;
-
 const listeningParts = [
   // Text
   {
@@ -39,8 +28,8 @@ const listeningParts = [
     description: "Listen and answer questions 21-30.",
     sections: [
       {
+        text,
         questionsCount: 5,
-        text: textDraggable,
         type: "text-draggable",
         title: "Questions 21-30",
         options: {
