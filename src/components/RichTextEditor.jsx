@@ -5,7 +5,6 @@ import {
   Undo,
   Redo,
   Code,
-  Trash,
   Quote,
   Italic,
   Underline,
@@ -20,106 +19,27 @@ import { useCallback, useEffect, useState } from "react";
 
 // Tip tap
 import StarterKit from "@tiptap/starter-kit";
-import { Node, mergeAttributes } from "@tiptap/core";
 import { useEditor, EditorContent } from "@tiptap/react";
-import { ReactNodeViewRenderer, NodeViewWrapper } from "@tiptap/react";
 
-const AnswerInputComponent = ({ deleteNode, editor, getPos }) => {
-  const [inputIndex, setInputIndex] = useState(1);
-
-  const calculateIndex = useCallback(() => {
-    try {
-      let index = 1;
-      const currentPos = getPos();
-
-      editor.state.doc.descendants((node, pos) => {
-        if (node.type.name === "answer-input" && pos < currentPos) {
-          index++;
-        }
-      });
-
-      setInputIndex(index);
-      window.dispatchEvent(
-        new CustomEvent("addAnswerInput", { detail: index })
-      );
-    } catch (error) {
-      console.warn("Error calculating input index:", error);
-    }
-  }, [editor, getPos]);
-
-  useEffect(() => {
-    const debouncedCalc = debounce(calculateIndex, 50);
-    calculateIndex();
-    editor.on("update", debouncedCalc);
-
-    return () => {
-      editor.off("update", debouncedCalc);
-      debouncedCalc.cancel();
-    };
-  }, [calculateIndex, editor]);
-
-  const handleDeleteNode = () => {
-    deleteNode();
-    window.dispatchEvent(
-      new CustomEvent("deleteAnswerInput", { detail: inputIndex })
-    );
-  };
-
-  return (
-    <NodeViewWrapper className="inline-block px-1 py-px">
-      <div className="flex items-center gap-1.5 relative">
-        <input
-          type="text"
-          placeholder={inputIndex}
-          className="answer-input pr-5"
-          id={`answer-input-${inputIndex}`}
-        />
-        <button
-          title="Delete input"
-          aria-label="Delete input"
-          onClick={handleDeleteNode}
-          className="flex items-center justify-center size-6 absolute right-0"
-        >
-          <Trash color="red" size={16} />
-        </button>
-      </div>
-    </NodeViewWrapper>
-  );
-};
-
-const AnswerInputNode = Node.create({
-  inline: true,
-  group: "inline",
-  name: "answer-input",
-
-  parseHTML() {
-    return [{ tag: "input[data-name='answer-input']" }];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return [
-      "input",
-      mergeAttributes(HTMLAttributes, {
-        type: "text",
-        "data-name": "answer-input",
-      }),
-    ];
-  },
-
-  addNodeView() {
-    return ReactNodeViewRenderer(AnswerInputComponent);
-  },
-});
+// Nodes
+import DropzoneNode from "../format/nodes/DropzoneNode";
+import AnswerInputNode from "../format/nodes/AnswerInputNode";
 
 const RichTextEditor = ({
   onChange,
   onChangeStart,
   className = "",
+  allowInput = false,
+  allowDropzone = false,
   initialContent = `<b>Text Editor</b><p>Welcome to text editor! Here are some features:</p><ul><li><strong>Bold text</strong></li><li><em>Italic text</em></li><li><u>Underlined text</u></li><li>Lists and more!</li></ul>`,
 }) => {
   const editor = useEditor({
     content: initialContent,
-    extensions: [StarterKit.configure({ heading: false }), AnswerInputNode],
+    extensions: [
+      StarterKit.configure({ heading: false }),
+      ...(allowInput ? [AnswerInputNode()] : []),
+      ...(allowDropzone ? [DropzoneNode()] : []),
+    ],
   });
 
   if (!editor) return <i>Hmmm... Nimadir xato ketdi!</i>;
@@ -152,7 +72,11 @@ const RichTextEditor = ({
 
   return (
     <div className={`${className}`}>
-      <Toolbar editor={editor} />
+      <Toolbar
+        editor={editor}
+        allowInput={allowInput}
+        allowDropzone={allowDropzone}
+      />
       <EditorContent
         editor={editor}
         className="bg-gray-50 text-editor rounded-xl p-2.5"
@@ -161,7 +85,7 @@ const RichTextEditor = ({
   );
 };
 
-const Toolbar = ({ editor }) => {
+const Toolbar = ({ editor, allowInput, allowDropzone }) => {
   const [, forceUpdate] = useState({});
 
   useEffect(() => {
@@ -269,15 +193,30 @@ const Toolbar = ({ editor }) => {
       </ToolbarButton>
 
       {/* Custom input element */}
-      <button
-        title="Insert answer input"
-        className="ml-auto px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-        onClick={() =>
-          editor.chain().focus().insertContent({ type: "answer-input" }).run()
-        }
-      >
-        Insert Input
-      </button>
+      {allowInput && (
+        <button
+          title="Insert answer input"
+          className="ml-auto px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+          onClick={() =>
+            editor.chain().focus().insertContent({ type: "answer-input" }).run()
+          }
+        >
+          Insert Input
+        </button>
+      )}
+
+      {/* Custom dropzone element */}
+      {allowDropzone && (
+        <button
+          title="Insert Dropzone"
+          className="ml-auto px-3 py-1 bg-violet-500 text-white rounded text-sm hover:bg-violet-600"
+          onClick={() =>
+            editor.chain().focus().insertContent({ type: "dropzone" }).run()
+          }
+        >
+          Insert Dropzone
+        </button>
+      )}
     </div>
   );
 };
