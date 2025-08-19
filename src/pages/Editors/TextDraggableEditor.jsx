@@ -43,6 +43,7 @@ const TextDraggableEditor = () => {
   const [content, setContent] = useState(section?.text);
   const [title, setTitle] = useState(section?.options?.title);
   const [originalContent, setOriginalContent] = useState(section?.text);
+  const [description, setDescription] = useState(section?.description || "");
   const [answers, setAnswers] = useState(
     section?.options?.data?.map((a) => a?.option) || [""]
   );
@@ -73,6 +74,7 @@ const TextDraggableEditor = () => {
 
     // Update section data from store
     const sectionData = {
+      description,
       text: content,
       questionsCount: totalInputs,
       options: { title, data: answers.map((a) => ({ option: a })) },
@@ -91,20 +93,31 @@ const TextDraggableEditor = () => {
     <>
       {/* Header */}
       <header className="flex items-center h-[68px] border-b">
-        <div className="flex items-center justify-between container">
-          {/* Title */}
-          <h1 className="text-xl font-semibold">Text draggable editor</h1>
+        <div className="flex items-center justify-between gap-5 container">
+          <div className="w-2/3 pt-[5px]">
+            {/* Title */}
+            <div className="flex items-center justify-between gap-5">
+              <h1 className="mb-0.5 text-xl font-semibold">Text editor</h1>
 
-          <div className="flex gap-5 items-center">
-            {/* Loader */}
-            <div className="flex items-center">
+              {/* Loader */}
               <Loader
                 isSaving={isSaving}
                 originalContent={originalContent}
                 hasContentChanged={hasContentChanged}
               />
             </div>
+            {/* Description input */}
+            <input
+              type="text"
+              value={description}
+              name="description-input"
+              placeholder="Bo'lim tavsifi"
+              onChange={(e) => setDescription(e.target.value)}
+              className="max-w-full min-w-40 w-full h-8 bg-gray-100 rounded-t-xl px-2 outline-none"
+            />
+          </div>
 
+          <div className="flex gap-5 items-center max-w-max shrink-0">
             {/* Cancel btn */}
             <button
               onClick={handleNavigate}
@@ -191,8 +204,8 @@ const Answers = ({ onChange, initialAnwsers, onTitleChange, title }) => {
         />
       </div>
 
+      {/* Options */}
       <div className="mb-3 space-y-2">
-        {/* Options */}
         {inputs.map((value, index) => (
           <div key={index}>
             <div className="flex items-center justify-between">

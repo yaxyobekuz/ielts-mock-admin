@@ -39,10 +39,11 @@ const TextEditor = () => {
 
   // State
   const navigate = useNavigate();
+  const [isSaving, setIsSaving] = useState(false);
   const [content, setContent] = useState(section?.text);
   const [answers, setAnswers] = useState(section?.answers || [""]);
   const [originalContent, setOriginalContent] = useState(section?.text);
-  const [isSaving, setIsSaving] = useState(false);
+  const [description, setDescription] = useState(section?.description || "");
 
   // Check if content has changed
   const hasContentChanged = content !== originalContent;
@@ -69,7 +70,13 @@ const TextEditor = () => {
     const totalInputs = countExactMatches(content, target);
 
     // Update section data from store
-    const sectionData = { text: content, questionsCount: totalInputs, answers };
+    const sectionData = {
+      answers,
+      description,
+      text: content,
+      questionsCount: totalInputs,
+    };
+
     updateSection(partNumber, sectionData, sectionIndex);
 
     // Update original content to match current content
@@ -84,20 +91,31 @@ const TextEditor = () => {
     <>
       {/* Header */}
       <header className="flex items-center h-[68px] border-b">
-        <div className="flex items-center justify-between container">
-          {/* Title */}
-          <h1 className="text-xl font-semibold">Text editor</h1>
+        <div className="flex items-center justify-between gap-5 container">
+          <div className="w-2/3 pt-[5px]">
+            {/* Title */}
+            <div className="flex items-center justify-between gap-5">
+              <h1 className="mb-0.5 text-xl font-semibold">Text editor</h1>
 
-          <div className="flex gap-5 items-center">
-            {/* Loader */}
-            <div className="flex items-center">
+              {/* Loader */}
               <Loader
                 isSaving={isSaving}
                 originalContent={originalContent}
                 hasContentChanged={hasContentChanged}
               />
             </div>
+            {/* Description input */}
+            <input
+              type="text"
+              value={description}
+              name="description-input"
+              placeholder="Bo'lim tavsifi"
+              onChange={(e) => setDescription(e.target.value)}
+              className="max-w-full min-w-40 w-full h-8 bg-gray-100 rounded-t-xl px-2 outline-none"
+            />
+          </div>
 
+          <div className="flex gap-5 items-center max-w-max shrink-0">
             {/* Cancel btn */}
             <button
               onClick={handleNavigate}
