@@ -1,18 +1,16 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { json, useNavigate, useParams } from "react-router-dom";
 import { useState, useCallback, useEffect } from "react";
 
 // Icons
 import { Trash } from "lucide-react";
 
-// Lodash
-import debounce from "lodash/debounce";
-
-// Hooks
-import useModule from "../../hooks/useModule";
-
 // Components
 import EditorHeader from "../../components/EditorHeader";
 import RichTextEditor from "../../components/RichTextEditor";
+
+// Hooks
+import useModule from "../../hooks/useModule";
+import useDebouncedState from "../../hooks/useDebouncedState";
 
 // Helpers
 import { isNumber, countExactMatches } from "../../lib/helpers";
@@ -41,24 +39,28 @@ const TextEditor = () => {
   // State
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
-  const [content, setContent] = useState(section?.text);
-  const [answers, setAnswers] = useState(section?.answers || [""]);
-  const [originalContent, setOriginalContent] = useState(section?.text);
-  const [description, setDescription] = useState(section?.description || "");
+  const [content, setContent] = useDebouncedState(section?.text, setIsSaving);
+  const [description, setDescription] = useDebouncedState(
+    section?.description || "",
+    setIsSaving
+  );
+  const [answers, setAnswers] = useDebouncedState(
+    section?.answers || [""],
+    setIsSaving
+  );
+
+  // Original
+  const [original, setOriginal] = useState({
+    content: section?.text,
+    description: section?.description || "",
+    answers: JSON.stringify(section?.answers || [""]),
+  });
 
   // Check if content has changed
-  const hasContentChanged = content !== originalContent;
-
-  // Content updated, no longer saving
-  const handleContentChange = debounce((value) => {
-    setContent(value);
-    setIsSaving(false);
-  }, 1000);
-
-  // Track when user starts typing
-  const handleContentChangeStart = () => {
-    setIsSaving(true);
-  };
+  const hasContentChanged =
+    content !== original.content ||
+    description !== original.description ||
+    JSON.stringify(answers) !== original.answers;
 
   const handleNavigate = () => {
     const path = `/tests/test/${testId}/preview/${module}/${partNumber}#s-${sectionIndex}`;
@@ -78,14 +80,10 @@ const TextEditor = () => {
       questionsCount: totalInputs,
     };
 
-    updateSection(partNumber, sectionData, sectionIndex);
-
-    // Update original content to match current content
-    setOriginalContent(content);
-    setIsSaving(false);
-
-    // Navigate user to preview page
-    handleNavigate();
+    handleNavigate(); // Navigate user to preview page
+    setIsSaving(false); // Stop saving loader
+    setOriginal({ content, description, answers }); // Update original values
+    updateSection(partNumber, sectionData, sectionIndex); // Update section data from store
   };
 
   return (
@@ -94,10 +92,10 @@ const TextEditor = () => {
       <EditorHeader
         isSaving={isSaving}
         title="Matnni tahrirlash"
-        description={description}
-        setDescription={setDescription}
         handleNavigate={handleNavigate}
-        originalContent={originalContent}
+        initialDescription={description}
+        originalContent={original.content}
+        onDescriptionChange={setDescription}
         hasContentChanged={hasContentChanged}
         handleSaveContent={handleSaveContent}
       />
@@ -107,11 +105,11 @@ const TextEditor = () => {
         <div className="flex gap-3.5 w-full pb-5">
           <RichTextEditor
             allowInput
+            onChange={setContent}
             initialContent={content}
-            onChange={handleContentChange}
             className="shrink-0 w-2/3 h-full"
-            onChangeStart={handleContentChangeStart}
           />
+
           <Answers onChange={setAnswers} initialAnwsers={answers} />
         </div>
       </div>
@@ -140,7 +138,7 @@ const Answers = ({ onChange, initialAnwsers }) => {
 
   useEffect(() => {
     onChange?.(inputs);
-  }, [String(inputs)]);
+  }, [JSON.stringify(inputs)]);
 
   return (
     <div className="sticky top-0 overflow-y-auto w-full max-h-[calc(100vh-20px)] bg-gray-50 p-2.5 rounded-b-xl">

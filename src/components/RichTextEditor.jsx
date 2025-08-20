@@ -11,11 +11,8 @@ import {
   ListOrdered,
 } from "lucide-react";
 
-// Lodash
-import { debounce } from "lodash";
-
 // React
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 // Tip tap
 import StarterKit from "@tiptap/starter-kit";
@@ -27,7 +24,6 @@ import AnswerInputNode from "../format/nodes/AnswerInputNode";
 
 const RichTextEditor = ({
   onChange,
-  onChangeStart,
   className = "",
   allowInput = false,
   allowDropzone = false,
@@ -44,28 +40,15 @@ const RichTextEditor = ({
 
   if (!editor) return <i>Hmmm... Nimadir xato ketdi!</i>;
 
-  // Create debounced onChange function
-  const debouncedOnChange = useCallback(
-    debounce((html) => {
-      onChange?.(html);
-    }, 1000),
-    [onChange]
-  );
-
   useEffect(() => {
     const handleUpdate = () => {
-      // Call onChangeStart immediately when user starts typing
-      onChangeStart?.();
-
-      // Call debounced onChange after delay
-      debouncedOnChange(editor.getHTML());
+      onChange?.(editor.getHTML());
     };
 
     editor.on("update", handleUpdate);
 
     // Cleanup
     return () => {
-      debouncedOnChange.cancel();
       editor.off("update", handleUpdate);
     };
   }, [editor]);

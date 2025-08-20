@@ -4,15 +4,13 @@ import { useState, useCallback, useEffect } from "react";
 // Icons
 import { Trash } from "lucide-react";
 
-// Lodash
-import debounce from "lodash/debounce";
-
-// Hooks
-import useModule from "../../hooks/useModule";
-
 // Components
 import EditorHeader from "../../components/EditorHeader";
 import RichTextEditor from "../../components/RichTextEditor";
+
+// Hooks
+import useModule from "../../hooks/useModule";
+import useDebouncedState from "../../hooks/useDebouncedState";
 
 // Helpers
 import { isNumber, countExactMatches } from "../../lib/helpers";
@@ -33,7 +31,7 @@ const TextDraggableEditor = () => {
   const isInvalidSectionType = !(section?.type === "text-draggable");
   const isInvalidData = !isNumber(partNumber) || !isNumber(sectionIndex);
 
-  // If invalid data
+  // Check if data is invalid
   if (isInvalidData || isInvalidSectionType || isInvalidModule) {
     return <ErrorContent />;
   }
@@ -41,27 +39,34 @@ const TextDraggableEditor = () => {
   // State
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
-  const [content, setContent] = useState(section?.text);
-  const [title, setTitle] = useState(section?.options?.title);
-  const [originalContent, setOriginalContent] = useState(section?.text);
-  const [description, setDescription] = useState(section?.description || "");
-  const [answers, setAnswers] = useState(
-    section?.options?.data?.map((a) => a?.option) || [""]
+  const [content, setContent] = useDebouncedState(section?.text, setIsSaving);
+  const [title, setTitle] = useDebouncedState(
+    section?.options?.title,
+    setIsSaving
+  );
+  const [description, setDescription] = useDebouncedState(
+    section?.description || "",
+    setIsSaving
+  );
+  const [answers, setAnswers] = useDebouncedState(
+    section?.options?.data?.map((a) => a?.option) || [""],
+    setIsSaving
   );
 
+  // Original
+  const [original, setOriginal] = useState({
+    content: section?.text,
+    title: section?.options?.title,
+    description: section?.description || "",
+    answers: section?.options?.data?.map((a) => a?.option) || [""],
+  });
+
   // Check if content has changed
-  const hasContentChanged = content !== originalContent;
-
-  // Content updated, no longer saving
-  const handleContentChange = debounce((value) => {
-    setContent(value);
-    setIsSaving(false);
-  }, 1000);
-
-  // Track when user starts typing
-  const handleContentChangeStart = () => {
-    setIsSaving(true);
-  };
+  const hasContentChanged =
+    title !== original.title ||
+    content !== original.content ||
+    description !== original.description ||
+    String(answers) !== String(original.answers);
 
   const handleNavigate = () => {
     const path = `/tests/test/${testId}/preview/${module}/${partNumber}#s-${sectionIndex}`;
@@ -80,14 +85,13 @@ const TextDraggableEditor = () => {
       questionsCount: totalInputs,
       options: { title, data: answers.map((a) => ({ option: a })) },
     };
+
+    handleNavigate(); // Navigate user to preview page
+    setIsSaving(false); // Remove saving loader
     updateSection(partNumber, sectionData, sectionIndex);
 
     // Update original content to match current content
-    setOriginalContent(content);
-    setIsSaving(false);
-
-    // Navigate user to preview page
-    handleNavigate();
+    setOriginal({ content, title, description, answers });
   };
 
   return (
@@ -95,10 +99,10 @@ const TextDraggableEditor = () => {
       {/* Header */}
       <EditorHeader
         isSaving={isSaving}
-        description={description}
-        setDescription={setDescription}
         handleNavigate={handleNavigate}
-        originalContent={originalContent}
+        initialDescription={description}
+        originalContent={original.content}
+        onDescriptionChange={setDescription}
         hasContentChanged={hasContentChanged}
         handleSaveContent={handleSaveContent}
         title="Matnni tahrirlash (Suriluvchi javob)"
@@ -109,13 +113,12 @@ const TextDraggableEditor = () => {
         <div className="flex gap-3.5 w-full pb-5">
           <RichTextEditor
             allowDropzone
+            onChange={setContent}
             initialContent={content}
-            onChange={handleContentChange}
             className="shrink-0 w-2/3 h-full"
-            onChangeStart={handleContentChangeStart}
           />
           <Answers
-            title={title}
+            initialTitle={title}
             onChange={setAnswers}
             onTitleChange={setTitle}
             initialAnwsers={answers}
@@ -126,7 +129,8 @@ const TextDraggableEditor = () => {
   );
 };
 
-const Answers = ({ onChange, initialAnwsers, onTitleChange, title }) => {
+const Answers = ({ onChange, initialAnwsers, onTitleChange, initialTitle }) => {
+  const [title, setTitle] = useState(initialTitle);
   const [inputs, setInputs] = useState(initialAnwsers);
 
   const handleAddInput = useCallback(() => {
@@ -143,6 +147,11 @@ const Answers = ({ onChange, initialAnwsers, onTitleChange, title }) => {
         return i === index ? e.target.value : val;
       });
     });
+  };
+
+  const handleTitleChange = (e) => {
+    setTitle(e.target.value);
+    onTitleChange?.(e.target.value);
   };
 
   useEffect(() => {
@@ -164,9 +173,9 @@ const Answers = ({ onChange, initialAnwsers, onTitleChange, title }) => {
           value={title}
           id="options-title"
           name="options-title"
+          onChange={handleTitleChange}
           placeholder="Sarlavhani kiriting"
           className="w-full h-9 border rounded-md px-2"
-          onChange={(e) => onTitleChange(e.target.value)}
         />
       </div>
 
