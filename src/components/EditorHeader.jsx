@@ -1,13 +1,22 @@
+import { useState } from "react";
+
 const EditorHeader = ({
   isSaving,
-  description,
-  setDescription,
   handleNavigate,
   originalContent,
   hasContentChanged,
   handleSaveContent,
+  onDescriptionChange,
   title = "Text editor",
+  initialDescription = "",
 }) => {
+  const [description, setDescription] = useState(initialDescription || "");
+
+  const handleDescriptionChange = (e) => {
+    setDescription(e.target.value);
+    onDescriptionChange(e.target.value);
+  };
+
   return (
     <header className="flex items-center h-[68px] border-b">
       <div className="flex items-center justify-between gap-5 container">
@@ -21,7 +30,7 @@ const EditorHeader = ({
             value={description}
             name="description-input"
             placeholder="Bo'lim tavsifi"
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={handleDescriptionChange}
             className="max-w-full min-w-40 w-full h-7 bg-gray-100 rounded-md px-2 outline-none"
           />
         </div>
