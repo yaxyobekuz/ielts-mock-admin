@@ -42,50 +42,44 @@ const TestLayout = () => {
   );
 };
 
-const MainNavbar = ({ testId, module }) => (
-  <div className="sticky top-0 inset-x-0 z-10 container">
-    <nav className="w-full overflow-hidden rounded-b-xl border border-t-0">
-      <ul className="flex w-full">
-        {/* Listening */}
-        <li className="grow h-10">
-          <LinkItem
-            isActive={module === "listening"}
-            to={`/tests/test/${testId}/preview/${module}/1`}
-          >
-            Listening
-          </LinkItem>
-        </li>
+const MainNavbar = ({ testId, module }) => {
+  const to = (m) => `/tests/test/${testId}/preview/${m}/1`;
+  return (
+    <div className="sticky top-0 inset-x-0 z-10 container">
+      <nav className="w-full overflow-hidden rounded-b-xl border border-t-0">
+        <ul className="flex w-full">
+          {/* Listening */}
+          <li className="grow h-10">
+            <LinkItem isActive={module === "listening"} to={to("listening")}>
+              Listening
+            </LinkItem>
+          </li>
 
-        {/* Reading */}
-        <li className="grow h-10">
-          <LinkItem
-            isActive={module === "leading"}
-            to={`/tests/test/${testId}/preview/reading/1`}
-          >
-            Reading
-          </LinkItem>
-        </li>
+          {/* Reading */}
+          <li className="grow h-10">
+            <LinkItem isActive={module === "reading"} to={to("reading")}>
+              Reading
+            </LinkItem>
+          </li>
 
-        {/* Writing */}
-        <li className="grow h-10">
-          <LinkItem
-            isActive={module === "lriting"}
-            to={`/tests/test/${testId}/preview/writing/1`}
-          >
-            Writing
-          </LinkItem>
-        </li>
-      </ul>
-    </nav>
-  </div>
-);
+          {/* Writing */}
+          <li className="grow h-10">
+            <LinkItem isActive={module === "writing"} to={to("writing")}>
+              Writing
+            </LinkItem>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  );
+};
 
 const PartsNavbar = ({ testId, module, parts, addPart }) => (
   <div className="fixed bottom-0 inset-x-0 container">
     <nav className="flex w-full overflow-hidden rounded-t-xl border border-b-0">
       {/* Parts */}
       <ul className="flex w-full">
-        {parts.map(({ number }, index) => (
+        {parts?.map(({ number }, index) => (
           <li key={index} className="grow h-10">
             <NavLink
               to={`/tests/test/${testId}/preview/${module}/${number}`}
@@ -98,7 +92,7 @@ const PartsNavbar = ({ testId, module, parts, addPart }) => (
       </ul>
 
       {/* Add new */}
-      {parts.length < 6 ? (
+      {parts?.length < 6 ? (
         <button
           onClick={addPart}
           className="flex items-center justify-center w-20 h-10 bg-white transition-colors duration-200 hover:bg-gray-50"
