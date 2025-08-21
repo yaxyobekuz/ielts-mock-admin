@@ -217,6 +217,11 @@ export const moduleSlice = createSlice({
         }
 
         Object.assign(section, { ...section, ...data });
+
+        part.totalQuestions = part.sections.reduce(
+          (total, section) => total + (section.questionsCount || 0),
+          0
+        );
       } else {
         console.error(`Test ${id}: ${type} module is not defined`);
       }
