@@ -2,10 +2,19 @@
 import Icon from "../Icon";
 
 // Helpers
-import { convertToHtml } from "../../lib/helpers";
+import { countExactMatches } from "../../lib/helpers";
+
+// Tip tap
+import StarterKit from "@tiptap/starter-kit";
+import { useEditor, EditorContent } from "@tiptap/react";
+
+// Nodes
+import DropzoneNode from "../../format/nodes/DropzoneNode";
 
 // Icons
 import arrowDownIcon from "../../assets/icons/arrow-down.svg";
+
+const target = '<span data-name="dropzone"></span>';
 
 const Flowchart = ({ items, initialNumber, options }) => {
   return (
@@ -17,16 +26,30 @@ const Flowchart = ({ items, initialNumber, options }) => {
         {/* Blocks */}
         <div className="space-y-2">
           {items.data.map(({ text }, index) => {
+            const prevContents = items.data
+              .slice(0, index)
+              .map((item) => item.text)
+              .join("");
+
+            console.log(prevContents);
+
+            const itemInitialNumber =
+              countExactMatches(prevContents, target) + initialNumber;
+
+            const editor = useEditor({
+              content: text,
+              editable: false,
+              extensions: [StarterKit, DropzoneNode(itemInitialNumber, false)],
+            });
+
             return (
               <div
                 key={index}
                 className="flex flex-col items-center gap-2 relative z-0"
               >
-                <div
-                  className="max-w-md w-full px-2 py-1 border-2 border-gray-500"
-                  dangerouslySetInnerHTML={{
-                    __html: convertToHtml(text, initialNumber + index),
-                  }}
+                <EditorContent
+                  editor={editor}
+                  className="p-2 text-editor border-2 border-[#333]"
                 />
 
                 {/* Arrow icon */}

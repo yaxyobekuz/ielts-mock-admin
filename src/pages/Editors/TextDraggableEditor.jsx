@@ -75,7 +75,7 @@ const TextDraggableEditor = () => {
 
   const handleSaveContent = () => {
     // Count answer inputs
-    const target = `<div data-name="dropzone"></div>`;
+    const target = `<span data-name="dropzone"></span>`;
     const totalInputs = countExactMatches(content, target);
 
     // Update section data from store

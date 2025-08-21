@@ -85,7 +85,7 @@ const FlowchartEditor = () => {
   const handleSaveContent = () => {
     // Count answer inputs
     let totalInputs = 0;
-    const target = `<div data-name="dropzone"></div>`;
+    const target = `<span data-name="dropzone"></span>`;
 
     charts?.forEach((content) => {
       totalInputs += countExactMatches(content, target);
