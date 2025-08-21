@@ -11,9 +11,13 @@ import MainLayout from "./layouts/MainLayout";
 
 // Pages
 import Home from "./pages/Home";
+import Reading from "./pages/Reading";
 import Listening from "./pages/Listening";
 import TestLayout from "./layouts/TestLayout";
+
+// Editor pages
 import TextEditor from "./pages/Editors/TextEditor";
+import PartTextEditor from "./pages/Editors/PartTextEditor";
 import FlowchartEditor from "./pages/Editors/FlowchartEditor";
 import RadioGroupEditor from "./pages/Editors/RadioGroupEditor";
 import TextDraggableEditor from "./pages/Editors/TextDraggableEditor";
@@ -26,14 +30,21 @@ const App = () => {
         <Route index element={<Home />} />
 
         {/* Preview test */}
-        <Route element={<TestLayout />} path="tests/test/:testId/">
-          <Route path="preview/listening/:partNumber" element={<Listening />} />
+        <Route element={<TestLayout />} path="tests/test/:testId/preview/">
+          <Route path="reading/:partNumber" element={<Reading />} />
+          <Route path="listening/:partNumber" element={<Listening />} />
         </Route>
 
         {/* Text editor */}
         <Route
           element={<TextEditor />}
           path="tests/test/:testId/edit/:module/:partNumber/text/:sectionIndex"
+        />
+
+        {/* Part text editor */}
+        <Route
+          element={<PartTextEditor />}
+          path="tests/test/:testId/edit/:module/:partNumber/part-text"
         />
 
         {/* Flowchart editor */}
