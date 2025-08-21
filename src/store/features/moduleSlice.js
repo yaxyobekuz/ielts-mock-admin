@@ -106,9 +106,122 @@ const listeningParts = [
   },
 ];
 
+const readingParts = [
+  // Text
+  {
+    number: 1,
+    totalQuestions: 0,
+    text: "Just wedding it! 1",
+    description: "Listen and answer questions.",
+    sections: [
+      {
+        text,
+        answers: [],
+        type: "text",
+        questionsCount: 0,
+        title: "Questions",
+        description: `Complete the notes. Write ONE WORD AND/OR A NUMBER for each answer.`,
+      },
+    ],
+  },
+  // Radiogroup
+  {
+    number: 2,
+    totalQuestions: 2,
+    text: "Just wedding it! 2",
+    description: "Listen and answer questions.",
+    sections: [
+      {
+        questionsCount: 2,
+        title: "Questions",
+        type: "radio-group",
+        groups: [
+          {
+            correctAnswerIndex: 0,
+            question: "What is the main topic of the conversation?",
+            answers: [
+              { text: "Furniture sale" },
+              { text: "Second-hand shop" },
+              { text: "Online marketplace" },
+              { text: "Charity event" },
+            ],
+          },
+          {
+            correctAnswerIndex: 0,
+            question: "What is the price of the dining table?",
+            answers: [
+              { text: "£15.00" },
+              { text: "£20.00" },
+              { text: "£25.00" },
+              { text: "£30.00" },
+            ],
+          },
+        ],
+        description: "Choose the correct letter, A, B, C or D.",
+      },
+    ],
+  },
+  // Text
+  {
+    number: 3,
+    totalQuestions: 0,
+    text: "Just wedding it!",
+    description: "Listen and answer questions.",
+    sections: [
+      {
+        text,
+        answers: [],
+        type: "text",
+        questionsCount: 0,
+        title: "Questions",
+        description: `Complete the notes. Write ONE WORD AND/OR A NUMBER for each answer.`,
+      },
+    ],
+  },
+  // Radiogroup
+  {
+    number: 4,
+    totalQuestions: 2,
+    text: "Just wedding it!",
+    description: "Listen and answer questions.",
+    sections: [
+      {
+        questionsCount: 2,
+        title: "Questions",
+        type: "radio-group",
+        groups: [
+          {
+            correctAnswerIndex: 0,
+            question: "What is the main topic of the conversation?",
+            answers: [
+              { text: "Furniture sale" },
+              { text: "Second-hand shop" },
+              { text: "Online marketplace" },
+              { text: "Charity event" },
+            ],
+          },
+          {
+            correctAnswerIndex: 0,
+            question: "What is the price of the dining table?",
+            answers: [
+              { text: "£15.00" },
+              { text: "£20.00" },
+              { text: "£25.00" },
+              { text: "£30.00" },
+            ],
+          },
+        ],
+        description: "Choose the correct letter, A, B, C or D.",
+      },
+    ],
+  },
+];
+
 const initialState = {
   writing: {},
-  speaking: {},
+  reading: {
+    testId: readingParts,
+  },
   listening: {
     testId: listeningParts,
   },
@@ -200,7 +313,7 @@ export const moduleSlice = createSlice({
       }
     },
 
-    // Add new section
+    // Update section
     updateModuleSection: (state, action) => {
       const { type, id, partNumber, sectionIndex, data } = action.payload;
 
@@ -227,6 +340,22 @@ export const moduleSlice = createSlice({
       }
     },
 
+    // Update section
+    updateModulePart: (state, action) => {
+      const { type, id, partNumber, data } = action.payload;
+
+      if (state[type] && state[type][id]) {
+        const parts = state[type][id];
+        const part = parts.find((p) => p.number === partNumber);
+
+        if (!part) return console.error(`Part ${partNumber} is not defined`);
+
+        Object.assign(part, { ...part, ...data });
+      } else {
+        console.error(`Test ${id}: ${type} module is not defined`);
+      }
+    },
+
     // Remove item from module array by index
     removeModulePart: (state, action) => {
       const { type, id, number } = action.payload;
@@ -248,6 +377,7 @@ export const {
   addModulePart,
   setModuleData,
   addModuleSection,
+  updateModulePart,
   removeModulePart,
   updateModuleSection,
 } = moduleSlice.actions;
