@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 // Components
 import Icon from "../components/Icon";
@@ -12,14 +12,15 @@ import penIcon from "../assets/icons/pen.svg";
 
 // Data
 import questionsType from "../data/questionsType";
+import usePathSegments from "../hooks/usePathSegments";
 
 const questionsMap = {};
 questionsType.forEach((q) => (questionsMap[q.value] = q.component));
 
 const Listening = () => {
-  const location = useLocation();
   const { partNumber, testId } = useParams();
-  const [, , , , module] = location.pathname.split("/").filter(Boolean);
+  const { pathSegments, location } = usePathSegments();
+  const module = pathSegments[4];
 
   const { getModuleData } = useModule(module, testId);
   const parts = getModuleData();
