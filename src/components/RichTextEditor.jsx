@@ -24,10 +24,11 @@ import AnswerInputNode from "../format/nodes/AnswerInputNode";
 
 const RichTextEditor = ({
   onChange,
+  notSticky,
   className = "",
   allowInput = false,
   allowDropzone = false,
-  initialContent = `<b>Text Editor</b><p>Welcome to text editor! Here are some features:</p><ul><li><strong>Bold text</strong></li><li><em>Italic text</em></li><li><u>Underlined text</u></li><li>Lists and more!</li></ul>`,
+  initialContent = "<p>Matn kiriting...</p>",
 }) => {
   const editor = useEditor({
     content: initialContent,
@@ -57,18 +58,21 @@ const RichTextEditor = ({
     <div className={`${className}`}>
       <Toolbar
         editor={editor}
+        notSticky={notSticky}
         allowInput={allowInput}
         allowDropzone={allowDropzone}
       />
       <EditorContent
         editor={editor}
-        className="bg-gray-50 text-editor rounded-xl p-2.5"
+        className={`${
+          notSticky ? "rounded-b-xl" : "rounded-xl"
+        } bg-gray-50 text-editor p-2.5`}
       />
     </div>
   );
 };
 
-const Toolbar = ({ editor, allowInput, allowDropzone }) => {
+const Toolbar = ({ editor, allowInput, allowDropzone, notSticky }) => {
   const [, forceUpdate] = useState({});
 
   useEffect(() => {
@@ -91,7 +95,13 @@ const Toolbar = ({ editor, allowInput, allowDropzone }) => {
   }, [editor]);
 
   return (
-    <div className="flex items-center gap-3.5 sticky top-0 z-10 p-2.5 bg-gray-100 mb-3 rounded-b-xl">
+    <div
+      className={`${
+        notSticky
+          ? "rounded-t-xl border-b"
+          : "sticky top-0 z-10 mb-3 rounded-b-xl"
+      } flex items-center gap-3.5 p-2.5 bg-gray-100`}
+    >
       {/* Bold */}
       <ToolbarButton
         title="Bold (Ctrl + B)"
