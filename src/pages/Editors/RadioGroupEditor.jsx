@@ -107,6 +107,7 @@ const initialGroupItem = {
     { text: "Answer 3" },
     { text: "Answer 4" },
   ],
+  correctAnswerIndex: 0,
 };
 
 const Groups = ({ onChange, initialGroups = [] }) => {

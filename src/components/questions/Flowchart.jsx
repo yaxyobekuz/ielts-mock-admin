@@ -31,8 +31,6 @@ const Flowchart = ({ items, initialNumber, options }) => {
               .map((item) => item.text)
               .join("");
 
-            console.log(prevContents);
-
             const itemInitialNumber =
               countExactMatches(prevContents, target) + initialNumber;
 
