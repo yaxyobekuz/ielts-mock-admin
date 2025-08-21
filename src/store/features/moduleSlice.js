@@ -6,15 +6,15 @@ const listeningParts = [
   // Text
   {
     number: 1,
-    totalQuestions: 10,
-    description: "Listen and answer questions 1-10.",
+    totalQuestions: 0,
+    description: "Listen and answer questions.",
     sections: [
       {
         text,
         answers: [],
         type: "text",
-        questionsCount: 10,
-        title: "Questions 1-10",
+        questionsCount: 0,
+        title: "Questions",
         description: `Complete the notes. Write ONE WORD AND/OR A NUMBER for each answer.`,
       },
     ],
@@ -22,25 +22,20 @@ const listeningParts = [
   // Text draggable
   {
     number: 2,
-    totalQuestions: 10,
-    description: "Listen and answer questions 21-30.",
+    totalQuestions: 0,
+    description: "Listen and answer questions.",
     sections: [
       {
         text,
-        questionsCount: 5,
+        questionsCount: 0,
         type: "text-draggable",
-        title: "Questions 21-30",
+        title: "Questions",
         options: {
           title: "Staff Responsibilities",
           data: [
             { option: "Finance" },
             { option: "Food" },
             { option: "Health" },
-            { option: "Kids' counseling" },
-            { option: "Organisation" },
-            { option: "Rooms" },
-            { option: "Sport" },
-            { option: "Trips" },
           ],
         },
         description: `Who is responsible for each area? Choose the correct answer for each person and move it into the gap.`,
@@ -50,13 +45,13 @@ const listeningParts = [
   // Flowchart
   {
     number: 3,
-    totalQuestions: 10,
-    description: "Listen and answer questions 21-30.",
+    totalQuestions: 0,
+    description: "Listen and answer questions.",
     sections: [
       {
         type: "flowchart",
-        questionsCount: 5,
-        title: "Questions 21-30",
+        questionsCount: 0,
+        title: "Questions",
         items: {
           title: "Flowchart",
           data: [{ text }, { text }, { text }],
@@ -76,12 +71,12 @@ const listeningParts = [
   // Radiogroup
   {
     number: 4,
-    totalQuestions: 10,
-    description: "Listen and answer questions 31-40.",
+    totalQuestions: 2,
+    description: "Listen and answer questions.",
     sections: [
       {
         type: "radio-group",
-        title: "Questions 31-40",
+        title: "Questions",
         questionsCount: 2,
         groups: [
           {
