@@ -2,8 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const text = `<b>Text Editor</b><p>Welcome to text editor! Here are some features:</p><ul><li><strong>Bold text</strong></li><li><em>Italic text</em></li><li><u>Underlined text</u></li><li>Lists and more!</li></ul>`;
 
-const flowchartText = `The rover is directed to a ~ which has organic material.`;
-
 const listeningParts = [
   // Text
   {
@@ -61,13 +59,7 @@ const listeningParts = [
         title: "Questions 21-30",
         items: {
           title: "Flowchart",
-          data: [
-            { text: flowchartText },
-            { text: flowchartText },
-            { text: flowchartText },
-            { text: flowchartText },
-            { text: flowchartText },
-          ],
+          data: [{ text }, { text }, { text }],
         },
         options: {
           title: "Staff Responsibilities",
@@ -75,11 +67,6 @@ const listeningParts = [
             { option: "Finance" },
             { option: "Food" },
             { option: "Health" },
-            { option: "Kids' counseling" },
-            { option: "Organisation" },
-            { option: "Rooms" },
-            { option: "Sport" },
-            { option: "Trips" },
           ],
         },
         description: `Complete the flow-chart. Choose the correct answer and move it into the gap.`,
