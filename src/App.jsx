@@ -14,6 +14,7 @@ import Home from "./pages/Home";
 import Listening from "./pages/Listening";
 import TestLayout from "./layouts/TestLayout";
 import TextEditor from "./pages/Editors/TextEditor";
+import FlowchartEditor from "./pages/Editors/FlowchartEditor";
 import TextDraggableEditor from "./pages/Editors/TextDraggableEditor";
 
 const App = () => {
@@ -32,6 +33,12 @@ const App = () => {
         <Route
           element={<TextEditor />}
           path="tests/test/:testId/edit/:module/:partNumber/text/:sectionIndex"
+        />
+
+        {/* Flowchart editor */}
+        <Route
+          element={<FlowchartEditor />}
+          path="tests/test/:testId/edit/:module/:partNumber/flowchart/:sectionIndex"
         />
 
         {/* Text draggable editor */}
