@@ -15,6 +15,7 @@ import Listening from "./pages/Listening";
 import TestLayout from "./layouts/TestLayout";
 import TextEditor from "./pages/Editors/TextEditor";
 import FlowchartEditor from "./pages/Editors/FlowchartEditor";
+import RadioGroupEditor from "./pages/Editors/RadioGroupEditor";
 import TextDraggableEditor from "./pages/Editors/TextDraggableEditor";
 
 const App = () => {
@@ -45,6 +46,12 @@ const App = () => {
         <Route
           element={<TextDraggableEditor />}
           path="tests/test/:testId/edit/:module/:partNumber/text-draggable/:sectionIndex"
+        />
+
+        {/* Radio Group editor */}
+        <Route
+          element={<RadioGroupEditor />}
+          path="tests/test/:testId/edit/:module/:partNumber/radio-group/:sectionIndex"
         />
       </Route>
     )

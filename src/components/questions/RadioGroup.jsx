@@ -1,7 +1,7 @@
 const RadioGroup = ({ initialNumber, groups }) => {
   return (
     <ul className="space-y-6">
-      {groups.map(({ text, answers }, index) => {
+      {groups.map(({ question, answers }, index) => {
         const groupNumber = initialNumber + index;
         return (
           <li key={index}>
@@ -9,7 +9,7 @@ const RadioGroup = ({ initialNumber, groups }) => {
               <b className="inline-block py-0.5 px-1.5 rounded mr-2 border-2 transition-colors duration-300">
                 {groupNumber}
               </b>
-              <span>{text}</span>
+              <span>{question}</span>
             </p>
 
             {/* Answers */}

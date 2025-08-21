@@ -75,11 +75,12 @@ const listeningParts = [
     description: "Listen and answer questions.",
     sections: [
       {
-        type: "radio-group",
-        title: "Questions",
         questionsCount: 2,
+        title: "Questions",
+        type: "radio-group",
         groups: [
           {
+            correctAnswerIndex: 0,
             question: "What is the main topic of the conversation?",
             answers: [
               { text: "Furniture sale" },
@@ -89,6 +90,7 @@ const listeningParts = [
             ],
           },
           {
+            correctAnswerIndex: 0,
             question: "What is the price of the dining table?",
             answers: [
               { text: "£15.00" },
