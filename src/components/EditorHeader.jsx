@@ -10,9 +10,11 @@ const EditorHeader = ({
   title = "Text editor",
   initialDescription = "",
 }) => {
+  const allowDescription = initialDescription || onDescriptionChange;
   const [description, setDescription] = useState(initialDescription || "");
 
   const handleDescriptionChange = (e) => {
+    if (!allowDescription) return;
     setDescription(e.target.value);
     onDescriptionChange(e.target.value);
   };
@@ -20,19 +22,25 @@ const EditorHeader = ({
   return (
     <header className="flex items-center h-[68px] border-b">
       <div className="flex items-center justify-between gap-5 container">
-        <div className="max-w-[66.666667%] w-full">
+        <div
+          className={`${
+            allowDescription ? " max-w-[66.666667%] space-y-0.5" : ""
+          } w-full`}
+        >
           {/* Title */}
-          <h1 className="mb-0.5 text-xl font-semibold">{title}</h1>
+          <h1 className="text-xl font-semibold">{title}</h1>
 
           {/* Description input */}
-          <input
-            type="text"
-            value={description}
-            name="description-input"
-            placeholder="Bo'lim tavsifi"
-            onChange={handleDescriptionChange}
-            className="max-w-full min-w-40 w-full h-7 bg-gray-100 rounded-md px-2 outline-none"
-          />
+          {allowDescription ? (
+            <input
+              type="text"
+              value={description}
+              name="description-input"
+              placeholder="Bo'lim tavsifi"
+              onChange={handleDescriptionChange}
+              className="max-w-full min-w-40 w-full h-7 bg-gray-100 rounded-md px-2 outline-none"
+            />
+          ) : null}
         </div>
 
         <div className="flex gap-5 items-center max-w-max shrink-0">
