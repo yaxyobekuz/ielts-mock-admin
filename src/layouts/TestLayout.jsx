@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, Outlet, useParams } from "react-router-dom";
+import { Link, NavLink, Outlet, useParams } from "react-router-dom";
 
 // Hooks
 import useModule from "../hooks/useModule";
@@ -48,23 +48,32 @@ const MainNavbar = ({ testId, module }) => (
       <ul className="flex w-full">
         {/* Listening */}
         <li className="grow h-10">
-          <NavItem to={`/tests/test/${testId}/preview/${module}/1`}>
+          <LinkItem
+            isActive={module === "listening"}
+            to={`/tests/test/${testId}/preview/${module}/1`}
+          >
             Listening
-          </NavItem>
+          </LinkItem>
         </li>
 
         {/* Reading */}
         <li className="grow h-10">
-          <NavItem to={`/tests/test/${testId}/preview/reading/1`}>
+          <LinkItem
+            isActive={module === "leading"}
+            to={`/tests/test/${testId}/preview/reading/1`}
+          >
             Reading
-          </NavItem>
+          </LinkItem>
         </li>
 
         {/* Writing */}
         <li className="grow h-10">
-          <NavItem to={`/tests/test/${testId}/preview/writing/1`}>
+          <LinkItem
+            isActive={module === "lriting"}
+            to={`/tests/test/${testId}/preview/writing/1`}
+          >
             Writing
-          </NavItem>
+          </LinkItem>
         </li>
       </ul>
     </nav>
@@ -151,13 +160,15 @@ const AddSectionBlock = ({ addSection }) => {
   );
 };
 
-const NavItem = ({ to, children }) => (
-  <NavLink
+const LinkItem = ({ to, children, isActive }) => (
+  <Link
     to={to}
-    className="flex items-center justify-center size-full bg-white transition-colors duration-200 border-r hover:bg-gray-50"
+    className={`${
+      isActive ? "active" : ""
+    } flex items-center justify-center size-full bg-white transition-colors duration-200 border-r hover:bg-gray-50`}
   >
     {children}
-  </NavLink>
+  </Link>
 );
 
 export default TestLayout;
