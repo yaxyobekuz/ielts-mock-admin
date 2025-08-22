@@ -7,6 +7,7 @@ import {
   Code,
   Quote,
   Italic,
+  ImagePlus,
   Underline,
   ListOrdered,
 } from "lucide-react";
@@ -15,6 +16,7 @@ import {
 import { useEffect, useState } from "react";
 
 // Tip tap
+import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
 import { useEditor, EditorContent } from "@tiptap/react";
 
@@ -27,12 +29,14 @@ const RichTextEditor = ({
   notSticky,
   className = "",
   allowInput = false,
+  allowImage = false,
   allowDropzone = false,
   initialContent = "<p>Matn kiriting...</p>",
 }) => {
   const editor = useEditor({
     content: initialContent,
     extensions: [
+      ...(allowImage ? [Image] : []),
       StarterKit.configure({ heading: false }),
       ...(allowInput ? [AnswerInputNode()] : []),
       ...(allowDropzone ? [DropzoneNode()] : []),
@@ -60,6 +64,7 @@ const RichTextEditor = ({
         editor={editor}
         notSticky={notSticky}
         allowInput={allowInput}
+        allowImage={allowImage}
         allowDropzone={allowDropzone}
       />
       <EditorContent
@@ -72,7 +77,13 @@ const RichTextEditor = ({
   );
 };
 
-const Toolbar = ({ editor, allowInput, allowDropzone, notSticky }) => {
+const Toolbar = ({
+  editor,
+  notSticky,
+  allowImage,
+  allowInput,
+  allowDropzone,
+}) => {
   const [, forceUpdate] = useState({});
 
   useEffect(() => {
@@ -167,8 +178,24 @@ const Toolbar = ({ editor, allowInput, allowDropzone, notSticky }) => {
         <Quote size={16} />
       </ToolbarButton>
 
+      {/* Image */}
+      {allowImage && (
+        <ToolbarButton
+          title="Insert Image"
+          onClick={() => {
+            const url = window.prompt("Rasm URL manzilini kiriting:");
+            if (url) {
+              editor.chain().focus().setImage({ src: url }).run();
+            }
+          }}
+        >
+          <ImagePlus size={16} />
+        </ToolbarButton>
+      )}
+
       <div className="w-px h-6 bg-gray-300 mx-2"></div>
 
+      {/* Undo */}
       <ToolbarButton
         title="Undo (Ctrl + Z)"
         onClick={() => editor.chain().focus().undo().run()}
@@ -177,6 +204,7 @@ const Toolbar = ({ editor, allowInput, allowDropzone, notSticky }) => {
         <Undo size={16} />
       </ToolbarButton>
 
+      {/* Redo */}
       <ToolbarButton
         title="Redo  (Ctrl + Shift + Z)"
         onClick={() => editor.chain().focus().redo().run()}
