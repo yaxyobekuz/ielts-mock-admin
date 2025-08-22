@@ -57,6 +57,10 @@
     code {
       @apply inline-block bg-white p-2.5 border rounded-md;
     }
+
+    img {
+      @apply bg-gray-200 border-2 border-transparent transition-colors duration-200;
+    }
   }
 
   .node-answer-input {
@@ -71,6 +75,10 @@
 
 .ProseMirror-separator {
   display: none;
+}
+
+img.ProseMirror-selectednode {
+  @apply border-blue-500;
 }
 
 /* --- Utilities --- */

@@ -27,7 +27,6 @@ const TestLayout = () => {
 
         <AddSectionBlock
           module={module}
-          partNumber={partNumber}
           addSection={(type) => addSection(partNumber, type)}
         />
       </main>
@@ -104,7 +103,9 @@ const PartsNavbar = ({ testId, module, parts, addPart }) => (
   </div>
 );
 
-const AddSectionBlock = ({ addSection }) => {
+const AddSectionBlock = ({ addSection, module }) => {
+  if (module === "writing") return;
+
   const [activeQuestion, setActiveQuestion] = useState(questionsType[0]);
 
   const handleSelectOption = (e) => {

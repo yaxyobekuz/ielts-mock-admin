@@ -217,8 +217,27 @@ const readingParts = [
   },
 ];
 
+const writingParts = [
+  // Text
+  {
+    number: 1,
+    totalQuestions: 0,
+    text: "Just wedding it! 1",
+    description: "Listen and answer questions.",
+  },
+  // Text
+  {
+    number: 2,
+    totalQuestions: 0,
+    text: "Just wedding it! 1",
+    description: "Listen and answer questions.",
+  },
+];
+
 const initialState = {
-  writing: {},
+  writing: {
+    testId: writingParts,
+  },
   reading: {
     testId: readingParts,
   },
