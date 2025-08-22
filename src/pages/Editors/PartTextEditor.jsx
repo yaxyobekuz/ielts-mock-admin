@@ -67,8 +67,12 @@ const PartTextEditor = () => {
       />
 
       {/* Editor */}
-      <div className="container">
-        <RichTextEditor onChange={setContent} initialContent={content} />
+      <div className="container pb-24">
+        <RichTextEditor
+          allowImage
+          onChange={setContent}
+          initialContent={content}
+        />
       </div>
     </>
   );

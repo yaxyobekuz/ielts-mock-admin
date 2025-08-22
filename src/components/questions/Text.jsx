@@ -1,23 +1,14 @@
-// Tip tap
-import StarterKit from "@tiptap/starter-kit";
-import { useEditor, EditorContent } from "@tiptap/react";
+import RichTextPreviewer from "../RichTextPreviewer";
 
-// Nodes
-import AnswerInputNode from "../../format/nodes/AnswerInputNode";
-
-const Text = ({ text, initialNumber }) => {
-  if (!text) return null;
-
-  const editor = useEditor(
-    {
-      content: text,
-      editable: false,
-      extensions: [StarterKit, AnswerInputNode(initialNumber, false)],
-    },
-    [text, initialNumber]
+const Text = ({ text, initialNumber, allowImage = false }) => {
+  return (
+    <RichTextPreviewer
+      allowImage
+      allowInput
+      text={text}
+      initialNumber={initialNumber}
+    />
   );
-
-  return <EditorContent editor={editor} className="text-editor" />;
 };
 
 export default Text;

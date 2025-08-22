@@ -1,15 +1,9 @@
 // Components
 import Icon from "../Icon";
+import RichTextPreviewer from "../RichTextPreviewer";
 
 // Helpers
 import { countExactMatches } from "../../lib/helpers";
-
-// Tip tap
-import StarterKit from "@tiptap/starter-kit";
-import { useEditor, EditorContent } from "@tiptap/react";
-
-// Nodes
-import DropzoneNode from "../../format/nodes/DropzoneNode";
 
 // Icons
 import arrowDownIcon from "../../assets/icons/arrow-down.svg";
@@ -34,20 +28,16 @@ const Flowchart = ({ items, initialNumber, options }) => {
             const itemInitialNumber =
               countExactMatches(prevContents, target) + initialNumber;
 
-            const editor = useEditor({
-              content: text,
-              editable: false,
-              extensions: [StarterKit, DropzoneNode(itemInitialNumber, false)],
-            });
-
             return (
               <div
                 key={index}
                 className="flex flex-col items-center gap-2 relative z-0"
               >
-                <EditorContent
-                  editor={editor}
-                  className="p-2 text-editor border-2 border-[#333]"
+                <RichTextPreviewer
+                  text={text}
+                  allowDropzone
+                  initialNumber={itemInitialNumber}
+                  className="w-full p-2 text-editor border-2 border-[#333]"
                 />
 
                 {/* Arrow icon */}

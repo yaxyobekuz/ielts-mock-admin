@@ -1,20 +1,13 @@
-// Tip tap
-import StarterKit from "@tiptap/starter-kit";
-import { useEditor, EditorContent } from "@tiptap/react";
-
-// Nodes
-import DropzoneNode from "../../format/nodes/DropzoneNode";
+import RichTextPreviewer from "../RichTextPreviewer";
 
 const TextDraggable = ({ text, initialNumber, options }) => {
-  const editor = useEditor({
-    content: text,
-    editable: false,
-    extensions: [StarterKit, DropzoneNode(initialNumber, false)],
-  });
-
   return (
     <div className="flex gap-5 w-full">
-      <EditorContent editor={editor} className="text-editor" />
+      <RichTextPreviewer
+        text={text}
+        allowDropzone
+        initialNumber={initialNumber}
+      />
 
       <div className="min-w-max space-y-2 pr-5">
         <b className="inline-block">{options.title}</b>
