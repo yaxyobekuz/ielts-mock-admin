@@ -12,6 +12,7 @@ import MainLayout from "./layouts/MainLayout";
 // Pages
 import Home from "./pages/Home";
 import Reading from "./pages/Reading";
+import Writing from "./pages/Writing";
 import Listening from "./pages/Listening";
 import TestLayout from "./layouts/TestLayout";
 
@@ -32,6 +33,7 @@ const App = () => {
         {/* Preview test */}
         <Route element={<TestLayout />} path="tests/test/:testId/preview/">
           <Route path="reading/:partNumber" element={<Reading />} />
+          <Route path="writing/:partNumber" element={<Writing />} />
           <Route path="listening/:partNumber" element={<Listening />} />
         </Route>
 
