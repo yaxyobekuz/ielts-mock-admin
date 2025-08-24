@@ -11,6 +11,7 @@ import RichTextEditor from "../../components/RichTextEditor";
 // Hooks
 import useModule from "../../hooks/useModule";
 import useDebouncedState from "../../hooks/useDebouncedState";
+import UploadImageModal from "@/components/modal/uploadImageModal";
 
 const PartTextEditor = () => {
   // State & Hooks
@@ -74,6 +75,8 @@ const PartTextEditor = () => {
           initialContent={content}
         />
       </div>
+
+      <UploadImageModal />
     </>
   );
 };

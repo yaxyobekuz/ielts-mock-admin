@@ -12,6 +12,9 @@ import {
   ListOrdered,
 } from "lucide-react";
 
+// Hooks
+import useModal from "@/hooks/useModal";
+
 // React
 import { useEffect, useState } from "react";
 
@@ -85,6 +88,14 @@ const Toolbar = ({
   allowDropzone,
 }) => {
   const [, forceUpdate] = useState({});
+  const { openModal, data, updateModalData } = useModal("uploadImage");
+
+  useEffect(() => {
+    if (data?.editor) {
+      updateModalData({ url: "", editor: false });
+      editor.chain().focus().setImage({ src: data?.url }).run();
+    }
+  }, [data?.url]);
 
   useEffect(() => {
     // Force component re-render
@@ -182,12 +193,7 @@ const Toolbar = ({
       {allowImage && (
         <ToolbarButton
           title="Insert Image"
-          onClick={() => {
-            const url = window.prompt("Rasm URL manzilini kiriting:");
-            if (url) {
-              editor.chain().focus().setImage({ src: url }).run();
-            }
-          }}
+          onClick={() => openModal({ editor: true })}
         >
           <ImagePlus size={16} />
         </ToolbarButton>
