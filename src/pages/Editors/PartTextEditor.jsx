@@ -2,16 +2,16 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 // Helpers
-import { isNumber } from "../../lib/helpers";
+import { isNumber } from "@/lib/helpers";
 
 // Components
-import EditorHeader from "../../components/EditorHeader";
-import RichTextEditor from "../../components/RichTextEditor";
+import EditorHeader from "@/components/EditorHeader";
+import RichTextEditor from "@/components/RichTextEditor";
 
 // Hooks
-import useModule from "../../hooks/useModule";
-import useDebouncedState from "../../hooks/useDebouncedState";
-import UploadImageModal from "@/components/modal/uploadImageModal";
+import useModule from "@/hooks/useModule";
+import useDebouncedState from "@/hooks/useDebouncedState";
+import UploadImageModal from "@/components/modal/UploadImageModal";
 
 const PartTextEditor = () => {
   // State & Hooks
