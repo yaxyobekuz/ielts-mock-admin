@@ -1,18 +1,25 @@
 // Router
 import {
   Route,
+  Navigate,
   RouterProvider,
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
 
+// Toaster
+import { Toaster } from "react-hot-toast";
+
 // Layouts
 import MainLayout from "./layouts/MainLayout";
+import AuthLayout from "./layouts/AuthLayout";
 
 // Pages
 import Home from "./pages/Home";
+import Login from "./pages/Login";
 import Reading from "./pages/Reading";
 import Writing from "./pages/Writing";
+import Register from "./pages/Register";
 import Listening from "./pages/Listening";
 import TestLayout from "./layouts/TestLayout";
 
@@ -26,51 +33,69 @@ import TextDraggableEditor from "./pages/Editors/TextDraggableEditor";
 const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route path="/" element={<MainLayout />}>
-        {/* Homepage */}
-        <Route index element={<Home />} />
+      <>
+        {/* Main */}
+        <Route path="/" element={<MainLayout />}>
+          {/* Homepage */}
+          <Route index element={<Home />} />
 
-        {/* Preview test */}
-        <Route element={<TestLayout />} path="tests/test/:testId/preview/">
-          <Route path="reading/:partNumber" element={<Reading />} />
-          <Route path="writing/:partNumber" element={<Writing />} />
-          <Route path="listening/:partNumber" element={<Listening />} />
+          {/* Preview test */}
+          <Route element={<TestLayout />} path="tests/test/:testId/preview/">
+            <Route path="reading/:partNumber" element={<Reading />} />
+            <Route path="writing/:partNumber" element={<Writing />} />
+            <Route path="listening/:partNumber" element={<Listening />} />
+          </Route>
+
+          {/* Text editor */}
+          <Route
+            element={<TextEditor />}
+            path="tests/test/:testId/edit/:module/:partNumber/text/:sectionIndex"
+          />
+
+          {/* Part text editor */}
+          <Route
+            element={<PartTextEditor />}
+            path="tests/test/:testId/edit/:module/:partNumber/part-text"
+          />
+
+          {/* Flowchart editor */}
+          <Route
+            element={<FlowchartEditor />}
+            path="tests/test/:testId/edit/:module/:partNumber/flowchart/:sectionIndex"
+          />
+
+          {/* Text draggable editor */}
+          <Route
+            element={<TextDraggableEditor />}
+            path="tests/test/:testId/edit/:module/:partNumber/text-draggable/:sectionIndex"
+          />
+
+          {/* Radio Group editor */}
+          <Route
+            element={<RadioGroupEditor />}
+            path="tests/test/:testId/edit/:module/:partNumber/radio-group/:sectionIndex"
+          />
         </Route>
 
-        {/* Text editor */}
-        <Route
-          element={<TextEditor />}
-          path="tests/test/:testId/edit/:module/:partNumber/text/:sectionIndex"
-        />
-
-        {/* Part text editor */}
-        <Route
-          element={<PartTextEditor />}
-          path="tests/test/:testId/edit/:module/:partNumber/part-text"
-        />
-
-        {/* Flowchart editor */}
-        <Route
-          element={<FlowchartEditor />}
-          path="tests/test/:testId/edit/:module/:partNumber/flowchart/:sectionIndex"
-        />
-
-        {/* Text draggable editor */}
-        <Route
-          element={<TextDraggableEditor />}
-          path="tests/test/:testId/edit/:module/:partNumber/text-draggable/:sectionIndex"
-        />
-
-        {/* Radio Group editor */}
-        <Route
-          element={<RadioGroupEditor />}
-          path="tests/test/:testId/edit/:module/:partNumber/radio-group/:sectionIndex"
-        />
-      </Route>
-    )
+        {/* Auth */}
+        <Route path="/auth" element={<AuthLayout />}>
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route index element={<Navigate to="login" />} />
+        </Route>
+      </>
+    ),
+    { future: { v7_relativeSplatPath: true } }
   );
 
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider future={{ v7_startTransition: true }} router={router} />
+
+      {/* Toaster */}
+      <Toaster />
+    </>
+  );
 };
 
 export default App;
