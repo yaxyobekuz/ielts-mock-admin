@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 
 // CSS (styles)
+import "animate.css";
 import "./styles/index.css";
 
 // Components
