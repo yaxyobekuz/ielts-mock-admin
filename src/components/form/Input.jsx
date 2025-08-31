@@ -1,8 +1,9 @@
 const Input = ({
-  label,
-  name,
   value,
   onChange,
+  name = "",
+  size = "md",
+  label = "",
   type = "text",
   className = "",
   placeholder = "",
@@ -14,6 +15,15 @@ const Input = ({
   const variantClasses = {
     gray: "bg-gray-50 border-gray-300 focus:border-blue-500",
   };
+
+  const sizeClasses = {
+    sm: "h-8",
+    md: "h-9",
+    lg: "h-10 px-3.5 rounded-lg",
+    xl: "h-11 px-3.5 rounded-xl",
+  };
+
+  const defaultClasses = `-outline-offset-1 focus:outline-blue-500`;
 
   const RenderInput = (() => {
     if (type === "textarea") {
@@ -27,7 +37,7 @@ const Input = ({
           disabled={disabled}
           onChange={onChange}
           placeholder={placeholder}
-          className={`${variantClasses[variant]}`}
+          className={`${variantClasses[variant]} ${defaultClasses}`}
         />
       );
     }
@@ -43,13 +53,13 @@ const Input = ({
         disabled={disabled}
         onChange={onChange}
         placeholder={placeholder}
-        className={`${variantClasses[variant]}`}
+        className={`${variantClasses[variant]} ${defaultClasses} ${sizeClasses[size]}`}
       />
     );
   })();
 
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className={`text-left space-y-2 ${className}`}>
       {label && (
         <label htmlFor={name} className="font-medium text-gray-700">
           {label} {required && <span className="text-blue-500">*</span>}
