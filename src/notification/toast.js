@@ -4,7 +4,7 @@ const initialOptions = {
   position: "top-center",
   style: {
     color: "#333",
-    fontSize: "14px",
+    fontSize: "13px",
     padding: "6px 8px",
     background: "#fff",
     borderRadius: "8px",
