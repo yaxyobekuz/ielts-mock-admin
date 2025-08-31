@@ -61,7 +61,7 @@
   }
 
   body {
-    font-family: "Arial", sans-serif;
+    font-family: "Inter", sans-serif;
     @apply text-base text-gray-800 font-normal;
   }
 
@@ -125,6 +125,11 @@
 
   .node-answer-input {
     @apply inline-block h-auto;
+  }
+
+  /* Button */
+  .btn {
+    @apply flex items-center justify-center h-9 px-4 rounded-lg transition-colors duration-200;
   }
 }
 
