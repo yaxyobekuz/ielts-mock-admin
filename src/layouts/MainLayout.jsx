@@ -11,6 +11,7 @@ import useStore from "@/hooks/useStore";
 import { authApi } from "@/api/auth.api";
 
 // Components
+import Header from "@/components/Header";
 import MainBgLoader from "@/components/loaders/MainBgLoader";
 
 // Animated
@@ -100,6 +101,7 @@ const AuthenticatedContent = () => {
   // Content
   return (
     <div className="flex flex-col min-h-screen">
+      <Header />
       <Outlet />
     </div>
   );
