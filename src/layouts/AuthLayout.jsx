@@ -37,7 +37,7 @@ const UnauthenticatedContent = () => {
 
   return (
     <div className="grid grid-cols-2 size-full h-screen bg-white animate__animated animate__fadeIn">
-      <div className="flex flex-col items-center justify-between w-full p-8">
+      <div className="flex flex-col items-center justify-between gap-8 w-full p-8 max-h-full overflow-y-auto">
         {/* Logo */}
         <img
           height={40}
@@ -79,12 +79,12 @@ const UnauthenticatedContent = () => {
 
           {/* Navlinks */}
           <nav className="mb-5 w-full">
-            <ul className="flex relative max-w-max bg-gray-100 p-1 rounded-xl mx-auto">
-              <Link to="/auth/login" className="btn w-44 z-10">
+            <ul className="flex relative max-w-max bg-gray-50 p-1 rounded-xl mx-auto">
+              <Link to="/auth/login" className="btn w-44 h-10 z-10">
                 Hisobga kirish
               </Link>
 
-              <Link to="/auth/register" className="btn w-44 z-10">
+              <Link to="/auth/register" className="btn w-44 h-10 z-10">
                 Hisob yaratish
               </Link>
 
@@ -92,7 +92,7 @@ const UnauthenticatedContent = () => {
               <div
                 className={`${
                   isLogin ? "left-1" : "left-1/2"
-                } absolute z-0 btn w-44 bg-white transition-[left] duration-300 `}
+                } absolute z-0 btn w-44 h-10 bg-white shadow-sm transition-[left] duration-300 `}
               />
             </ul>
           </nav>
