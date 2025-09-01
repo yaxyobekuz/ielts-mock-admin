@@ -4,6 +4,15 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 // Lottie
 import Lottie from "lottie-react";
 
+// Hooks
+import useStore from "@/hooks/useStore";
+
+// Auth api
+import { authApi } from "@/api/auth.api";
+
+// Components
+import MainBgLoader from "@/components/loaders/MainBgLoader";
+
 // Animated
 import duckShrugging from "@/assets/animated/duck-shrugging.json";
 
@@ -60,10 +69,40 @@ const UnauthenticatedContent = () => (
   </div>
 );
 
-const AuthenticatedContent = () => (
-  <div className="flex flex-col min-h-screen">
-    <Outlet />
-  </div>
-);
+const AuthenticatedContent = () => {
+  const { getData, updateProperty } = useStore("user");
+  const { isLoading, hasError } = getData();
+
+  const loadProfile = () => {
+    updateProperty("isLoading", true);
+    updateProperty("hasError", false);
+
+    authApi
+      .profile()
+      .then(({ user, code }) => {
+        if (code !== "profileSuccess") throw new Error();
+        updateProperty("data", user);
+      })
+      .catch(() => updateProperty("hasError", true))
+      .finally(() => updateProperty("isLoading", false));
+  };
+
+  // Load user profile
+  useEffect(() => {
+    isLoading && loadProfile();
+  }, []);
+
+  // Eror & Loader content
+  if (isLoading || hasError) {
+    return <MainBgLoader hasError={hasError} onButtonClick={loadProfile} />;
+  }
+
+  // Content
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Outlet />
+    </div>
+  );
+};
 
 export default MainLayout;
