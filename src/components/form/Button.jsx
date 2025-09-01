@@ -3,7 +3,6 @@ const Button = ({
   children,
   size = "md",
   className = "",
-  type = "button",
   variant = "primary",
   ...props
 }) => {
@@ -23,7 +22,6 @@ const Button = ({
   return (
     <button
       {...props}
-      type={type}
       onClick={onClick}
       children={children}
       className={`flex items-center justify-center ${variants[variant]} ${sizeClasses[size]} ${className} transition-colors duration-200 disabled:opacity-70 disabled:cursor-not-allowed`}

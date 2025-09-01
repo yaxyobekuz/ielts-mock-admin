@@ -25,6 +25,8 @@ const Input = ({
 
   const defaultClasses = `-outline-offset-1 focus:outline-blue-500`;
 
+  const handleChange = (e) => onChange?.(e.target.value);
+
   const RenderInput = (() => {
     if (type === "textarea") {
       return (
@@ -35,7 +37,7 @@ const Input = ({
           value={value}
           required={required}
           disabled={disabled}
-          onChange={onChange}
+          onChange={handleChange}
           placeholder={placeholder}
           className={`${variantClasses[variant]} ${defaultClasses}`}
         />
@@ -51,7 +53,7 @@ const Input = ({
         value={value}
         required={required}
         disabled={disabled}
-        onChange={onChange}
+        onChange={handleChange}
         placeholder={placeholder}
         className={`${variantClasses[variant]} ${defaultClasses} ${sizeClasses[size]}`}
       />
