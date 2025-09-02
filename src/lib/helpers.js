@@ -36,7 +36,7 @@ export const formatDate = (input) => {
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
 
-  return `${day}/${month}/${year}`;
+  return `${day}-${month}-${year}`;
 };
 
 // Format time
@@ -53,4 +53,26 @@ export const formatTime = (input) => {
 
 export const extractNumbers = (text = "") => {
   return text?.replace(/\D/g, "");
+};
+
+export const formatUzPhone = (input) => {
+  const d = String(input).replace(/\D/g, "");
+  const m = d.match(/^998(\d{2})(\d{3})(\d{2})(\d{2})$/);
+  return m ? `+998 (${m[1]}) ${m[2]} ${m[3]} ${m[4]}` : String(input);
+};
+
+export const formatUzPhoneLive = (input) => {
+  const d = String(input).replace(/\D/g, "").slice(0, 12);
+  let out = "";
+  if (!d.startsWith("998")) out = d;
+  else {
+    const body = d.slice(3);
+    out = "+998";
+    if (body.length) out += " (" + body.slice(0, 2);
+    if (body.length >= 2) out += ")";
+    if (body.length > 2) out += " " + body.slice(2, 5);
+    if (body.length > 5) out += " " + body.slice(5, 7);
+    if (body.length > 7) out += " " + body.slice(7, 9);
+  }
+  return out.trim();
 };
