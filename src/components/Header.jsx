@@ -86,7 +86,12 @@ const Nav = () => {
 
     if (activeIndex !== -1 && linkRefs.current[activeIndex]) {
       const el = linkRefs.current[activeIndex];
-      setActiveStyle({ left: el.offsetLeft + 4, width: el.offsetWidth });
+
+      setActiveStyle({ left: el.offsetLeft - 6, width: el.offsetWidth + 20 });
+
+      setTimeout(() => {
+        setActiveStyle({ left: el.offsetLeft + 4, width: el.offsetWidth });
+      }, 300);
     }
   }, [location.pathname, navLinks, currentPageLink]);
 
