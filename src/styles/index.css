@@ -62,7 +62,7 @@
 
   body {
     font-family: "Inter", sans-serif;
-    @apply text-base text-gray-800 font-normal;
+    @apply overflow-x-hidden text-base text-gray-800 font-normal;
   }
 
   label {
@@ -130,6 +130,17 @@
   /* Button */
   .btn {
     @apply flex items-center justify-center h-9 px-4 rounded-lg transition-colors duration-200;
+  }
+
+  /* Pattern */
+  .warn-pattern {
+    background: repeating-linear-gradient(
+      -45deg,
+      #fff,
+      #fff 8px,
+      #fb923c 8px,
+      #fb923c 11px
+    );
   }
 }
 

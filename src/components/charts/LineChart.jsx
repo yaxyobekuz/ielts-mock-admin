@@ -33,15 +33,15 @@ const LineChart = ({ className = "" }) => (
       // Gradient color
       enableArea={true}
       areaOpacity={0.5}
-      colors={["#00c853"]}
+      colors={["#3b82f6"]}
       fill={[{ match: "*", id: "gradientA" }]}
       defs={[
         {
           id: "gradientA",
           type: "linearGradient",
           colors: [
-            { offset: 0, color: "#00c853", opacity: 0.4 },
-            { offset: 100, color: "#00c853", opacity: 0 },
+            { offset: 0, color: "#3b82f6", opacity: 0.4 },
+            { offset: 100, color: "#3b82f6", opacity: 0 },
           ],
         },
       ]}

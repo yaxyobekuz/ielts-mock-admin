@@ -27,6 +27,41 @@ const Home = () => {
           {user.firstName} xush kelibsiz!
         </h1>
 
+        {/* Tests status */}
+        <div className="flex items-center gap-5 w-2/3">
+          {/* Take */}
+          <div className="space-y-1.5">
+            <h3 className="ml-2">Olingan testlar</h3>
+            <div className="btn w-full p-0 bg-gray-700 h-11 rounded-full text-white">
+              24ta
+            </div>
+          </div>
+
+          {/* Checked */}
+          <div className="space-y-1.5">
+            <h3>Tekshirilgan testlar</h3>
+            <div className="btn w-full p-0 bg-green-100 h-11 rounded-full text-green-950">
+              12ta
+            </div>
+          </div>
+
+          {/* Not checked */}
+          <div className="space-y-1.5">
+            <h3>Tekshirilmagan testlar</h3>
+            <div className="btn w-full p-0 bg-red-100 h-11 rounded-full text-red-950">
+              12ta
+            </div>
+          </div>
+
+          {/* Cancel */}
+          <div className="space-y-1.5">
+            <h3>Bekor qilingan testlar</h3>
+            <div className="btn w-full p-0 bg-orange-100 h-11 rounded-full text-orange-950">
+              4ta
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-4 gap-5">
           {/* Profile */}
           <Profile user={user} />
@@ -37,8 +72,6 @@ const Home = () => {
           {/* Stats */}
           <Stats user={user} />
         </div>
-
-        <Link to="/tests/test/testId/preview/listening/1">Edit</Link>
       </div>
     </div>
   );
@@ -148,7 +181,7 @@ const Tests = ({ user }) => (
 );
 
 const Stats = ({ user }) => (
-  <section className="flex flex-col justify-between overflow-hidden col-span-2 bg-gray-100 bg-cover bg-no-repeat rounded-3xl">
+  <section className="flex flex-col justify-between col-span-2 bg-gray-100 bg-cover bg-no-repeat rounded-3xl">
     {/* Top */}
     <div className="flex items-center justify-between p-5 pb-1.5">
       <h2 className="text-xl font-medium">Xaftalik statistika</h2>
