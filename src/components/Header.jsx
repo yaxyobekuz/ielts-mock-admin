@@ -58,7 +58,9 @@ const Header = () => {
 const baseNavLinks = [
   { label: "Asosiy", link: "" },
   { label: "Testlar", link: "tests" },
+  { label: "To'lov", link: "payment" },
   { label: "Statistika", link: "statistics" },
+  { label: "Ta'riflar", link: "plans" },
 ];
 
 const Nav = () => {
