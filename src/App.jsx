@@ -31,6 +31,7 @@ import PartTextEditor from "./pages/Editors/PartTextEditor";
 import FlowchartEditor from "./pages/Editors/FlowchartEditor";
 import RadioGroupEditor from "./pages/Editors/RadioGroupEditor";
 import TextDraggableEditor from "./pages/Editors/TextDraggableEditor";
+import Test from "./pages/Test";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -44,6 +45,7 @@ const App = () => {
           {/* Tests */}
           <Route path="tests" element={<Outlet />}>
             <Route index element={<Tests />} />
+            <Route path="test/:testId" element={<Test />} />
           </Route>
 
           {/* Preview test */}
