@@ -7,6 +7,11 @@ const initialState = {
     hasError: false,
     isLoading: true,
   },
+  tests: {
+    data: [],
+    hasError: false,
+    isLoading: true,
+  },
 };
 
 export const storeSlice = createSlice({

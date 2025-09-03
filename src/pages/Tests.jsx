@@ -1,3 +1,11 @@
+import { useEffect } from "react";
+
+// Hooks
+import useStore from "@/hooks/useStore";
+
+// Tests api
+import { testsApi } from "@/api/tests.api";
+
 // Helpers
 import { formatDate, getRandomNumber } from "@/lib/helpers";
 
@@ -8,25 +16,66 @@ import { BookCheck, Columns2, Pin, PinOff, Plus } from "lucide-react";
 import TestTakenCountChart from "@/components/charts/TestTakenCountChart";
 
 const Tests = () => {
+  const { getData, updateProperty } = useStore("tests");
+  const { isLoading, hasError, data: tests } = getData();
+
+  const loadTests = () => {
+    updateProperty("isLoading", true);
+    updateProperty("hasError", false);
+
+    testsApi
+      .get()
+      .then(({ tests, code }) => {
+        if (code !== "testsFetched") throw new Error();
+        updateProperty("data", tests);
+      })
+      .catch(() => updateProperty("hasError", true))
+      .finally(() => updateProperty("isLoading", false));
+  };
+
+  // Load user profile
+  useEffect(() => {
+    isLoading && loadTests();
+  }, []);
+
   return (
     <div className="container py-8 space-y-6">
       {/* Title */}
       <h1 className="">Testlar</h1>
 
-      {/* Tests */}
-      <div className="grid grid-cols-4 gap-5">
-        <AddNew />
-        {Array.from({ length: 7 }, (_, index) => (
-          <TestItem key={index} index={index} />
-        ))}
-      </div>
+      {/* Main */}
+      <main className="grid grid-cols-4 gap-5">
+        <Main isLoading={isLoading} hasError={hasError} tests={tests} />
+      </main>
     </div>
+  );
+};
+
+const Main = ({ isLoading, hasError, tests = [] }) => {
+  if (isLoading) {
+    return Array.from({ length: 8 }, (_, index) => {
+      return <TestItemSkeleton key={index} />;
+    });
+  }
+
+  if (hasError) {
+    return <div className="">Error</div>;
+  }
+
+  return (
+    <>
+      <AddNew />
+
+      {tests.map((test, index) => (
+        <TestItem key={test?._id} {...test} index={index} />
+      ))}
+    </>
   );
 };
 
 const AddNew = () => {
   return (
-    <button className="group flex items-center justify-center gap-3.5 relative w-full bg-[#e31837] rounded-3xl p-5 transition-colors duration-200 hover:bg-red-600">
+    <button className="group flex items-center justify-center gap-3.5 relative w-full min-h-[200px] bg-[#e31837] rounded-3xl p-5 transition-colors duration-200 hover:bg-red-600">
       <span className="text-xl font-medium text-white">Test qo'shish</span>
       <Plus
         size={32}
@@ -119,5 +168,9 @@ const TestItem = ({ index }) => {
     </div>
   );
 };
+
+const TestItemSkeleton = () => (
+  <div className="w-full h-auto min-h-[200px] bg-gray-100 rounded-3xl p-5 space-y-5 animate-pulse" />
+);
 
 export default Tests;
