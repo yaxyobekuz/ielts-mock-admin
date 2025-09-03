@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 // Hooks
 import useStore from "@/hooks/useStore";
@@ -42,7 +43,7 @@ const Tests = () => {
   return (
     <div className="container py-8 space-y-6">
       {/* Title */}
-      <h1 className="">Testlar</h1>
+      <h1>Testlar</h1>
 
       {/* Main */}
       <main className="grid grid-cols-4 gap-5">
@@ -95,6 +96,7 @@ const AddNew = () => {
 const TestItem = ({
   pin,
   title,
+  _id: id,
   createdAt,
   taken = 0,
   totalParts = 0,
@@ -115,7 +117,7 @@ const TestItem = ({
   ];
 
   return (
-    <div className="w-full bg-gray-100 rounded-3xl p-5 space-y-5">
+    <div className="relative w-full bg-gray-100 rounded-3xl p-5 space-y-5">
       <div className="flex items-center justify-between">
         {/* Title */}
         <h3 className="text-xl font-medium capitalize">{title}</h3>
@@ -124,7 +126,7 @@ const TestItem = ({
         <button
           title={pin ? "Unpin" : "Pin"}
           aria-label={pin ? "Unpin" : "Pin"}
-          className="flex items-center justify-center size-10 bg-white rounded-full"
+          className="flex items-center justify-center relative z-10 size-10 bg-white rounded-full"
         >
           {pin ? (
             <PinOff size={18} className="rotate-45" color="red" />
@@ -170,6 +172,12 @@ const TestItem = ({
 
         <p className="text-gray-500 text-[15px]">{formatDate(createdAt)}</p>
       </div>
+
+      {/* Link */}
+      <Link
+        to={`/tests/test/${id}`}
+        className="block absolute z-0 -top-5 inset-0 size-full rounded-3xl"
+      />
     </div>
   );
 };

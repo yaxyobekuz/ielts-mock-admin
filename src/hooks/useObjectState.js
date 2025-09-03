@@ -19,7 +19,7 @@ const useObjectState = (initialState = {}) => {
     setState(initialState);
   };
 
-  return { state, setField, setFields, resetState };
+  return { state, setField, setFields, resetState, ...state };
 };
 
 export default useObjectState;
