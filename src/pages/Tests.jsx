@@ -68,7 +68,7 @@ const Main = ({ isLoading, hasError, tests = [] }) => {
       <AddNew />
 
       {tests.map((test, index) => (
-        <TestItem key={test?._id} {...test} index={index} />
+        <TestItem key={test?._id} {...test} />
       ))}
     </>
   );
@@ -92,19 +92,24 @@ const AddNew = () => {
   );
 };
 
-const TestItem = ({ index }) => {
-  const testTaken = getRandomNumber(0, 30);
-
+const TestItem = ({
+  pin,
+  title,
+  createdAt,
+  taken = 0,
+  totalParts = 0,
+  totalTaken = 0,
+}) => {
   const data = [
     {
       id: "Umumiy",
       data: [
-        { x: "Du", y: getRandomNumber(0, 20) },
-        { x: "Se", y: getRandomNumber(0, 20) },
-        { x: "Pay", y: getRandomNumber(0, 20) },
-        { x: "Ju", y: getRandomNumber(0, 20) },
-        { x: "Sha", y: getRandomNumber(0, 20) },
-        { x: "Yak", y: getRandomNumber(0, 20) },
+        { x: "Du", y: getRandomNumber(0, 3) },
+        { x: "Se", y: getRandomNumber(0, 3) },
+        { x: "Pay", y: getRandomNumber(0, 3) },
+        { x: "Ju", y: getRandomNumber(0, 3) },
+        { x: "Sha", y: getRandomNumber(0, 3) },
+        { x: "Yak", y: getRandomNumber(0, 3) },
       ],
     },
   ];
@@ -113,18 +118,18 @@ const TestItem = ({ index }) => {
     <div className="w-full bg-gray-100 rounded-3xl p-5 space-y-5">
       <div className="flex items-center justify-between">
         {/* Title */}
-        <h3 className="text-xl font-medium">Test sarlavhasi</h3>
+        <h3 className="text-xl font-medium capitalize">{title}</h3>
 
         {/* Pin toogle */}
         <button
-          title={index > 1 ? "Pin" : "Unpin"}
-          aria-label={index > 1 ? "Pin" : "Unpin"}
+          title={pin ? "Unpin" : "Pin"}
+          aria-label={pin ? "Unpin" : "Pin"}
           className="flex items-center justify-center size-10 bg-white rounded-full"
         >
-          {index > 1 ? (
-            <Pin size={18} className="rotate-45" />
-          ) : (
+          {pin ? (
             <PinOff size={18} className="rotate-45" color="red" />
+          ) : (
+            <Pin size={18} className="rotate-45" />
           )}
         </button>
       </div>
@@ -132,13 +137,7 @@ const TestItem = ({ index }) => {
       <div className="flex items-end gap-2 ">
         {/* Details */}
         <div className="shrink-0">
-          <b
-            className={`${
-              testTaken >= 20 ? "text-green-500" : ""
-            } font-semibold text-lg`}
-          >
-            {testTaken}ta
-          </b>
+          <b className="font-semibold text-lg">{taken}ta</b>
           <p className="text-gray-500">Xaftalik yechishlar soni</p>
         </div>
 
@@ -146,8 +145,8 @@ const TestItem = ({ index }) => {
         <TestTakenCountChart
           data={data}
           className="w-full h-14"
-          gradientId={`gradient-${index}`}
-          color={testTaken >= 20 ? "#22c55e" : "#3b82f6"}
+          color={taken >= 20 ? "#22c55e" : "#3b82f6"}
+          gradientId={taken >= 20 ? "gradientA" : "gradientB"}
         />
       </div>
 
@@ -159,17 +158,17 @@ const TestItem = ({ index }) => {
             className="flex items-center gap-1.5"
           >
             <BookCheck strokeWidth={1.5} size={18} />
-            <span>{testTaken + getRandomNumber(0, 70)}ta</span>
+            <span>{totalTaken}ta</span>
           </div>
 
           {/* Parts count */}
           <div title="Sahifalar" className="flex items-center gap-1.5">
             <Columns2 strokeWidth={1.5} size={18} />
-            <span>4ta</span>
+            <span>{totalParts}ta</span>
           </div>
         </div>
 
-        <p className="text-gray-500 text-[15px]">{formatDate(new Date())}</p>
+        <p className="text-gray-500 text-[15px]">{formatDate(createdAt)}</p>
       </div>
     </div>
   );
