@@ -5,6 +5,7 @@ import {
   RouterProvider,
   createBrowserRouter,
   createRoutesFromElements,
+  Outlet,
 } from "react-router-dom";
 
 // Toaster
@@ -16,6 +17,7 @@ import AuthLayout from "./layouts/AuthLayout";
 
 // Pages
 import Home from "./pages/Home";
+import Tests from "./pages/Tests";
 import Login from "./pages/Login";
 import Reading from "./pages/Reading";
 import Writing from "./pages/Writing";
@@ -38,6 +40,11 @@ const App = () => {
         <Route path="/" element={<MainLayout />}>
           {/* Homepage */}
           <Route index element={<Home />} />
+
+          {/* Tests */}
+          <Route path="tests" element={<Outlet />}>
+            <Route index element={<Tests />} />
+          </Route>
 
           {/* Preview test */}
           <Route element={<TestLayout />} path="tests/test/:testId/preview/">
