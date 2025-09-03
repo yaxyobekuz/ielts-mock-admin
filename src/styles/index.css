@@ -73,6 +73,10 @@
   textarea {
     @apply w-full px-2.5 py-1.5 rounded-md;
   }
+
+  h1 {
+    @apply capitalize text-3xl font-medium text-gray-800;
+  }
 }
 
 /* --- Components --- */
@@ -130,17 +134,6 @@
   /* Button */
   .btn {
     @apply flex items-center justify-center h-9 px-4 rounded-lg transition-colors duration-200;
-  }
-
-  /* Pattern */
-  .warn-pattern {
-    background: repeating-linear-gradient(
-      -45deg,
-      #fff,
-      #fff 8px,
-      #fb923c 8px,
-      #fb923c 11px
-    );
   }
 }
 

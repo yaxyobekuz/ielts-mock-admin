@@ -23,9 +23,7 @@ const Home = () => {
     <div className="container pt-8">
       <div className="space-y-6">
         {/* Title */}
-        <h1 className="capitalize text-3xl font-medium text-gray-800">
-          {user.firstName} xush kelibsiz!
-        </h1>
+        <h1>{user.firstName} xush kelibsiz!</h1>
 
         {/* Tests status */}
         <div className="flex items-center gap-5 w-2/3">
