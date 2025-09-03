@@ -5,6 +5,7 @@ const Input = ({
   size = "md",
   label = "",
   type = "text",
+  border = false,
   className = "",
   placeholder = "",
   required = false,
@@ -13,7 +14,9 @@ const Input = ({
   ...props
 }) => {
   const variantClasses = {
-    gray: "bg-gray-50 border-gray-300 focus:border-blue-500",
+    white: "bg-white",
+    gray: "bg-gray-50",
+    "gray-md": "bg-gray-100",
   };
 
   const sizeClasses = {
@@ -23,9 +26,14 @@ const Input = ({
     xl: "h-11 px-3.5 rounded-xl",
   };
 
-  const defaultClasses = `-outline-offset-1 focus:outline-blue-500`;
+  const defaultClasses = `
+  ${
+    border ? "border border-gray-300" : "-outline-offset-1"
+  } focus:outline-blue-500`;
 
-  const handleChange = (e) => onChange?.(e.target.value);
+  const handleChange = (e) => {
+    onChange?.(type === "file" ? e.target.files : e.target.value);
+  };
 
   const RenderInput = (() => {
     if (type === "textarea") {
