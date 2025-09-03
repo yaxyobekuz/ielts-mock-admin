@@ -14,6 +14,9 @@ import { authApi } from "@/api/auth.api";
 import Header from "@/components/Header";
 import MainBgLoader from "@/components/loaders/MainBgLoader";
 
+// Modals
+import CreateTestModal from "@/components/modal/CreateTestModal";
+
 // Animated
 import duckShrugging from "@/assets/animated/duck-shrugging.json";
 
@@ -103,6 +106,9 @@ const AuthenticatedContent = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
       <Outlet />
+
+      {/* Modals */}
+      <CreateTestModal />
     </div>
   );
 };

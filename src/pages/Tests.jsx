@@ -2,6 +2,7 @@ import { useEffect } from "react";
 
 // Hooks
 import useStore from "@/hooks/useStore";
+import useModal from "@/hooks/useModal";
 
 // Tests api
 import { testsApi } from "@/api/tests.api";
@@ -74,8 +75,13 @@ const Main = ({ isLoading, hasError, tests = [] }) => {
 };
 
 const AddNew = () => {
+  const { openModal } = useModal("createTest");
+
   return (
-    <button className="group flex items-center justify-center gap-3.5 relative w-full min-h-[200px] bg-[#e31837] rounded-3xl p-5 transition-colors duration-200 hover:bg-red-600">
+    <button
+      onClick={() => openModal()}
+      className="group flex items-center justify-center gap-3.5 relative w-full min-h-[200px] bg-[#e31837] rounded-3xl p-5 transition-colors duration-200 hover:bg-red-600"
+    >
       <span className="text-xl font-medium text-white">Test qo'shish</span>
       <Plus
         size={32}

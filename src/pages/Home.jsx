@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 // Hooks
 import useStore from "@/hooks/useStore";
+import useModal from "@/hooks/useModal";
 
 // Components
 import LineChart from "@/components/charts/LineChart";
@@ -119,64 +120,67 @@ const Profile = ({ user }) => (
   </section>
 );
 
-const Tests = ({ user }) => (
-  <section className="flex flex-col justify-between overflow-hidden w-full h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square rounded-3xl">
-    {/* Top */}
-    <div className="flex items-center justify-between p-5 pb-3.5">
-      <h2 className="text-xl font-medium">Oxirgi testlar</h2>
+const Tests = ({ user }) => {
+  const { openModal } = useModal("createTest");
 
-      {/* Link */}
-      <Link
-        to="/tests"
-        title="Barcha testlar"
-        aria-label="Barcha testlar"
-        className="btn size-10 p-0 rounded-full bg-white backdrop-blur-sm"
-      >
-        <ArrowUpRight size={20} />
-      </Link>
-    </div>
+  return (
+    <section className="flex flex-col justify-between overflow-hidden w-full h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square rounded-3xl">
+      {/* Top */}
+      <div className="flex items-center justify-between p-5 pb-3.5">
+        <h2 className="text-xl font-medium">Oxirgi testlar</h2>
 
-    {/* Bottom */}
-    <div className="flex flex-col gap-3.5 w-full p-5 pt-0 grow">
-      <ul className="grow space-y-3 max-h-full overflow-y-auto">
-        {Array.from({ length: 3 }, (_, index) => (
-          <li
-            key={index}
-            className="flex items-center justify-between gap-2 pr-2"
-          >
-            <div className="flex items-center gap-2">
-              {/* Index */}
-              <div className="flex items-center justify-center size-11 bg-black/70 rounded-full text-white font-medium">
-                0{index + 1}
+        {/* Link */}
+        <Link
+          to="/tests"
+          title="Barcha testlar"
+          aria-label="Barcha testlar"
+          className="btn size-10 p-0 rounded-full bg-white backdrop-blur-sm"
+        >
+          <ArrowUpRight size={20} />
+        </Link>
+      </div>
+
+      {/* Bottom */}
+      <div className="flex flex-col gap-3.5 w-full p-5 pt-0 grow">
+        <ul className="grow space-y-3 max-h-full overflow-y-auto">
+          {Array.from({ length: 3 }, (_, index) => (
+            <li
+              key={index}
+              className="flex items-center justify-between gap-2 pr-2"
+            >
+              <div className="flex items-center gap-2">
+                {/* Index */}
+                <div className="flex items-center justify-center size-11 bg-black/70 rounded-full text-white font-medium">
+                  0{index + 1}
+                </div>
+
+                {/* Details */}
+                <div className="space-y-1">
+                  <h3 className="font-medium">Test nomi</h3>
+                  <span className="text-sm text-gray-500">
+                    {formatDate(new Date())} {formatTime(new Date())}
+                  </span>
+                </div>
               </div>
 
-              {/* Details */}
-              <div className="space-y-1">
-                <h3 className="font-medium">Test nomi</h3>
-                <span className="text-sm text-gray-500">
-                  {formatDate(new Date())} {formatTime(new Date())}
-                </span>
-              </div>
-            </div>
+              {/* Status */}
+              <div className="size-6 bg-green-400 rounded-full" />
+            </li>
+          ))}
+        </ul>
 
-            {/* Status */}
-            <div className="size-6 bg-green-400 rounded-full" />
-          </li>
-        ))}
-      </ul>
-
-      {/* Payment */}
-      <Link
-        to="/payment"
-        title="Hisobni to'ldirish"
-        className="btn h-9 bg-blue-500 p-0 rounded-full text-white hover:bg-blue-600"
-      >
-        <span>Test qo'shish</span>
-        <Plus size={20} className="ml-2" />
-      </Link>
-    </div>
-  </section>
-);
+        {/* Payment */}
+        <button
+          onClick={() => openModal()}
+          className="btn h-9 bg-blue-500 p-0 rounded-full text-white hover:bg-blue-600"
+        >
+          <span>Test qo'shish</span>
+          <Plus size={20} className="ml-2" />
+        </button>
+      </div>
+    </section>
+  );
+};
 
 const Stats = ({ user }) => (
   <section className="flex flex-col justify-between col-span-2 bg-gray-100 bg-cover bg-no-repeat rounded-3xl">
