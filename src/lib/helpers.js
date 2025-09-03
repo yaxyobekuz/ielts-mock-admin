@@ -33,10 +33,26 @@ export const formatDate = (input) => {
   const date = new Date(input);
 
   const year = date.getFullYear();
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = date.getDate();
 
-  return `${day}-${month}-${year}`;
+  const months = [
+    "yanvar",
+    "fevral",
+    "mart",
+    "aprel",
+    "may",
+    "iyun",
+    "iyul",
+    "avgust",
+    "sentyabr",
+    "oktyabr",
+    "noyabr",
+    "dekabr",
+  ];
+
+  const monthName = months[date.getMonth()];
+
+  return `${day}-${monthName}, ${year}`;
 };
 
 // Format time
