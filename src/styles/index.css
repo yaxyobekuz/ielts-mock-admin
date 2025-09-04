@@ -60,6 +60,10 @@
     --chart-5: 340 75% 55%;
   }
 
+  * {
+    @apply border-border;
+  }
+
   body {
     font-family: "Inter", sans-serif;
     @apply overflow-x-hidden text-base text-gray-800 font-normal;
@@ -162,11 +166,23 @@ a.active {
   @apply !bg-gray-100 text-blue-500;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+/* scrolls */
+:is(.scroll-x-primary, .scroll-y-primary)::-webkit-scrollbar {
+  @apply bg-gray-200 rounded-full;
+}
+
+:is(.scroll-x-primary, .scroll-y-primary)::-webkit-scrollbar-thumb {
+  @apply bg-blue-500/70 rounded-full;
+}
+
+:is(.scroll-x-primary, .scroll-y-primary):hover::-webkit-scrollbar-thumb {
+  @apply bg-blue-500;
+}
+
+.scroll-x-primary::-webkit-scrollbar {
+  @apply h-1;
+}
+
+.scroll-y-primary::-webkit-scrollbar {
+  @apply w-1;
 }
