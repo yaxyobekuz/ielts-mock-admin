@@ -2,16 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 
 // Initial state
 const initialState = {
-  user: {
-    data: {},
-    hasError: false,
-    isLoading: true,
-  },
-  tests: {
-    data: [],
-    hasError: false,
-    isLoading: true,
-  },
+  user: { data: {}, hasError: false, isLoading: true },
+  tests: { data: [], hasError: false, isLoading: true },
+  latestTests: { data: [], hasError: false, isLoading: true },
 };
 
 export const storeSlice = createSlice({
