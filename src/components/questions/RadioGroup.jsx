@@ -26,7 +26,7 @@ const Answers = ({ answers, groupNumber }) => (
     {answers.map(({ text }, index) => (
       <li key={index}>
         <label className="flex items-center gap-3.5 h-11 px-3.5 rounded-md cursor-pointer hover:bg-gray-100">
-          <input type="radio" value={text} name={`answer-${groupNumber}`} />
+          <input type="radio" className="w-auto" value={text} name={`answer-${groupNumber}`} />
           <span>{text}</span>
         </label>
       </li>

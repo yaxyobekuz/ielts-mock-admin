@@ -2,6 +2,7 @@ import { useState } from "react";
 
 const EditorHeader = ({
   isSaving,
+  isUpdating,
   handleNavigate,
   originalContent,
   hasContentChanged,
@@ -62,10 +63,18 @@ const EditorHeader = ({
           {/* Save btn */}
           <button
             onClick={handleSaveContent}
-            disabled={!hasContentChanged || isSaving}
-            className="flex items-center justify-center w-24 h-9 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            disabled={!hasContentChanged || isSaving || isUpdating}
+            className={`${
+              isUpdating
+                ? "bg-gray-200 rounded-full w-9"
+                : "w-24 bg-blue-500 rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            } flex items-center justify-center h-9  text-white text-sm transition-all duration-500`}
           >
-            Saqlash
+            {isUpdating ? (
+              <div className="spin-loader size-9" />
+            ) : (
+              <span>Saqlash</span>
+            )}
           </button>
         </div>
       </div>
