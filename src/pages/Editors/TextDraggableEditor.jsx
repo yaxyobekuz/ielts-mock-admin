@@ -1,8 +1,20 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { useState, useCallback, useEffect } from "react";
-
 // Icons
 import { Trash } from "lucide-react";
+
+// Helpers
+import { isNumber } from "../../lib/helpers";
+
+// Toast
+import { toast } from "@/notification/toast";
+
+// Api
+import { sectionsApi } from "@/api/sections.api";
+
+// React
+import { useState, useCallback, useEffect } from "react";
+
+// Router
+import { useNavigate, useParams } from "react-router-dom";
 
 // Components
 import EditorHeader from "../../components/EditorHeader";
@@ -11,9 +23,6 @@ import RichTextEditor from "../../components/RichTextEditor";
 // Hooks
 import useModule from "../../hooks/useModule";
 import useDebouncedState from "../../hooks/useDebouncedState";
-
-// Helpers
-import { isNumber, countExactMatches } from "../../lib/helpers";
 
 const TextDraggableEditor = () => {
   // State & Hooks
@@ -39,6 +48,7 @@ const TextDraggableEditor = () => {
   // State
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [content, setContent] = useDebouncedState(section?.text, setIsSaving);
   const [title, setTitle] = useDebouncedState(
     section?.options?.title,
@@ -74,24 +84,27 @@ const TextDraggableEditor = () => {
   };
 
   const handleSaveContent = () => {
-    // Count answer inputs
-    const target = `<span data-name="dropzone"></span>`;
-    const totalInputs = countExactMatches(content, target);
+    if (isUpdating) return;
+    setIsUpdating(true);
 
-    // Update section data from store
     const sectionData = {
       description,
       text: content,
-      questionsCount: totalInputs,
       options: { title, data: answers.map((a) => ({ option: a })) },
     };
 
-    handleNavigate(); // Navigate user to preview page
-    setIsSaving(false); // Remove saving loader
-    updateSection(partNumber, sectionData, sectionIndex);
+    sectionsApi
+      .update(section._id, sectionData)
+      .then(({ code, section }) => {
+        if (code !== "sectionUpdated") throw new Error();
 
-    // Update original content to match current content
-    setOriginal({ content, title, description, answers });
+        handleNavigate();
+        setIsSaving(false);
+        updateSection(partNumber, section, sectionIndex);
+        setOriginal({ content, title, description, answers });
+      })
+      .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
+      .finally(() => setIsUpdating(false));
   };
 
   return (
@@ -99,6 +112,7 @@ const TextDraggableEditor = () => {
       {/* Header */}
       <EditorHeader
         isSaving={isSaving}
+        isUpdating={isUpdating}
         handleNavigate={handleNavigate}
         initialDescription={description}
         originalContent={original.content}
