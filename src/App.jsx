@@ -1,11 +1,11 @@
 // Router
 import {
   Route,
+  Outlet,
   Navigate,
   RouterProvider,
   createBrowserRouter,
   createRoutesFromElements,
-  Outlet,
 } from "react-router-dom";
 
 // Toaster
@@ -16,6 +16,7 @@ import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
 
 // Pages
+import Test from "./pages/Test";
 import Home from "./pages/Home";
 import Tests from "./pages/Tests";
 import Login from "./pages/Login";
@@ -31,7 +32,6 @@ import PartTextEditor from "./pages/Editors/PartTextEditor";
 import FlowchartEditor from "./pages/Editors/FlowchartEditor";
 import RadioGroupEditor from "./pages/Editors/RadioGroupEditor";
 import TextDraggableEditor from "./pages/Editors/TextDraggableEditor";
-import Test from "./pages/Test";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -45,45 +45,35 @@ const App = () => {
           {/* Tests */}
           <Route path="tests" element={<Outlet />}>
             <Route index element={<Tests />} />
-            <Route path="test/:testId" element={<Test />} />
+            <Route path="test/:testId" element={<Outlet />}>
+              <Route index element={<Test />} />
+
+              {/* Preview test */}
+              <Route path="preview" element={<TestLayout />}>
+                <Route path="reading/:partNumber" element={<Reading />} />
+                <Route path="writing/:partNumber" element={<Writing />} />
+                <Route path="listening/:partNumber" element={<Listening />} />
+              </Route>
+
+              {/* Editors */}
+              <Route path="edit/:module/:partNumber" element={<Outlet />}>
+                <Route path="part-text" element={<PartTextEditor />} />
+                <Route path="text/:sectionIndex" element={<TextEditor />} />
+                <Route
+                  element={<FlowchartEditor />}
+                  path="flowchart/:sectionIndex"
+                />
+                <Route
+                  element={<TextDraggableEditor />}
+                  path="text-draggable/:sectionIndex"
+                />
+                <Route
+                  element={<RadioGroupEditor />}
+                  path="radio-group/:sectionIndex"
+                />
+              </Route>
+            </Route>
           </Route>
-
-          {/* Preview test */}
-          <Route element={<TestLayout />} path="tests/test/:testId/preview/">
-            <Route path="reading/:partNumber" element={<Reading />} />
-            <Route path="writing/:partNumber" element={<Writing />} />
-            <Route path="listening/:partNumber" element={<Listening />} />
-          </Route>
-
-          {/* Text editor */}
-          <Route
-            element={<TextEditor />}
-            path="tests/test/:testId/edit/:module/:partNumber/text/:sectionIndex"
-          />
-
-          {/* Part text editor */}
-          <Route
-            element={<PartTextEditor />}
-            path="tests/test/:testId/edit/:module/:partNumber/part-text"
-          />
-
-          {/* Flowchart editor */}
-          <Route
-            element={<FlowchartEditor />}
-            path="tests/test/:testId/edit/:module/:partNumber/flowchart/:sectionIndex"
-          />
-
-          {/* Text draggable editor */}
-          <Route
-            element={<TextDraggableEditor />}
-            path="tests/test/:testId/edit/:module/:partNumber/text-draggable/:sectionIndex"
-          />
-
-          {/* Radio Group editor */}
-          <Route
-            element={<RadioGroupEditor />}
-            path="tests/test/:testId/edit/:module/:partNumber/radio-group/:sectionIndex"
-          />
         </Route>
 
         {/* Auth */}
