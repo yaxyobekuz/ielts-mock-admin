@@ -37,3 +37,32 @@
     background-position: 250% 0, 250% 0;
   }
 }
+
+.spin-loader {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid #0000;
+  border-right-color: #3b82f6;
+  position: relative;
+  animation: l24 1s infinite linear;
+}
+
+.spin-loader:before,
+.spin-loader:after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: inherit;
+  animation: inherit;
+  animation-duration: 2s;
+}
+.spin-loader:after {
+  animation-duration: 4s;
+}
+
+@keyframes l24 {
+  100% {
+    transform: rotate(1turn);
+  }
+}
