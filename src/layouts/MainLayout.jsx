@@ -4,11 +4,12 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 // Lottie
 import Lottie from "lottie-react";
 
-// Hooks
-import useStore from "@/hooks/useStore";
-
 // Auth api
 import { authApi } from "@/api/auth.api";
+
+// Hooks
+import useStore from "@/hooks/useStore";
+import usePathSegments from "@/hooks/usePathSegments";
 
 // Components
 import Header from "@/components/Header";
@@ -74,7 +75,9 @@ const UnauthenticatedContent = () => (
 );
 
 const AuthenticatedContent = () => {
+  const { pathSegments } = usePathSegments();
   const { getData, updateProperty } = useStore("user");
+  const isAllowedPage = !["preview", "edit"].includes(pathSegments[3]);
   const { isLoading, hasError } = getData();
 
   const loadProfile = () => {
@@ -104,7 +107,7 @@ const AuthenticatedContent = () => {
   // Content
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      {isAllowedPage ? <Header /> : null}
       <Outlet />
 
       {/* Modals */}
