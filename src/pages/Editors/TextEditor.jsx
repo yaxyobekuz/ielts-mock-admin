@@ -55,7 +55,7 @@ const TextEditor = () => {
     setIsSaving
   );
   const [answers, setAnswers] = useDebouncedState(
-    section?.answers || [""],
+    section?.answers || [{ text: "" }],
     setIsSaving
   );
 
@@ -82,7 +82,11 @@ const TextEditor = () => {
     setIsUpdating(true);
 
     // Update section data from store
-    const sectionData = { answers, description, text: content };
+    const sectionData = {
+      description,
+      text: content,
+      answers: answers.filter(Boolean),
+    };
 
     sectionsApi
       .update(section._id, sectionData)
@@ -130,7 +134,7 @@ const TextEditor = () => {
 };
 
 const Answers = ({ onChange, initialAnwsers }) => {
-  const [inputs, setInputs] = useState(initialAnwsers);
+  const [inputs, setInputs] = useState(initialAnwsers?.map(({ text }) => text));
 
   const handleAddInput = useCallback(() => {
     setInputs((prev) => (prev.length < 50 ? [...prev, ""] : prev));
@@ -149,7 +153,7 @@ const Answers = ({ onChange, initialAnwsers }) => {
   };
 
   useEffect(() => {
-    onChange?.(inputs);
+    onChange?.(inputs?.map((text) => ({ text })));
   }, [JSON.stringify(inputs)]);
 
   return (
