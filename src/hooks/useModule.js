@@ -1,8 +1,9 @@
 import { useSelector, useDispatch } from "react-redux";
 import {
   addModulePart,
-  addModuleSection,
+  setModuleData,
   updateModulePart,
+  addModuleSection,
   updateModuleSection,
 } from "../store/features/moduleSlice";
 
@@ -14,26 +15,20 @@ const useModule = (module, moduleId) => {
   const getModuleData = () => {
     return useSelector((state) => {
       const data = state.module[module];
-      return data ? data[moduleId] : null;
+      return data ? data[moduleId]?.parts : null;
     });
   };
 
   // Add module part
-  const addPart = () => {
-    dispatch(addModulePart({ type: module, id: moduleId }));
+  const setModule = (data, id = moduleId, type = module) => {
+    dispatch(setModuleData({ type, id, data }));
   };
 
+  // Add module part
+  const addPart = (data) => dispatch(addModulePart(data));
+
   // Add section
-  const addSection = (partNumber, sectionType) => {
-    dispatch(
-      addModuleSection({
-        sectionType,
-        type: module,
-        id: moduleId,
-        partNumber: parseInt(partNumber),
-      })
-    );
-  };
+  const addSection = (data) => dispatch(addModuleSection(data));
 
   // Update section
   const updateSection = (partNumber, data, sectionIndex) => {
@@ -63,6 +58,7 @@ const useModule = (module, moduleId) => {
   return {
     addPart,
     dispatch,
+    setModule,
     updatePart,
     addSection,
     getModuleData,
