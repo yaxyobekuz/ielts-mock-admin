@@ -60,7 +60,7 @@ const Reading = () => {
       <div className="pt-8">
         {/* Part header */}
         <div className="w-full bg-gray-50 py-3 px-4 mb-5 rounded-xl border border-gray-300">
-          <h1 className="mb-1 font-bold">Part {partNumber}</h1>
+          <h1 className="mb-1 text-base font-bold">Part {partNumber}</h1>
           <p>{description || "Description not found!"}</p>
         </div>
 

@@ -1,5 +1,5 @@
+// React
 import { useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
 
 // Components
 import Icon from "../components/Icon";
@@ -9,6 +9,9 @@ import useModule from "../hooks/useModule";
 
 // Icons
 import penIcon from "../assets/icons/pen.svg";
+
+// Router
+import { Link, useParams } from "react-router-dom";
 
 // Data
 import questionsType from "../data/questionsType";
@@ -28,9 +31,9 @@ const Listening = () => {
   // Calculate current part and cumulative question count
   const { currentPart, cumulativeQuestions } = useMemo(() => {
     const partNum = parseInt(partNumber);
-    const part = parts.find((p) => p.number === partNum);
+    const part = parts?.find((p) => p.number === partNum);
     const cumulative = parts
-      .slice(0, partNum - 1)
+      ?.slice(0, partNum - 1)
       .reduce((acc, part) => acc + part.totalQuestions, 0);
 
     return {
@@ -59,7 +62,7 @@ const Listening = () => {
       <div className="pt-8">
         {/* Part header */}
         <div className="w-full bg-gray-50 py-3 px-4 mb-5 rounded-xl border border-gray-300">
-          <h1 className="mb-1 font-bold">Part {partNumber}</h1>
+          <h1 className="mb-1 text-base font-bold">Part {partNumber}</h1>
           <p>{description || "Description not found!"}</p>
         </div>
 
