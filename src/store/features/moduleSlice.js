@@ -236,46 +236,13 @@ const writingParts = [
 
 const initialState = {
   writing: {
-    testId: writingParts,
+    testId: { partsCount: 4, parts: writingParts },
   },
   reading: {
-    testId: readingParts,
+    testId: { partsCount: 4, parts: readingParts },
   },
   listening: {
-    testId: listeningParts,
-  },
-};
-
-const initialSections = {
-  text: {
-    type: "text",
-    questionsCount: 0,
-    title: "Section title",
-    text: "<p>Section text</p>\n...",
-    description: "Section description",
-  },
-  "text-draggable": {
-    questionsCount: 0,
-    type: "text-draggable",
-    title: "Section title",
-    text: "<p>Section text</p>\n...",
-    description: "Section description",
-    options: { title: "Options title", data: [] },
-  },
-  flowchart: {
-    type: "flowchart",
-    questionsCount: 0,
-    title: "Section title",
-    description: "Section description",
-    items: { title: "Chart title", data: [] },
-    options: { title: "Options title", data: [] },
-  },
-  "radio-group": {
-    groups: [],
-    questionsCount: 0,
-    type: "radio-group",
-    title: "Section title",
-    description: "Section description",
+     testId: { partsCount: 4, parts: listeningParts },
   },
 };
 
@@ -287,48 +254,36 @@ export const moduleSlice = createSlice({
     setModuleData: (state, action) => {
       const { type, data, id } = action.payload;
 
-      if (state[type] && state[type][id]) {
-        state[type][id] = data;
-      } else {
-        console.error(`Test ${id}: ${type} module is not defined`);
-      }
+      if (!state[type]);
+      else state[type][id] = data;
     },
 
     // Add new part
     addModulePart: (state, action) => {
-      const { type, id } = action.payload;
+      const part = action.payload;
+      const { module, testId } = part;
 
-      if (state[type] && state[type][id]) {
-        const parts = state[type][id];
-
-        const partData = {
-          sections: [],
-          totalQuestions: 0,
-          number: parts.length + 1,
-          description: "Part description",
-        };
-
-        parts.push(partData);
+      if (state[module] && state[module][testId]) {
+        state[module][testId].parts.push(part);
+        state[module][testId].partsCount = part.number;
       } else {
-        console.error(`Test ${id}: ${type} module is not defined`);
+        console.error(`Test ${testId}: ${module} module is not defined`);
       }
     },
 
     // Add new section
     addModuleSection: (state, action) => {
-      const { type, id, partNumber, sectionType } = action.payload;
+      const section = action.payload;
+      const { testId, partId, module } = section;
 
-      if (state[type] && state[type][id]) {
-        const parts = state[type][id];
-        const part = parts.find((p) => p.number === partNumber);
+      if (state[module] && state[module][testId]) {
+        const parts = state[module][testId].parts;
+        const part = parts.find((p) => p._id === partId);
 
-        if (!part) return console.error(`Part ${partNumber} is not defined`);
-
-        if (!part.sections) part.sections = [];
-
-        part.sections.push(initialSections[sectionType]);
+        if (!part) return console.error(`Part ${partId} is not defined`);
+        part.sections.push(section);
       } else {
-        console.error(`Test ${id}: ${type} module is not defined`);
+        console.error(`Test ${testId}: ${module} module is not defined`);
       }
     },
 
@@ -337,7 +292,7 @@ export const moduleSlice = createSlice({
       const { type, id, partNumber, sectionIndex, data } = action.payload;
 
       if (state[type] && state[type][id]) {
-        const parts = state[type][id];
+        const parts = state[type][id].parts;
         const part = parts.find((p) => p.number === partNumber);
 
         if (!part) return console.error(`Part ${partNumber} is not defined`);
@@ -364,7 +319,7 @@ export const moduleSlice = createSlice({
       const { type, id, partNumber, data } = action.payload;
 
       if (state[type] && state[type][id]) {
-        const parts = state[type][id];
+        const parts = state[type][id].parts;
         const part = parts.find((p) => p.number === partNumber);
 
         if (!part) return console.error(`Part ${partNumber} is not defined`);
@@ -380,7 +335,7 @@ export const moduleSlice = createSlice({
       const { type, id, number } = action.payload;
 
       if (state[type] && state[type][id]) {
-        const parts = state[type][id];
+        const parts = state[type][id].parts;
         const filteredParts = parts.filter((p) => p.number !== number);
         const newParts = filteredParts.map((p, i) => ({ ...p, number: i + 1 }));
         state[type][id] = newParts;
