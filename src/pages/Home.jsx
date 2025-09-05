@@ -11,14 +11,14 @@ import { testsApi } from "@/api/tests.api";
 // Components
 import LineChart from "@/components/charts/LineChart";
 
+// Icons
+import { ArrowUpRight, Pencil, Plus } from "lucide-react";
+
 // Images
 import educationBg from "@/assets/backgrounds/education-red.jpg";
 
 // Helpers
 import { formatDate, formatTime, formatUzPhone } from "@/lib/helpers";
-
-// Icons
-import { ArrowUpRight, ChevronRight, Pencil, Plus } from "lucide-react";
 
 const Home = () => {
   const { getData } = useStore("user");
@@ -184,9 +184,6 @@ const Tests = () => {
                       <div className="w-4/5 h-3.5 bg-gray-200 rounded-md" />
                     </div>
                   </div>
-
-                  {/* Arrow */}
-                  <div className="shrink-0 size-6 bg-gray-200 rounded-full" />
                 </li>
               ))
             : null}
@@ -213,11 +210,6 @@ const Tests = () => {
                         {formatDate(updatedAt)} {formatTime(updatedAt)}
                       </span>
                     </div>
-                  </div>
-
-                  {/* Arrow */}
-                  <div className="flex items-center justify-center shrink-0 size-6 bg-white rounded-full">
-                    <ChevronRight size={18} className="ml-0.5" color="#555" />
                   </div>
 
                   {/* Link */}
