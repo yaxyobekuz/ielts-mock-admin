@@ -1,8 +1,20 @@
-import { json, useNavigate, useParams } from "react-router-dom";
-import { useState, useCallback, useEffect } from "react";
-
 // Icons
 import { Trash } from "lucide-react";
+
+// Toast
+import { toast } from "@/notification/toast";
+
+// Helpers
+import { isNumber } from "../../lib/helpers";
+
+// Api
+import { sectionsApi } from "@/api/sections.api";
+
+// React
+import { useState, useCallback, useEffect } from "react";
+
+// Router
+import { useNavigate, useParams } from "react-router-dom";
 
 // Components
 import EditorHeader from "../../components/EditorHeader";
@@ -11,9 +23,6 @@ import RichTextEditor from "../../components/RichTextEditor";
 // Hooks
 import useModule from "../../hooks/useModule";
 import useDebouncedState from "../../hooks/useDebouncedState";
-
-// Helpers
-import { isNumber, countExactMatches } from "../../lib/helpers";
 
 const TextEditor = () => {
   // State & Hooks
@@ -39,6 +48,7 @@ const TextEditor = () => {
   // State
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [content, setContent] = useDebouncedState(section?.text, setIsSaving);
   const [description, setDescription] = useDebouncedState(
     section?.description || "",
@@ -68,22 +78,23 @@ const TextEditor = () => {
   };
 
   const handleSaveContent = () => {
-    // Count answer inputs
-    const target = `<input type="text" data-name="answer-input">`;
-    const totalInputs = countExactMatches(content, target);
+    if (isUpdating) return;
+    setIsUpdating(true);
 
     // Update section data from store
-    const sectionData = {
-      answers,
-      description,
-      text: content,
-      questionsCount: totalInputs,
-    };
+    const sectionData = { answers, description, text: content };
 
-    handleNavigate(); // Navigate user to preview page
-    setIsSaving(false); // Stop saving loader
-    setOriginal({ content, description, answers }); // Update original values
-    updateSection(partNumber, sectionData, sectionIndex); // Update section data from store
+    sectionsApi
+      .update(section._id, sectionData)
+      .then(({ code, section }) => {
+        if (code !== "sectionUpdated") throw new Error();
+        handleNavigate();
+        setIsSaving(false);
+        setOriginal({ content, description, answers });
+        updateSection(partNumber, section, sectionIndex);
+      })
+      .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
+      .finally(() => setIsUpdating(false));
   };
 
   return (
@@ -91,6 +102,7 @@ const TextEditor = () => {
       {/* Header */}
       <EditorHeader
         isSaving={isSaving}
+        isUpdating={isUpdating}
         title="Matnni tahrirlash"
         handleNavigate={handleNavigate}
         initialDescription={description}
