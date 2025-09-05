@@ -1,5 +1,3 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { useState, useCallback, useEffect } from "react";
 
 // Icons
 import { Trash } from "lucide-react";
@@ -7,8 +5,20 @@ import { Trash } from "lucide-react";
 // Helpers
 import { isNumber } from "../../lib/helpers";
 
+// Toast
+import { toast } from "@/notification/toast";
+
+// Api
+import { sectionsApi } from "@/api/sections.api";
+
 // Components
 import EditorHeader from "../../components/EditorHeader";
+
+// Router
+import { useNavigate, useParams } from "react-router-dom";
+
+// React
+import { useState, useCallback, useEffect } from "react";
 
 // Hooks
 import useModule from "../../hooks/useModule";
@@ -38,6 +48,7 @@ const RadioGroupEditor = () => {
   // State
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [groups, setGroups] = useDebouncedState(
     section?.groups || [],
     setIsSaving
@@ -65,16 +76,22 @@ const RadioGroupEditor = () => {
 
   // Update section data from store
   const handleSaveContent = () => {
-    const sectionData = {
-      groups,
-      description,
-      questionsCount: groups.length,
-    };
+    if (isUpdating) return;
+    setIsUpdating(true);
 
-    handleNavigate();
-    setIsSaving(false);
-    setOriginal({ groups, description });
-    updateSection(partNumber, sectionData, sectionIndex);
+    const sectionData = { groups, description };
+
+    sectionsApi
+      .update(section._id, sectionData)
+      .then(({ code, section }) => {
+        if (code !== "sectionUpdated") throw new Error();
+        handleNavigate();
+        setIsSaving(false);
+        setOriginal({ groups, description });
+        updateSection(partNumber, section, sectionIndex);
+      })
+      .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
+      .finally(() => setIsUpdating(false));
   };
 
   return (
@@ -82,6 +99,7 @@ const RadioGroupEditor = () => {
       {/* Header */}
       <EditorHeader
         isSaving={isSaving}
+        isUpdating={isUpdating}
         title="Variantlar guruhi"
         handleNavigate={handleNavigate}
         initialDescription={description}
