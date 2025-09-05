@@ -1,17 +1,25 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+// Router
 import { Link, useLocation } from "react-router-dom";
+
+// Hooks
+import usePathSegments from "@/hooks/usePathSegments";
+
+// React
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const Nav = ({
   role,
   onChange,
-  activePath,
   links = [],
   className = "",
   extraLinks = [],
+  pagePathIndex = 0,
+  fullSizeBtn = false,
   initialStyle = { left: 4, width: 81 },
 }) => {
   const linkRefs = useRef([]);
   const location = useLocation();
+  const { pathSegments } = usePathSegments();
   const [activeStyle, setActiveStyle] = useState(initialStyle);
 
   const navLinks = useMemo(() => {
@@ -21,12 +29,15 @@ const Nav = ({
     return links;
   }, [role, links, extraLinks]);
 
-  const currentPage = activePath || location.pathname.split("/")[1];
+  const currentPage = pathSegments[pagePathIndex];
 
   useEffect(() => {
     const activeIndex = (() => {
       if (!currentPage) return 0;
-      return navLinks.findIndex(({ link }) => link === currentPage);
+      return navLinks.findIndex(({ link }) => {
+        const pathSegments = link.split("/").filter(Boolean) || [];
+        return pathSegments[pagePathIndex] === currentPage;
+      });
     })();
 
     if (activeIndex !== -1 && linkRefs.current[activeIndex]) {
@@ -45,12 +56,12 @@ const Nav = ({
       {/* Links */}
       <ul className="flex items-center relative">
         {navLinks.map(({ label, link }, index) => (
-          <li key={link}>
+          <li key={link} className={`${fullSizeBtn ? "w-full" : ""}`}>
             <Link
               to={`/${link}`}
               ref={(el) => (linkRefs.current[index] = el)}
               onClick={() => onChange?.(link)}
-              className="inline-block relative px-4 py-1.5 rounded-full z-10"
+              className="inline-block relative px-4 py-1.5 rounded-full z-10 w-full text-center"
             >
               {label}
             </Link>
