@@ -1,8 +1,20 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { useState, useCallback, useEffect } from "react";
-
 // Icons
 import { Trash } from "lucide-react";
+
+// Helpers
+import { isNumber } from "../../lib/helpers";
+
+// Toast
+import { toast } from "@/notification/toast";
+
+// Api
+import { sectionsApi } from "@/api/sections.api";
+
+// React
+import { useState, useCallback, useEffect } from "react";
+
+// Router
+import { useNavigate, useParams } from "react-router-dom";
 
 // Components
 import EditorHeader from "../../components/EditorHeader";
@@ -11,9 +23,6 @@ import RichTextEditor from "../../components/RichTextEditor";
 // Hooks
 import useModule from "../../hooks/useModule";
 import useDebouncedState from "../../hooks/useDebouncedState";
-
-// Helpers
-import { isNumber, countExactMatches } from "../../lib/helpers";
 
 const FlowchartEditor = () => {
   // State & Hooks
@@ -39,6 +48,7 @@ const FlowchartEditor = () => {
   // State
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [optionsTitle, setOptionsTitle] = useDebouncedState(
     section?.options?.title,
     setIsSaving
@@ -83,18 +93,12 @@ const FlowchartEditor = () => {
   };
 
   const handleSaveContent = () => {
-    // Count answer inputs
-    let totalInputs = 0;
-    const target = `<span data-name="dropzone"></span>`;
-
-    charts?.forEach((content) => {
-      totalInputs += countExactMatches(content, target);
-    });
+    if (isUpdating) return;
+    setIsUpdating(true);
 
     // Update section data from store
     const sectionData = {
       description,
-      questionsCount: totalInputs,
       items: {
         title: chartsTitle,
         data: charts.map((c) => ({ text: c })),
@@ -105,12 +109,23 @@ const FlowchartEditor = () => {
       },
     };
 
-    handleNavigate(); // Navigate user to preview page
-    setIsSaving(false); // Remove saving loader
-    updateSection(partNumber, sectionData, sectionIndex);
-
-    // Update original content to match current content
-    setOriginal({ chartsTitle, optionsTitle, description, charts, options });
+    sectionsApi
+      .update(section._id, sectionData)
+      .then(({ code, section }) => {
+        if (code !== "sectionUpdated") throw new Error();
+        handleNavigate();
+        setOriginal({
+          charts,
+          options,
+          description,
+          chartsTitle,
+          optionsTitle,
+        });
+        setIsSaving(false);
+        updateSection(partNumber, section, sectionIndex);
+      })
+      .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
+      .finally(() => setIsUpdating(false));
   };
 
   return (
@@ -118,6 +133,7 @@ const FlowchartEditor = () => {
       {/* Header */}
       <EditorHeader
         isSaving={isSaving}
+        isUpdating={isUpdating}
         title="Bloklar sxemasi"
         handleNavigate={handleNavigate}
         initialDescription={description}
