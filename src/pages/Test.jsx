@@ -8,6 +8,7 @@ import { testsApi } from "@/api/tests.api";
 import { toast } from "@/notification/toast";
 
 // Hooks
+import useModule from "@/hooks/useModule";
 import useObjectState from "@/hooks/useObjectState";
 
 // Helpers
@@ -24,6 +25,7 @@ import { ArrowUpRight, Clock, Columns2, RefreshCcw } from "lucide-react";
 
 const Test = () => {
   const { testId } = useParams();
+  const { setModule } = useModule();
   const { setField, test, isLoading, hasError } = useObjectState({
     test: {},
     isLoading: true,
@@ -38,9 +40,14 @@ const Test = () => {
       .getById(testId)
       .then(({ code, test }) => {
         if (code !== "testFetched") throw new Error();
+
         setField("test", test);
+        setModule(test.reading, test._id, "reading");
+        setModule(test.writing, test._id, "writing");
+        setModule(test.listening, test._id, "listening");
       })
       .catch(({ message }) => {
+        setField("hasError", true);
         toast.error(message || "Nimadir xato ketdi");
       })
       .finally(() => setField("isLoading"));
@@ -88,15 +95,21 @@ const modules = [
   },
 ];
 
-const Content = ({
-  title,
-  image,
-  hasError,
-  createdAt,
-  createdBy,
-  isLoading,
-  description,
-}) => {
+const Content = (test) => {
+  const {
+    title,
+    image,
+    writing,
+    reading,
+    hasError,
+    createdAt,
+    createdBy,
+    listening,
+    isLoading,
+    totalParts,
+    description,
+  } = test;
+
   if (isLoading) return <LoadingContent />;
   if (hasError) return <ErrorContent />;
 
@@ -109,10 +122,10 @@ const Content = ({
         <h1>{title}</h1>
 
         <div className="flex items-center gap-5">
-          {/* Parts count */}
+          {/* Total parts */}
           <div title="Jami sahifalar" className="flex items-center gap-1.5">
             <Columns2 strokeWidth={1.5} size={22} />
-            <span>{0}ta</span>
+            <span>{totalParts}ta</span>
           </div>
 
           {/* Parts count */}
@@ -126,51 +139,54 @@ const Content = ({
       </div>
 
       <ul className="grid grid-cols-4 gap-5">
-        {modules.map(({ image, title, link }, index) => (
-          <li
-            key={index}
-            style={{ backgroundImage: `url(${image})` }}
-            className="flex flex-col relative overflow-hidden w-full h-auto aspect-square bg-cover bg-center bg-no-repeat bg-gray-100 rounded-3xl"
-          >
-            <div className="flex items-center justify-end p-5">
+        {modules.map(({ image, title, link }, index) => {
+          const partsCount = test[title.toLowerCase()]?.partsCount || 0;
+          return (
+            <li
+              key={index}
+              style={{ backgroundImage: `url(${image})` }}
+              className="flex flex-col relative overflow-hidden w-full h-auto aspect-square bg-cover bg-center bg-no-repeat bg-gray-100 rounded-3xl"
+            >
+              <div className="flex items-center justify-end p-5">
+                {/* Link */}
+                <div className="btn size-10 p-0 rounded-full bg-white backdrop-blur-sm">
+                  <ArrowUpRight size={20} />
+                </div>
+              </div>
+
+              {/* Bottom */}
+              <div className="w-full bg-gradient-to-b from-transparent to-black/80 mt-auto p-5 space-y-3">
+                <h2 className="text-xl font-medium text-white">{title}</h2>
+
+                <div className="flex items-center justify-between gap-4">
+                  {/* Parts count */}
+                  <div
+                    title="Sahifalar"
+                    className="flex items-center gap-1.5 text-gray-200"
+                  >
+                    <Columns2 strokeWidth={1.5} size={18} />
+                    <span>{partsCount}ta</span>
+                  </div>
+
+                  {/* Last update */}
+                  <div
+                    title="Oxirgi yangilanish"
+                    className="flex items-center gap-1.5 text-gray-200"
+                  >
+                    <RefreshCcw strokeWidth={1.5} size={18} />
+                    <span>{formatDate(new Date())}</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Link */}
-              <div className="btn size-10 p-0 rounded-full bg-white backdrop-blur-sm">
-                <ArrowUpRight size={20} />
-              </div>
-            </div>
-
-            {/* Bottom */}
-            <div className="w-full bg-gradient-to-b from-transparent to-black/80 mt-auto p-5 space-y-3">
-              <h2 className="text-xl font-medium text-white">{title}</h2>
-
-              <div className="flex items-center justify-between gap-4">
-                {/* Parts count */}
-                <div
-                  title="Sahifalar"
-                  className="flex items-center gap-1.5 text-gray-200"
-                >
-                  <Columns2 strokeWidth={1.5} size={18} />
-                  <span>{0}ta</span>
-                </div>
-
-                {/* Last update */}
-                <div
-                  title="Oxirgi yangilanish"
-                  className="flex items-center gap-1.5 text-gray-200"
-                >
-                  <RefreshCcw strokeWidth={1.5} size={18} />
-                  <span>{formatDate(new Date())}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Link */}
-            <Link
-              to={link(testId)}
-              className="block absolute z-0 -top-5 inset-0 size-full rounded-3xl"
-            />
-          </li>
-        ))}
+              <Link
+                to={link(testId)}
+                className="block absolute z-0 -top-5 inset-0 size-full rounded-3xl"
+              />
+            </li>
+          );
+        })}
       </ul>
     </>
   );
