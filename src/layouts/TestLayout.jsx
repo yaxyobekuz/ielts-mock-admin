@@ -1,33 +1,90 @@
-import { useState } from "react";
-import { Link, NavLink, Outlet, useParams } from "react-router-dom";
+// React
+import { useEffect } from "react";
 
-// Hooks
-import useModule from "../hooks/useModule";
+// Toast
+import { toast } from "@/notification/toast";
+
+// Icons
+import { ArrowLeft, Plus } from "lucide-react";
+
+// Api
+import { testsApi } from "@/api/tests.api";
+import { sectionsApi } from "@/api/sections.api";
 
 // Data
-import questionsType from "../data/questionsType";
+import { partsApi } from "@/api/parts.api";
+import questionsType from "@/data/questionsType";
 
-// Store (Redux)
-import usePathSegments from "../hooks/usePathSegments";
+// Hooks
+import useModule from "@/hooks/useModule";
+import useObjectState from "@/hooks/useObjectState";
+import usePathSegments from "@/hooks/usePathSegments";
+
+// Router
+import { Link, Outlet, useParams } from "react-router-dom";
+
+// Components
+import Nav from "@/components/Nav";
+import MainBgLoader from "@/components/loaders/MainBgLoader";
 
 const TestLayout = () => {
   const { testId, partNumber } = useParams();
   const { pathSegments } = usePathSegments();
   const module = pathSegments[4];
 
-  const { getModuleData, addPart, addSection } = useModule(module, testId);
+  const { getModuleData, addPart, addSection, setModule } = useModule(
+    module,
+    testId
+  );
   const parts = getModuleData();
+  const part = parts?.find((p) => p.number === Number(partNumber));
+
+  const { setField, isLoading, hasError } = useObjectState({
+    hasError: false,
+    isLoading: !parts,
+  });
+
+  const loadTest = () => {
+    setField("hasError");
+    setField("isLoading", true);
+
+    testsApi
+      .getById(testId)
+      .then(({ code, test }) => {
+        if (code !== "testFetched") throw new Error();
+
+        setField("test", test);
+        setModule(test.reading, test._id, "reading");
+        setModule(test.writing, test._id, "writing");
+        setModule(test.listening, test._id, "listening");
+      })
+      .catch(({ message }) => {
+        setField("hasError", true);
+        toast.error(message || "Nimadir xato ketdi");
+      })
+      .finally(() => setField("isLoading"));
+  };
+
+  useEffect(() => {
+    !parts && loadTest();
+  }, [testId]);
+
+  if (isLoading) {
+    return <MainBgLoader hasError={hasError} onButtonClick={loadTest} />;
+  }
 
   return (
     <>
-      <MainNavbar testId={testId} module={module} />
+      <ModulesNavbar testId={testId} />
 
       <main className="pb-[41px]">
         <Outlet />
 
         <AddSectionBlock
           module={module}
-          addSection={(type) => addSection(partNumber, type)}
+          testId={testId}
+          partId={part?._id}
+          addSection={addSection}
         />
       </main>
 
@@ -41,85 +98,130 @@ const TestLayout = () => {
   );
 };
 
-const MainNavbar = ({ testId, module }) => {
-  const to = (m) => `/tests/test/${testId}/preview/${m}/1`;
+const ModulesNavbar = ({ testId }) => {
+  const to = (m) => `tests/test/${testId}/preview/${m}/1`;
+
   return (
-    <div className="sticky top-0 inset-x-0 z-10 container">
-      <nav className="w-full overflow-hidden rounded-b-xl border border-t-0">
-        <ul className="flex w-full">
-          {/* Listening */}
-          <li className="grow h-10">
-            <LinkItem isActive={module === "listening"} to={to("listening")}>
-              Listening
-            </LinkItem>
-          </li>
+    <div className="flex items-center gap-3.5 sticky top-0 inset-x-0 z-10 container h-14 bg-white">
+      <Link
+        to={`/tests/test/${testId}`}
+        className="btn shrink-0 size-11 bg-gray-100 p-0 rounded-full hover:bg-gray-200"
+      >
+        <ArrowLeft size={20} strokeWidth={1.5} />
+      </Link>
 
-          {/* Reading */}
-          <li className="grow h-10">
-            <LinkItem isActive={module === "reading"} to={to("reading")}>
-              Reading
-            </LinkItem>
-          </li>
-
-          {/* Writing */}
-          <li className="grow h-10">
-            <LinkItem isActive={module === "writing"} to={to("writing")}>
-              Writing
-            </LinkItem>
-          </li>
-        </ul>
-      </nav>
+      <Nav
+        fullSizeBtn
+        pagePathIndex={4}
+        className="w-full"
+        links={[
+          { label: "Listening", link: to("listening") },
+          { label: "Reading", link: to("reading") },
+          { label: "Writing", link: to("writing") },
+        ]}
+      />
     </div>
   );
 };
 
 const PartsNavbar = ({ testId, module, parts, addPart }) => (
-  <div className="fixed bottom-0 inset-x-0 container">
-    <nav className="flex w-full overflow-hidden rounded-t-xl border border-b-0">
-      {/* Parts */}
-      <ul className="flex w-full">
-        {parts?.map(({ number }, index) => (
-          <li key={index} className="grow h-10">
-            <NavLink
-              to={`/tests/test/${testId}/preview/${module}/${number}`}
-              className="flex items-center justify-center size-full bg-white transition-colors duration-200 border-r hover:bg-gray-50"
-            >
-              Part {number}
-            </NavLink>
-          </li>
-        ))}
-      </ul>
+  <div className="fixed bottom-0 inset-x-0 container h-14 bg-white">
+    <div className="flex items-center gap-3.5 size-full">
+      <Nav
+        fullSizeBtn
+        pagePathIndex={5}
+        className="w-full"
+        links={parts?.map(({ number }) => ({
+          label: `Part ${number}`,
+          link: `tests/test/${testId}/preview/${module}/${number}`,
+        }))}
+      />
 
       {/* Add new */}
-      {parts?.length < 6 ? (
-        <button
-          onClick={addPart}
-          className="flex items-center justify-center w-20 h-10 bg-white transition-colors duration-200 hover:bg-gray-50"
-        >
-          +
-        </button>
-      ) : null}
-    </nav>
+      <AddPartButton
+        testId={testId}
+        module={module}
+        addPart={addPart}
+        totalParts={parts?.length || 0}
+      />
+    </div>
   </div>
 );
 
-const AddSectionBlock = ({ addSection, module }) => {
+const AddPartButton = ({ totalParts, addPart, module, testId }) => {
+  if (totalParts > 5) return;
+  const { isLoading, setField } = useObjectState({ isLoading: false });
+
+  const handleAddPart = () => {
+    if (isLoading) return;
+    setField("isLoading", true);
+
+    partsApi
+      .create({ testId, module })
+      .then(({ code, part }) => {
+        if (code !== "partCreated") throw new Error();
+        addPart(part);
+      })
+      .catch(() => toast.error("Yangi sahifani qo'shib bo'lmadi"))
+      .finally(() => setField("isLoading"));
+  };
+
+  return (
+    <button
+      disabled={isLoading}
+      onClick={handleAddPart}
+      className="btn relative shrink-0 size-11 bg-gray-100 p-0 rounded-full hover:bg-gray-200"
+    >
+      <Plus
+        size={20}
+        strokeWidth={1.5}
+        className={`absolute transition-opacity duration-200 group-disabled:opacity-50`}
+      />
+      <span className={`${isLoading ? "spin-loader" : ""} inset-0 size-full`} />
+    </button>
+  );
+};
+
+const AddSectionBlock = ({ addSection, module, testId, partId }) => {
   if (module === "writing") return;
 
-  const [activeQuestion, setActiveQuestion] = useState(questionsType[0]);
+  const { activeQuestion, isLoading, setField } = useObjectState({
+    isLoading: false,
+    activeQuestion: questionsType[0],
+  });
 
   const handleSelectOption = (e) => {
     const q = questionsType.find((q) => q.value === e.target.value);
-    setActiveQuestion(q);
+    setField("activeQuestion", q);
   };
 
   const handleAddSection = () => {
-    addSection(activeQuestion.value);
+    setField("isLoading", true);
+
+    sectionsApi
+      .create({
+        partId,
+        testId,
+        module,
+        type: activeQuestion.value,
+        description: "Bo'lim tavsifi",
+        title: `${activeQuestion.label} bo'lim sarlavhasi`,
+      })
+      .then(({ code, section }) => {
+        if (code !== "sectionCreated") throw new Error();
+        addSection(section);
+      })
+      .catch(() => toast.error("Yangi bo'limni qo'shib bo'lmadi"))
+      .finally(() => setField("isLoading"));
   };
 
   return (
     <div className="container !max-w-max pb-8">
-      <div className="flex items-start justify-between gap-5 bg-gray-5 p-5 rounded-xl border">
+      <div className="flex items-start justify-between gap-5 relative overflow-hidden bg-gray-5 p-5 rounded-xl border">
+        {isLoading ? (
+          <div className="absolute inset-x-0 bottom-0 bar-loader-secondary w-full h-1" />
+        ) : null}
+
         {/* Preview */}
         <img
           width={384}
@@ -133,8 +235,9 @@ const AddSectionBlock = ({ addSection, module }) => {
         <div className="flex flex-col items-stretch gap-5">
           <select
             name="section-type"
+            disabled={isLoading}
             onChange={handleSelectOption}
-            className="h-9 px-5 rounded-md border"
+            className="h-9 px-5 rounded-md border disabled:opacity-50"
           >
             {questionsType.map(({ label, value }, index) => (
               <option key={index} value={value}>
@@ -144,26 +247,16 @@ const AddSectionBlock = ({ addSection, module }) => {
           </select>
 
           <button
+            disabled={isLoading}
             onClick={handleAddSection}
-            className="h-9 bg-blue-500 text-white px-5 rounded-md"
+            className="min-w-52 h-9 bg-blue-500 text-white rounded-md disabled:opacity-50"
           >
-            Yangi bo'lim qo'shish
+            Yangi bo'lim qo'shish{isLoading ? "..." : ""}
           </button>
         </div>
       </div>
     </div>
   );
 };
-
-const LinkItem = ({ to, children, isActive }) => (
-  <Link
-    to={to}
-    className={`${
-      isActive ? "active" : ""
-    } flex items-center justify-center size-full bg-white transition-colors duration-200 border-r hover:bg-gray-50`}
-  >
-    {children}
-  </Link>
-);
 
 export default TestLayout;
