@@ -47,7 +47,7 @@ const Writing = () => {
     return (
       <div className="container">
         <div className="py-8">
-          <div className="w-full bg-red-50 py-3 px-4 mb-5 rounded-xl border border-red-300">
+          <div className="w-full bg-red-50 py-3 px-4 mb-5 rounded-xl border border-gray-200 border-red-300">
             <p className="text-red-700">Part not found</p>
           </div>
         </div>
@@ -57,11 +57,14 @@ const Writing = () => {
 
   return (
     <div className="container">
-      <div className="pt-8">
+      <div className="pt-5">
         {/* Part header */}
-        <div className="w-full bg-gray-50 py-3 px-4 mb-5 rounded-xl border border-gray-300">
+        <div className="w-full bg-gray-100 py-3 px-4 mb-5 rounded-xl border border-gray-200">
           <h1 className="mb-1 text-base font-bold">Part {partNumber}</h1>
-          <p>{description || "Description not found!"}</p>
+          <p>
+            You should spend about 20 minutes on this task. Write at least 150
+            words
+          </p>
         </div>
 
         {/* Main */}
