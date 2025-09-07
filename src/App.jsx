@@ -14,6 +14,7 @@ import { Toaster } from "react-hot-toast";
 // Layouts
 import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
+import EditorLayout from "./layouts/EditorLayout";
 
 // Pages
 import Test from "./pages/Test";
@@ -56,7 +57,7 @@ const App = () => {
               </Route>
 
               {/* Editors */}
-              <Route path="edit/:module/:partNumber" element={<Outlet />}>
+              <Route path="edit/:module/:partNumber" element={<EditorLayout />}>
                 <Route path="part-text" element={<PartTextEditor />} />
                 <Route path="text/:sectionIndex" element={<TextEditor />} />
                 <Route

@@ -152,7 +152,8 @@ const Body = ({ close, onUploadImage }) => {
 
   // Drag & drop
   useEffect(() => {
-    const dropArea = dropRef.current;
+    const dropArea = dropRef?.current;
+    if (!dropArea) return () => {};
 
     const handleDragOver = (e) => {
       e.preventDefault();
@@ -195,31 +196,35 @@ const Body = ({ close, onUploadImage }) => {
 
   return (
     <form onSubmit={handleUpload} className="space-y-5">
-      {/* Drag & drop / input */}
-      <label
-        ref={dropRef}
-        className="w-full flex items-center justify-center gap-3.5 cursor-pointer h-24 border-2 border-dashed border-gray-300 rounded-md hover:border-blue-500"
-      >
-        <Input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleChange}
-        />
-        <span>{image ? "Boshqa rasm" : "Rasm"} tanlang yoki tashlang</span>
-        <FolderUp size={22} strokeWidth={1.5} />
-      </label>
+      {!isUploading && (
+        <>
+          {/* Drag & drop / input */}
+          <label
+            ref={dropRef}
+            className="w-full flex items-center justify-center gap-3.5 cursor-pointer h-24 border-2 border-dashed border-gray-300 rounded-md hover:border-blue-500"
+          >
+            <Input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleChange}
+            />
+            <span>{image ? "Boshqa rasm" : "Rasm"} tanlang yoki tashlang</span>
+            <FolderUp size={22} strokeWidth={1.5} />
+          </label>
 
-      {/* Clipboard button */}
-      <Button
-        type="button"
-        variant="neutral"
-        onClick={handleClick}
-        className="w-full flex items-center justify-center gap-2"
-      >
-        Xotiradan olish
-        <Clipboard size={18} />
-      </Button>
+          {/* Clipboard button */}
+          <Button
+            type="button"
+            variant="neutral"
+            onClick={handleClick}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            Xotiradan olish
+            <Clipboard size={18} />
+          </Button>
+        </>
+      )}
 
       {/* Preview */}
       {image && (
@@ -252,7 +257,7 @@ const Body = ({ close, onUploadImage }) => {
           Bekor qilish
         </Button>
 
-        <Button type="submit" className="w-32" disabled={!file}>
+        <Button type="submit" className="w-32" disabled={!file || isUploading}>
           Yuklash
         </Button>
       </div>
