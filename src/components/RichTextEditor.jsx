@@ -19,6 +19,7 @@ import useModal from "@/hooks/useModal";
 import { useEffect, useState } from "react";
 
 // Tip tap
+import { Plugin } from "@tiptap/pm/state";
 import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -26,6 +27,56 @@ import { useEditor, EditorContent } from "@tiptap/react";
 // Nodes
 import DropzoneNode from "../format/nodes/DropzoneNode";
 import AnswerInputNode from "../format/nodes/AnswerInputNode";
+
+const CustomImage = Image.extend({
+  addProseMirrorPlugins: () => [
+    new Plugin({
+      props: {
+        handlePaste: (view, event) => {
+          const clipboard = event.clipboardData;
+          if (!clipboard) return false;
+
+          // Block image files
+          if (clipboard.files && clipboard.files.length) {
+            for (const file of Array.from(clipboard.files)) {
+              if (file.type && file.type.startsWith("image/")) return true;
+            }
+          }
+
+          // Block html that contains <img>
+          const html = clipboard.getData?.("text/html") || "";
+          if (html.includes("<img")) return true;
+
+          return false;
+        },
+
+        handleDrop: (view, event) => {
+          const dt = event.dataTransfer;
+          if (!dt) return false;
+
+          // block image files
+          if (dt.files && dt.files.length) {
+            for (const file of Array.from(dt.files)) {
+              if (file.type && file.type.startsWith("image/")) {
+                event.preventDefault();
+                return true;
+              }
+            }
+          }
+
+          // Block html that contains <img>
+          const html = dt.getData?.("text/html") || "";
+          if (html.includes("<img")) {
+            event.preventDefault();
+            return true;
+          }
+
+          return false;
+        },
+      },
+    }),
+  ],
+});
 
 const RichTextEditor = ({
   onChange,
@@ -39,7 +90,7 @@ const RichTextEditor = ({
   const editor = useEditor({
     content: initialContent,
     extensions: [
-      ...(allowImage ? [Image] : []),
+      ...(allowImage ? [CustomImage] : []),
       StarterKit.configure({ heading: false }),
       ...(allowInput ? [AnswerInputNode()] : []),
       ...(allowDropzone ? [DropzoneNode()] : []),
