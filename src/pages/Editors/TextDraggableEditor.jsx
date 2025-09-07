@@ -108,7 +108,7 @@ const TextDraggableEditor = () => {
   };
 
   return (
-    <>
+    <div className="editor-page">
       {/* Header */}
       <EditorHeader
         isSaving={isSaving}
@@ -139,7 +139,7 @@ const TextDraggableEditor = () => {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

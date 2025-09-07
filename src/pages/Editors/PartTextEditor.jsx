@@ -75,7 +75,7 @@ const PartTextEditor = () => {
   };
 
   return (
-    <>
+    <div className="editor-page">
       {/* Header */}
       <EditorHeader
         isSaving={isSaving}
@@ -96,7 +96,7 @@ const PartTextEditor = () => {
       </div>
 
       <UploadImageModal />
-    </>
+    </div>
   );
 };
 

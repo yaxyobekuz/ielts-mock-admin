@@ -143,6 +143,10 @@
   .btn {
     @apply flex items-center justify-center h-9 px-4 rounded-lg transition-colors duration-200;
   }
+
+  .editor-page {
+    font-family: Arial, Helvetica, sans-serif;
+  }
 }
 
 .ProseMirror {

@@ -102,7 +102,7 @@ const TextEditor = () => {
   };
 
   return (
-    <>
+    <div className="editor-page">
       {/* Header */}
       <EditorHeader
         isSaving={isSaving}
@@ -129,7 +129,7 @@ const TextEditor = () => {
           <Answers onChange={setAnswers} initialAnwsers={answers} />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

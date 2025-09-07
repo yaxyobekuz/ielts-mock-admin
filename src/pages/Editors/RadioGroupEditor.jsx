@@ -95,7 +95,7 @@ const RadioGroupEditor = () => {
   };
 
   return (
-    <>
+    <div className="editor-page">
       {/* Header */}
       <EditorHeader
         isSaving={isSaving}
@@ -113,7 +113,7 @@ const RadioGroupEditor = () => {
       <div className="container space-y-5">
         <Groups initialGroups={groups} onChange={setGroups} />
       </div>
-    </>
+    </div>
   );
 };
 

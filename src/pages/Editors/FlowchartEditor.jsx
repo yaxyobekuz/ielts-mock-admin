@@ -129,7 +129,7 @@ const FlowchartEditor = () => {
   };
 
   return (
-    <>
+    <div className="editor-page">
       {/* Header */}
       <EditorHeader
         isSaving={isSaving}
@@ -160,7 +160,7 @@ const FlowchartEditor = () => {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
