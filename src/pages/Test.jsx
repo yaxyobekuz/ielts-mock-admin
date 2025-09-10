@@ -1,13 +1,22 @@
+// React
 import { useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
 
 // Api
 import { testsApi } from "@/api/tests.api";
+import { linksApi } from "@/api/links.api";
 
 // Toast
 import { toast } from "@/notification/toast";
 
+// Components
+import CopyButton from "@/components/CopyButton";
+
+// Router
+import { Link, useParams } from "react-router-dom";
+
 // Hooks
+import useModal from "@/hooks/useModal";
+import useStore from "@/hooks/useStore";
 import useModule from "@/hooks/useModule";
 import useObjectState from "@/hooks/useObjectState";
 
@@ -26,10 +35,12 @@ import { ArrowUpRight, Clock, Columns2, RefreshCcw } from "lucide-react";
 const Test = () => {
   const { testId } = useParams();
   const { setModule } = useModule();
-  const { setField, test, isLoading, hasError } = useObjectState({
-    test: {},
-    isLoading: true,
+  const { getProperty, updateProperty } = useStore("test");
+  const test = getProperty(testId);
+
+  const { setField, isLoading, hasError } = useObjectState({
     hasError: false,
+    isLoading: !test,
   });
 
   const loadTest = () => {
@@ -41,7 +52,7 @@ const Test = () => {
       .then(({ code, test }) => {
         if (code !== "testFetched") throw new Error();
 
-        setField("test", test);
+        updateProperty(testId, test);
         setModule(test.reading, test._id, "reading");
         setModule(test.writing, test._id, "writing");
         setModule(test.listening, test._id, "listening");
@@ -59,7 +70,7 @@ const Test = () => {
 
   return (
     <div className="container py-8 space-y-6">
-      <Content {...test} isLoading={isLoading} hasError={hasError} />
+      <Content isLoading={isLoading} hasError={hasError} {...test} />
     </div>
   );
 };
@@ -114,6 +125,7 @@ const Content = (test) => {
   if (hasError) return <ErrorContent />;
 
   const { testId } = useParams();
+  const { openModal } = useModal("createLink");
 
   return (
     <>
@@ -136,6 +148,16 @@ const Content = (test) => {
             </span>
           </div>
         </div>
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex items-center justify-end gap-5">
+        <button
+          onClick={() => openModal({ testId })}
+          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
+        >
+          Taklif havolasini yaratish
+        </button>
       </div>
 
       <ul className="grid grid-cols-4 gap-5">
@@ -188,6 +210,11 @@ const Content = (test) => {
           );
         })}
       </ul>
+
+      {/* Others */}
+      <div className="grid grid-cols-4 gap-5">
+        <Links testId={testId} />
+      </div>
     </>
   );
 };
@@ -196,6 +223,12 @@ const LoadingContent = () => {
   return (
     <>
       <h1>Test</h1>
+
+      {/* Action buttons */}
+      <div className="flex items-center justify-end gap-5">
+        <div className="btn w-56 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200" />{" "}
+      </div>
+
       <ul className="grid grid-cols-4 gap-5 animate-pulse">
         {Array.from({ length: 4 }, (_, index) => (
           <li
@@ -210,6 +243,104 @@ const LoadingContent = () => {
 
 const ErrorContent = () => {
   return <div className="">Error</div>;
+};
+
+const Links = ({ testId }) => {
+  const siteUrl = import.meta.env.VITE_SITE_URL;
+  const { getProperty, updateProperty } = useStore("link");
+  const links = getProperty(testId);
+  const { setField, isLoading, hasError } = useObjectState({
+    hasError: false,
+    isLoading: !links,
+  });
+
+  const loadLinks = () => {
+    setField("hasError");
+    setField("isLoading", true);
+
+    linksApi
+      .get()
+      .then(({ code, links }) => {
+        if (code !== "linksFetched") throw new Error();
+        updateProperty(testId, links);
+      })
+      .catch(() => setField("hasError", true))
+      .finally(() => setField("isLoading"));
+  };
+
+  useEffect(() => {
+    isLoading && loadLinks();
+  }, []);
+
+  return (
+    <section className="flex flex-col  gap-5 overflow-hidden w-full h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square p-5 rounded-3xl">
+      {/* Title */}
+      <h2 className="text-xl font-medium">Taklif havolalari</h2>
+
+      <ul className="space-y-3 max-h-[calc(100%-50px)] overflow-auto scroll-y-primary scroll-smooth">
+        {/* Skeleton Loader */}
+        {isLoading && !hasError
+          ? Array.from({ length: 5 }, (_, index) => (
+              <li
+                key={index}
+                className="flex items-center justify-between gap-2 pr-1 relative animate-pulse"
+              >
+                <div className="flex items-center gap-2 w-full">
+                  {/* Index */}
+                  <div className="shrink-0 size-11 bg-gray-200 rounded-full" />
+
+                  {/* Details */}
+                  <div className="w-full space-y-1.5">
+                    <div className="w-1/2 h-4 bg-gray-200 rounded-md" />
+                    <div className="w-4/5 h-3.5 bg-gray-200 rounded-md" />
+                  </div>
+                </div>
+              </li>
+            ))
+          : null}
+
+        {/* Tests */}
+        {!isLoading && !hasError
+          ? links.map(({ title, usedCount, _id: id }) => (
+              <li
+                key={id}
+                className="flex items-center justify-between gap-2 pr-1 relative"
+              >
+                <div className="flex items-center gap-2">
+                  {/* Copy button */}
+                  <CopyButton
+                    text={`${siteUrl}/link/${id}`}
+                    icon={{ size: 18, strokeWidth: 1.5 }}
+                    notificationText="Havoladan nusxa olindi"
+                    className="flex items-center justify-center relative z-10 shrink-0 size-11 bg-blue-500 rounded-full text-white font-medium transition-opacity duration-200 disabled:opacity-50"
+                  />
+
+                  <div className="space-y-1">
+                    {/* Title */}
+                    <h3 className="capitalize line-clamp-1 font-medium">
+                      {title}
+                    </h3>
+
+                    {/* Used count */}
+                    <span className="line-clamp-1 text-sm text-gray-500">
+                      {usedCount}ta foydalanilindi
+                    </span>
+                  </div>
+                </div>
+
+                {/* Button */}
+                <button className="block absolute z-0 inset-0 size-full -outline-offset-1 rounded-full" />
+              </li>
+            ))
+          : null}
+      </ul>
+
+      {/* Error */}
+      {!isLoading && hasError ? (
+        <p className="text-gray-500">Nimadir xato ketdi...</p>
+      ) : null}
+    </section>
+  );
 };
 
 export default Test;
