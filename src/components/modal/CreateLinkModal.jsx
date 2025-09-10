@@ -17,17 +17,14 @@ import {
 import Input from "../form/Input";
 import Button from "../form/Button";
 
-// Icons
-import { FolderUp } from "lucide-react";
-
 // Api
-import { testsApi } from "@/api/tests.api";
+import { linksApi } from "@/api/links.api";
 
 // Toast
 import { toast } from "@/notification/toast";
 
-// Router
-import { useNavigate } from "react-router-dom";
+// Helpers
+import { extractNumbers } from "@/lib/helpers";
 
 // Hooks
 import useModal from "@/hooks/useModal";
@@ -35,14 +32,14 @@ import useStore from "@/hooks/useStore";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import useObjectState from "@/hooks/useObjectState";
 
-const CreateTestModal = () => {
+const CreateLinkModal = () => {
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const { closeModal, isOpen } = useModal("createTest");
+  const { closeModal, isOpen, data } = useModal("createLink");
 
   const content = {
-    title: "Test qo'shish",
-    body: <Body close={closeModal} />,
-    description: `Yangi test qo'shish uchun sarlavhani kiriting, istasangiz rasm ham yuklang`,
+    title: "Taklif havolasini yaratish",
+    body: <Body close={closeModal} testId={data?.testId} />,
+    description: `Yangi taklif havolasini yaratish uchun sarlavhani kiriting. Taklif havolasi o'quvchilarga testga kirishi uchun kerak bo'ladi`,
   };
 
   if (isDesktop) {
@@ -85,87 +82,69 @@ const CreateTestModal = () => {
   );
 };
 
-const Body = ({ close }) => {
-  const navigate = useNavigate();
-  const { getData, updateProperty } = useStore("tests");
-  const { isLoading: isTestsLoading, data: tests } = getData();
+const Body = ({ close, testId }) => {
+  const { getProperty, updateProperty } = useStore("link");
+  const links = getProperty(testId);
+  const { setField, maxUses, title } = useObjectState({
+    title: "",
+    maxUses: 10,
+  });
 
-  const { state, setField } = useObjectState({ image: null, title: "" });
-  const { image, title } = state;
-
-  const handleSubmit = (e) => {
+  const handleCreateLink = (e) => {
     e.preventDefault();
+
+    if (!testId) {
+      return toast.error("Test ID raqami mavjud emas");
+    }
 
     if (!title || title.trim().length === 0) {
       return toast.error("Sarlavha kiritilmadi");
     }
 
+    if (!maxUses) {
+      return toast.error("Maksimal foydalanishlar soni kiritilmadi");
+    }
+
     toast.promise(
-      testsApi
-        .create({ title, image })
-        .then(({ test, code }) => {
-          if (code !== "testCreated") throw new Error();
-          if (!isTestsLoading) updateProperty("data", [test, ...tests]);
-          navigate(`/tests/test/${test._id}`);
+      linksApi
+        .create({ title, maxUses, testId })
+        .then(({ code, link }) => {
+          if (code !== "linkCreated") throw new Error();
+          updateProperty(testId, [link, ...(links || [])]);
         })
         .finally(close),
       {
-        error: "Test qo'shilmadi!",
-        success: "Test qo'shildi!",
-        loading: "Test qo'shilmoqda...",
+        error: "Havola qo'shilmadi!",
+        success: "Havola qo'shildi!",
+        loading: "Havola qo'shilmoqda...",
       }
     );
   };
 
-  const handleChange = (files) => {
-    const file = files[0];
-    if (!file) return;
-    setField("image", URL.createObjectURL(file));
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.currentTarget.click();
-    }
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleCreateLink} className="space-y-5">
       <Input
-        border={true}
         size="lg"
+        border={true}
         variant="gray"
         maxLength={32}
-        name="test-name"
-        placeholder="Sarlavha"
+        label="Sarlavha"
+        name="link-name"
+        placeholder="Sarlavhani kiriting"
         onChange={(value) => setField("title", value)}
       />
 
-      {/* Image input */}
-      <label
-        tabIndex={0}
-        onKeyDown={handleKeyDown}
-        className="group w-full outline-none"
-      >
-        <Input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          name="image-file-input"
-          onChange={handleChange}
-        />
-        <div className="flex items-center justify-center gap-3.5 cursor-pointer w-full h-24 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 group-focus:border-blue-500">
-          <span>{image ? "Boshqa rasm" : "Rasm"} tanlash</span>
-          <FolderUp size={22} strokeWidth={1.5} />
-        </div>
-      </label>
-
-      {/* Preview */}
-      {image && (
-        <div className="flex justify-center w-full">
-          <img src={image} alt="Preview" className="max-h-40 bg-gray-200" />
-        </div>
-      )}
+      <Input
+        size="lg"
+        border={true}
+        type="number"
+        variant="gray"
+        name="max-uses"
+        value={maxUses}
+        placeholder="Raqamni kiriting"
+        label="Maksimal foydalanishlar soni"
+        onChange={(value) => setField("maxUses", extractNumbers(value))}
+      />
 
       {/* Buttons */}
       <div className="flex justify-end gap-5 w-full">
@@ -179,11 +158,11 @@ const Body = ({ close }) => {
         </Button>
 
         <Button type="submit" className="w-32">
-          Qo'shish
+          Yaratish
         </Button>
       </div>
     </form>
   );
 };
 
-export default CreateTestModal;
+export default CreateLinkModal;

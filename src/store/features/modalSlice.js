@@ -5,6 +5,7 @@ const initialModal = { isOpen: false, data: {}, isLoading: false };
 // Initial state
 const initialState = {
   createTest: initialModal,
+  createLink: initialModal,
   uploadImage: initialModal,
 };
 
