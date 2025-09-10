@@ -17,6 +17,7 @@ import MainBgLoader from "@/components/loaders/MainBgLoader";
 
 // Modals
 import CreateTestModal from "@/components/modal/CreateTestModal";
+import CreateLinkModal from "@/components/modal/CreateLinkModal";
 
 // Animated
 import duckShrugging from "@/assets/animated/duck-shrugging.json";
@@ -112,6 +113,7 @@ const AuthenticatedContent = () => {
 
       {/* Modals */}
       <CreateTestModal />
+      <CreateLinkModal />
     </div>
   );
 };
