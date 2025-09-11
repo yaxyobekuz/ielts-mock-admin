@@ -259,7 +259,7 @@ const Links = ({ testId }) => {
     setField("isLoading", true);
 
     linksApi
-      .get()
+      .get(testId)
       .then(({ code, links }) => {
         if (code !== "linksFetched") throw new Error();
         updateProperty(testId, links);
