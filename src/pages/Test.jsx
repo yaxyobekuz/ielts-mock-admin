@@ -26,7 +26,6 @@ import { formatDate, formatTime } from "@/lib/helpers";
 // Backgrounds
 import readingBg from "@/assets/backgrounds/reading.webp";
 import writingBg from "@/assets/backgrounds/writing.webp";
-import speakingBg from "@/assets/backgrounds/speaking.webp";
 import listeningBg from "@/assets/backgrounds/listening.webp";
 
 // Icons
@@ -97,13 +96,6 @@ const modules = [
       return `/tests/test/${testId}/preview/writing/1`;
     },
   },
-  {
-    title: "Speaking",
-    image: speakingBg,
-    link(testId) {
-      return `/tests/test/${testId}/preview/speaking/1`;
-    },
-  },
 ];
 
 const Content = (test) => {
@@ -160,59 +152,60 @@ const Content = (test) => {
         </button>
       </div>
 
-      <ul className="grid grid-cols-4 gap-5">
-        {modules.map(({ image, title, link }, index) => {
-          const partsCount = test[title.toLowerCase()]?.partsCount || 0;
-          return (
-            <li
-              key={index}
-              style={{ backgroundImage: `url(${image})` }}
-              className="flex flex-col relative overflow-hidden w-full h-auto aspect-square bg-cover bg-center bg-no-repeat bg-gray-100 rounded-3xl"
-            >
-              <div className="flex items-center justify-end p-5">
-                {/* Link */}
-                <div className="btn size-10 p-0 rounded-full bg-white backdrop-blur-sm">
-                  <ArrowUpRight size={20} />
-                </div>
-              </div>
-
-              {/* Bottom */}
-              <div className="w-full bg-gradient-to-b from-transparent to-black/80 mt-auto p-5 space-y-3">
-                <h2 className="text-xl font-medium text-white">{title}</h2>
-
-                <div className="flex items-center justify-between gap-4">
-                  {/* Parts count */}
-                  <div
-                    title="Sahifalar"
-                    className="flex items-center gap-1.5 text-gray-200"
-                  >
-                    <Columns2 strokeWidth={1.5} size={18} />
-                    <span>{partsCount}ta</span>
-                  </div>
-
-                  {/* Last update */}
-                  <div
-                    title="Oxirgi yangilanish"
-                    className="flex items-center gap-1.5 text-gray-200"
-                  >
-                    <RefreshCcw strokeWidth={1.5} size={18} />
-                    <span>{formatDate(new Date())}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Link */}
-              <Link
-                to={link(testId)}
-                className="block absolute z-0 -top-5 inset-0 size-full rounded-3xl"
-              />
-            </li>
-          );
-        })}
-      </ul>
-
-      {/* Others */}
       <div className="grid grid-cols-4 gap-5">
+        {/* Modules */}
+        <ul className="grid grid-cols-3 gap-5 col-span-3">
+          {modules.map(({ image, title, link }, index) => {
+            const partsCount = test[title.toLowerCase()]?.partsCount || 0;
+            return (
+              <li
+                key={index}
+                style={{ backgroundImage: `url(${image})` }}
+                className="flex flex-col relative overflow-hidden w-full h-auto aspect-square bg-cover bg-center bg-no-repeat bg-gray-100 rounded-3xl"
+              >
+                <div className="flex items-center justify-end p-5">
+                  {/* Link */}
+                  <div className="btn size-10 p-0 rounded-full bg-white backdrop-blur-sm">
+                    <ArrowUpRight size={20} />
+                  </div>
+                </div>
+
+                {/* Bottom */}
+                <div className="w-full bg-gradient-to-b from-transparent to-black/80 mt-auto p-5 space-y-3">
+                  <h2 className="text-xl font-medium text-white">{title}</h2>
+
+                  <div className="flex items-center justify-between gap-4">
+                    {/* Parts count */}
+                    <div
+                      title="Sahifalar"
+                      className="flex items-center gap-1.5 text-gray-200"
+                    >
+                      <Columns2 strokeWidth={1.5} size={18} />
+                      <span>{partsCount}ta</span>
+                    </div>
+
+                    {/* Last update */}
+                    <div
+                      title="Oxirgi yangilanish"
+                      className="flex items-center gap-1.5 text-gray-200"
+                    >
+                      <RefreshCcw strokeWidth={1.5} size={18} />
+                      <span>{formatDate(new Date())}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Link */}
+                <Link
+                  to={link(testId)}
+                  className="block absolute z-0 -top-5 inset-0 size-full rounded-3xl"
+                />
+              </li>
+            );
+          })}
+        </ul>
+
+        {/* Invite links */}
         <Links testId={testId} />
       </div>
     </>
@@ -273,7 +266,7 @@ const Links = ({ testId }) => {
   }, []);
 
   return (
-    <section className="flex flex-col  gap-5 overflow-hidden w-full h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square p-5 rounded-3xl">
+    <section className="flex flex-col gap-5 overflow-hidden w-full h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square p-5 rounded-3xl">
       {/* Title */}
       <h2 className="text-xl font-medium">Taklif havolalari</h2>
 
