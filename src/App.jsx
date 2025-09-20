@@ -14,6 +14,7 @@ import { Toaster } from "react-hot-toast";
 // Layouts
 import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
+import TestLayout from "./layouts/TestLayout";
 import EditorLayout from "./layouts/EditorLayout";
 
 // Pages
@@ -25,7 +26,7 @@ import Reading from "./pages/Reading";
 import Writing from "./pages/Writing";
 import Register from "./pages/Register";
 import Listening from "./pages/Listening";
-import TestLayout from "./layouts/TestLayout";
+import Submissions from "./pages/Submissions";
 
 // Editor pages
 import TextEditor from "./pages/Editors/TextEditor";
@@ -75,6 +76,9 @@ const App = () => {
               </Route>
             </Route>
           </Route>
+
+          {/* Submissions (Test answers) */}
+          <Route path="submissions" element={<Submissions />} />
         </Route>
 
         {/* Auth */}
