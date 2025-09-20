@@ -38,6 +38,7 @@ const Header = () => {
             links={[
               { label: "Asosiy", link: "" },
               { label: "Testlar", link: "tests" },
+              { label: "Javoblar", link: "submissions" },
               { label: "Natijalar", link: "results" },
               { label: "Havolalar", link: "links" },
               { label: "To'lov", link: "payment" },
