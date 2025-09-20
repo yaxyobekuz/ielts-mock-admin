@@ -1,4 +1,7 @@
+// React
 import { useEffect } from "react";
+
+// Router
 import { Link } from "react-router-dom";
 
 // Hooks
@@ -68,7 +71,7 @@ const Main = ({ isLoading, hasError, tests = [] }) => {
     <>
       <AddNew />
 
-      {tests.map((test, index) => (
+      {tests.map((test) => (
         <TestItem key={test?._id} {...test} />
       ))}
     </>
@@ -117,7 +120,7 @@ const TestItem = ({
   ];
 
   return (
-    <div className="relative w-full bg-gray-100 rounded-3xl p-5 space-y-5">
+    <div className="flex flex-col justify-between relative w-full min-h-52 bg-gray-100 rounded-3xl p-5 space-y-5 transition-colors duration-200 hover:bg-gray-50">
       <div className="flex items-center justify-between">
         {/* Title */}
         <h3 className="text-xl font-medium capitalize">{title}</h3>
@@ -183,7 +186,7 @@ const TestItem = ({
 };
 
 const TestItemSkeleton = () => (
-  <div className="w-full h-auto min-h-[200px] bg-gray-100 rounded-3xl p-5 space-y-5 animate-pulse" />
+  <div className="w-full min-h-52 bg-gray-100 rounded-3xl p-5 space-y-5 animate-pulse" />
 );
 
 export default Tests;
