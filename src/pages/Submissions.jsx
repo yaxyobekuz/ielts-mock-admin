@@ -152,7 +152,7 @@ const SubmissionItem = ({
 
       {/* Link */}
       <Link
-        to={`/submissions/submission/${id}`}
+        to={`/submissions/${id}`}
         className="block absolute z-0 inset-0 size-full rounded-3xl"
       />
     </div>

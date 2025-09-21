@@ -11,13 +11,7 @@ import {
 // Toaster
 import { Toaster } from "react-hot-toast";
 
-// Layouts
-import MainLayout from "./layouts/MainLayout";
-import AuthLayout from "./layouts/AuthLayout";
-import TestLayout from "./layouts/TestLayout";
-import EditorLayout from "./layouts/EditorLayout";
-
-// Pages
+// Others Pages
 import Test from "./pages/Test";
 import Home from "./pages/Home";
 import Tests from "./pages/Tests";
@@ -26,7 +20,14 @@ import Reading from "./pages/Reading";
 import Writing from "./pages/Writing";
 import Register from "./pages/Register";
 import Listening from "./pages/Listening";
+import Submission from "./pages/Submission";
 import Submissions from "./pages/Submissions";
+
+// Layouts
+import MainLayout from "./layouts/MainLayout";
+import AuthLayout from "./layouts/AuthLayout";
+import TestLayout from "./layouts/TestLayout";
+import EditorLayout from "./layouts/EditorLayout";
 
 // Editor pages
 import TextEditor from "./pages/Editors/TextEditor";
@@ -78,7 +79,10 @@ const App = () => {
           </Route>
 
           {/* Submissions (Test answers) */}
-          <Route path="submissions" element={<Submissions />} />
+          <Route path="submissions" element={<Outlet />}>
+            <Route index element={<Submissions />} />
+            <Route path=":submissionId/:module?" element={<Submission />} />
+          </Route>
         </Route>
 
         {/* Auth */}
