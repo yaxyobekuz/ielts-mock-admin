@@ -49,7 +49,8 @@ const Photo = ({ avatar, fullName, className, size }) => (
 
 // Text photo
 const TextPhoto = ({ fullName = "Foydalanuvchi", userId, className }) => {
-  const gradientIndex = extractNumbers(userId)[0];
+  const nums = extractNumbers(userId);
+  const gradientIndex = nums[nums.length - 1];
   const gradientColor = gradients[gradientIndex];
   const firstLetter = fullName?.[0]?.toUpperCase();
 

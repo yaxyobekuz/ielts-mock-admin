@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
-
 // Components
 import Nav from "./Nav";
+
+// Router
+import { Link } from "react-router-dom";
 
 // Hooks
 import useStore from "@/hooks/useStore";
@@ -17,7 +18,7 @@ const Header = () => {
   const role = getProperty("role");
 
   return (
-    <header className="sticky top-0 inset-x-0 w-full z-10 bg-white py-2.5">
+    <header className="sticky top-0 inset-x-0 w-full z-20 bg-white py-2.5">
       <div className="flex items-center justify-between container">
         {/* Logo */}
         <Link to="/">
