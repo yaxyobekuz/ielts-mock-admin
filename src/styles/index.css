@@ -81,6 +81,35 @@
   h1 {
     @apply capitalize text-3xl font-medium text-gray-800;
   }
+
+  /* Table */
+
+  table,
+  thead,
+  tbody,
+  tfoot {
+    @apply block w-full;
+  }
+
+  table {
+    @apply overflow-hidden w-full;
+
+    tr {
+      @apply flex w-full border-b last:border-b-0;
+    }
+
+    thead tr {
+      @apply bg-gray-100 rounded-t-2xl border-white;
+    }
+
+    th {
+      @apply font-semibold text-center self-center border-r last:border-r-0;
+    }
+
+    td {
+      @apply border-r text-center self-center last:border-r-0;
+    }
+  }
 }
 
 /* --- Components --- */
