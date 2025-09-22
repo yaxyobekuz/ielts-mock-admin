@@ -9,6 +9,7 @@ import {
   Trophy,
   LinkIcon,
   Activity,
+  FileCheck,
 } from "lucide-react";
 
 // React
@@ -72,19 +73,20 @@ const Submission = () => {
 };
 
 const Main = ({
-  user,
   test,
   link,
+  result,
+  student,
   answers,
   _id: id,
   startedAt,
-  isChecked,
+  isScored,
   finishedAt,
   correctAnswers,
 }) => {
   const { module = "listening" } = useParams();
   const { openModal } = useModal("createResult");
-  const { firstName = "Foydalanuvchi", lastName = "" } = user || {};
+  const { firstName = "Foydalanuvchi", lastName = "" } = student || {};
 
   return (
     <div className="container py-8 space-y-6">
@@ -99,8 +101,8 @@ const Main = ({
           {/* Total parts */}
           <div title="Jami sahifalar" className="flex items-center gap-1.5">
             <Activity strokeWidth={1.5} size={22} />
-            <span className={isChecked ? "text-green-600" : "text-red-500"}>
-              Tekshiril{isChecked ? "" : "ma"}gan
+            <span className={isScored ? "text-green-600" : "text-red-500"}>
+              Baholan{isScored ? "" : "ma"}gan
             </span>
           </div>
 
@@ -140,30 +142,43 @@ const Main = ({
         <div className="flex items-center gap-5">
           {/* Test */}
           <Link
-            to={`/tests/test/${test._id}`}
+            to={`/tests/${test._id}`}
             className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
           >
             <Book size={20} strokeWidth={1.5} />
             <span>Test</span>
           </Link>
 
+          {/* Result link */}
+          {result && (
+            <Link
+              to={`/results/${result}`}
+              className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
+            >
+              <FileCheck size={20} strokeWidth={1.5} />
+              <span>Natija</span>
+            </Link>
+          )}
+
           {/* Invite link */}
           <Link
-            to={`/links/link/${link}`}
+            to={`/links/${link}`}
             className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
           >
             <LinkIcon size={20} strokeWidth={1.5} />
             <span>Taklif havolasi</span>
           </Link>
 
-          {/* Rating */}
-          <button
-            onClick={() => openModal({ submissionId: id })}
-            className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
-          >
-            <Star size={20} strokeWidth={1.5} />
-            <span>Baholash</span>
-          </button>
+          {/* Evaluate */}
+          {!isScored && !result && (
+            <button
+              onClick={() => openModal({ submissionId: id })}
+              className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
+            >
+              <Star size={20} strokeWidth={1.5} />
+              <span>Baholash</span>
+            </button>
+          )}
         </div>
       </div>
 
