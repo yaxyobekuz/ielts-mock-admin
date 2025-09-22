@@ -15,12 +15,13 @@ import usePathSegments from "@/hooks/usePathSegments";
 import Header from "@/components/Header";
 import MainBgLoader from "@/components/loaders/MainBgLoader";
 
+// Animated
+import duckShrugging from "@/assets/animated/duck-shrugging.json";
+
 // Modals
 import CreateTestModal from "@/components/modal/CreateTestModal";
 import CreateLinkModal from "@/components/modal/CreateLinkModal";
-
-// Animated
-import duckShrugging from "@/assets/animated/duck-shrugging.json";
+import CreateResultModal from "@/components/modal/CreateResultModal";
 
 const MainLayout = () => {
   const location = useLocation();
@@ -114,6 +115,7 @@ const AuthenticatedContent = () => {
       {/* Modals */}
       <CreateTestModal />
       <CreateLinkModal />
+      <CreateResultModal />
     </div>
   );
 };
