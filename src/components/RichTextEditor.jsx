@@ -5,12 +5,21 @@ import {
   Undo,
   Redo,
   Code,
+  Rows,
   Quote,
   Italic,
+  Columns,
+  Brackets,
+  TableIcon,
   ImagePlus,
   Underline,
   ListOrdered,
+  BetweenVerticalEnd,
+  BetweenHorizonalStart,
 } from "lucide-react";
+
+// Styles
+import "@/styles/tiptap.css";
 
 // Hooks
 import useModal from "@/hooks/useModal";
@@ -19,9 +28,16 @@ import useModal from "@/hooks/useModal";
 import { useEffect, useState } from "react";
 
 // Tip tap
+import {
+  Table,
+  TableRow,
+  TableCell,
+  TableHeader,
+} from "@tiptap/extension-table";
 import { Plugin } from "@tiptap/pm/state";
 import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
+import { Gapcursor } from "@tiptap/extensions";
 import { useEditor, EditorContent } from "@tiptap/react";
 
 // Nodes
@@ -90,6 +106,11 @@ const RichTextEditor = ({
   const editor = useEditor({
     content: initialContent,
     extensions: [
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableCell,
+      TableHeader,
+      Gapcursor,
       ...(allowImage ? [CustomImage] : []),
       StarterKit.configure({ heading: false }),
       ...(allowInput ? [AnswerInputNode()] : []),
@@ -250,7 +271,63 @@ const Toolbar = ({
         </ToolbarButton>
       )}
 
-      <div className="w-px h-6 bg-gray-300 mx-2"></div>
+      <div className="w-px h-6 bg-gray-300 mx-2" />
+
+      {/* Table */}
+      <ToolbarButton
+        title="Insert Table"
+        onClick={() =>
+          editor.chain().focus().insertTable({ rows: 3, cols: 3 }).run()
+        }
+      >
+        <TableIcon size={16} />
+      </ToolbarButton>
+
+      {/* Add Row */}
+      <ToolbarButton
+        title="Add Row After"
+        disabled={!editor.can().addRowAfter()}
+        onClick={() => editor.chain().focus().addRowAfter().run()}
+      >
+        <Rows size={16} />
+      </ToolbarButton>
+
+      {/* Add Column */}
+      <ToolbarButton
+        title="Add Column After"
+        disabled={!editor.can().addColumnAfter()}
+        onClick={() => editor.chain().focus().addColumnAfter().run()}
+      >
+        <Columns size={16} />
+      </ToolbarButton>
+
+      {/* Merge or Split */}
+      <ToolbarButton
+        title="Merge or Split"
+        disabled={!editor.can().mergeOrSplit()}
+        onClick={() => editor.chain().focus().mergeOrSplit().run()}
+      >
+        <Brackets size={16} />
+      </ToolbarButton>
+
+      {/* Delete Row */}
+      <ToolbarButton
+        title="Delete Row"
+        disabled={!editor.can().deleteRow()}
+        onClick={() => editor.chain().focus().deleteRow().run()}
+      >
+        <BetweenHorizonalStart size={16} />
+      </ToolbarButton>
+
+      <ToolbarButton
+        title="Delete Column"
+        disabled={!editor.can().deleteColumn()}
+        onClick={() => editor.chain().focus().deleteColumn().run()}
+      >
+        <BetweenVerticalEnd size={16} />
+      </ToolbarButton>
+
+      <div className="w-px h-6 bg-gray-300 mx-2" />
 
       {/* Undo */}
       <ToolbarButton

@@ -1,4 +1,10 @@
 // Tip tap
+import {
+  Table,
+  TableRow,
+  TableCell,
+  TableHeader,
+} from "@tiptap/extension-table";
 import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -22,6 +28,10 @@ const RichTextPreviewer = ({
       content: text,
       editable: false,
       extensions: [
+        Table,
+        TableRow,
+        TableCell,
+        TableHeader,
         ...(allowImage ? [Image] : []),
         StarterKit.configure({ heading: false }),
         ...(allowInput ? [AnswerInputNode(initialNumber, false)] : []),
