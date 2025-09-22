@@ -48,7 +48,7 @@ const App = () => {
           {/* Tests */}
           <Route path="tests" element={<Outlet />}>
             <Route index element={<Tests />} />
-            <Route path="test/:testId" element={<Outlet />}>
+            <Route path=":testId" element={<Outlet />}>
               <Route index element={<Test />} />
 
               {/* Preview test */}

@@ -52,7 +52,7 @@ const PartTextEditor = () => {
   const hasContentChanged = content !== original.content;
 
   const handleNavigate = () => {
-    const path = `/tests/test/${testId}/preview/${module}/${partNumber}`;
+    const path = `/tests/${testId}/preview/${module}/${partNumber}`;
     navigate(path);
   };
 

@@ -70,7 +70,7 @@ const RadioGroupEditor = () => {
     JSON.stringify(groups) !== JSON.stringify(original.groups);
 
   const handleNavigate = () => {
-    const path = `/tests/test/${testId}/preview/${module}/${partNumber}#s-${sectionIndex}`;
+    const path = `/tests/${testId}/preview/${module}/${partNumber}#s-${sectionIndex}`;
     navigate(path);
   };
 

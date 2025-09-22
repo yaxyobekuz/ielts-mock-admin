@@ -30,7 +30,7 @@ import MainBgLoader from "@/components/loaders/MainBgLoader";
 const TestLayout = () => {
   const { testId, partNumber } = useParams();
   const { pathSegments } = usePathSegments();
-  const module = pathSegments[4];
+  const module = pathSegments[3];
 
   const { getModuleData, addPart, addSection, setModule } = useModule(
     module,
@@ -99,12 +99,12 @@ const TestLayout = () => {
 };
 
 const ModulesNavbar = ({ testId }) => {
-  const to = (m) => `tests/test/${testId}/preview/${m}/1`;
+  const to = (m) => `tests/${testId}/preview/${m}/1`;
 
   return (
     <div className="flex items-center gap-3.5 sticky top-0 inset-x-0 z-10 container h-14 bg-white">
       <Link
-        to={`/tests/test/${testId}`}
+        to={`/tests/${testId}`}
         className="btn shrink-0 size-11 bg-gray-100 p-0 rounded-full hover:bg-gray-200"
       >
         <ArrowLeft size={20} strokeWidth={1.5} />
@@ -112,7 +112,7 @@ const ModulesNavbar = ({ testId }) => {
 
       <Nav
         fullSizeBtn
-        pagePathIndex={4}
+        pagePathIndex={3}
         className="w-full"
         links={[
           { label: "Listening", link: to("listening") },
@@ -129,11 +129,11 @@ const PartsNavbar = ({ testId, module, parts, addPart }) => (
     <div className="flex items-center gap-3.5 size-full">
       <Nav
         fullSizeBtn
-        pagePathIndex={5}
+        pagePathIndex={4}
         className="w-full"
         links={parts?.map(({ number }) => ({
           label: `Part ${number}`,
-          link: `tests/test/${testId}/preview/${module}/${number}`,
+          link: `tests/${testId}/preview/${module}/${number}`,
         }))}
       />
 

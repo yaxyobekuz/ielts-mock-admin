@@ -21,7 +21,7 @@ import MainBgLoader from "@/components/loaders/MainBgLoader";
 const EditorLayout = () => {
   const { testId, partNumber } = useParams();
   const { pathSegments } = usePathSegments();
-  const module = pathSegments[4];
+  const module = pathSegments[3];
 
   const { getModuleData, setModule } = useModule(module, testId);
   const parts = getModuleData();

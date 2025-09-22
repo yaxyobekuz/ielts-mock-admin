@@ -178,7 +178,7 @@ const TestItem = ({
 
       {/* Link */}
       <Link
-        to={`/tests/test/${id}`}
+        to={`/tests/${id}`}
         className="block absolute z-0 -top-5 inset-0 size-full rounded-3xl"
       />
     </div>

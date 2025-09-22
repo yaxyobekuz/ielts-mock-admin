@@ -23,7 +23,7 @@ questionsType.forEach((q) => (questionsMap[q.value] = q.component));
 const Listening = () => {
   const { partNumber, testId } = useParams();
   const { pathSegments, location } = usePathSegments();
-  const module = pathSegments[4];
+  const module = pathSegments[3];
 
   const { getModuleData } = useModule(module, testId);
   const parts = getModuleData();
@@ -120,7 +120,7 @@ const Section = ({
 
         {/* Edit button */}
         <Link
-          to={`/tests/test/${testId}/edit/${module}/${partNumber}/${type}/${index}`}
+          to={`/tests/${testId}/edit/${module}/${partNumber}/${type}/${index}`}
           className="flex items-center justify-center gap-3.5 h-9 px-5 bg-blue-500 rounded-md text-white"
         >
           <span>Tahrirlash</span>

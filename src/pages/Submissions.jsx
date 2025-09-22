@@ -125,7 +125,7 @@ const SubmissionItem = ({
       <div className="flex items-center gap-3.5">
         {/* Test */}
         <Link
-          to={`/tests/test/${test}`}
+          to={`/tests/${test}`}
           className="flex items-center justify-center gap-1.5 relative z-10 text-gray-500 hover:text-blue-500"
         >
           <SquareArrowOutUpRight

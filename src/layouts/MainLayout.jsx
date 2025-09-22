@@ -1,5 +1,5 @@
+// React
 import { useEffect } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
 
 // Lottie
 import Lottie from "lottie-react";
@@ -10,6 +10,9 @@ import { authApi } from "@/api/auth.api";
 // Hooks
 import useStore from "@/hooks/useStore";
 import usePathSegments from "@/hooks/usePathSegments";
+
+// Router
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 // Components
 import Header from "@/components/Header";
@@ -79,7 +82,7 @@ const UnauthenticatedContent = () => (
 const AuthenticatedContent = () => {
   const { pathSegments } = usePathSegments();
   const { getData, updateProperty } = useStore("user");
-  const isAllowedPage = !["preview", "edit"].includes(pathSegments[3]);
+  const isAllowedPage = !["preview", "edit"].includes(pathSegments[2]);
   const { isLoading, hasError } = getData();
 
   const loadProfile = () => {

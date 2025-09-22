@@ -106,7 +106,7 @@ const Body = ({ close }) => {
         .then(({ test, code }) => {
           if (code !== "testCreated") throw new Error();
           if (!isTestsLoading) updateProperty("data", [test, ...tests]);
-          navigate(`/tests/test/${test._id}`);
+          navigate(`/tests/${test._id}`);
         })
         .finally(close),
       {

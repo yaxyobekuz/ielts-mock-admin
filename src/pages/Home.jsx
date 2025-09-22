@@ -214,7 +214,7 @@ const Tests = () => {
 
                   {/* Link */}
                   <Link
-                    to={`/tests/test/${id}`}
+                    to={`/tests/${id}`}
                     className="block absolute z-0 inset-0 size-full -outline-offset-1 rounded-full"
                   />
                 </li>

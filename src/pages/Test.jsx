@@ -79,21 +79,21 @@ const modules = [
     title: "Listening",
     image: listeningBg,
     link(testId) {
-      return `/tests/test/${testId}/preview/listening/1`;
+      return `/tests/${testId}/preview/listening/1`;
     },
   },
   {
     title: "Reading",
     image: readingBg,
     link(testId) {
-      return `/tests/test/${testId}/preview/reading/1`;
+      return `/tests/${testId}/preview/reading/1`;
     },
   },
   {
     title: "Writing",
     image: writingBg,
     link(testId) {
-      return `/tests/test/${testId}/preview/writing/1`;
+      return `/tests/${testId}/preview/writing/1`;
     },
   },
 ];

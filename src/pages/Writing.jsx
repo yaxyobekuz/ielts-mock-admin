@@ -21,7 +21,7 @@ const TextComponent = questionsMap["text"];
 const Writing = () => {
   const { partNumber, testId } = useParams();
   const { pathSegments } = usePathSegments();
-  const module = pathSegments[4];
+  const module = pathSegments[3];
 
   const { getModuleData } = useModule(module, testId);
   const parts = getModuleData();
@@ -72,7 +72,7 @@ const Writing = () => {
           {/* Edit button */}
           <EditButton
             className="max-w-max ml-auto"
-            to={`/tests/test/${testId}/edit/${module}/${partNumber}/part-text`}
+            to={`/tests/${testId}/edit/${module}/${partNumber}/part-text`}
           />
 
           <TextComponent text={text} allowImage initialNumber={0} />
