@@ -7,6 +7,7 @@ const initialState = {
   createTest: initialModal,
   createLink: initialModal,
   uploadImage: initialModal,
+  createResult: initialModal,
 };
 
 export const modalSlice = createSlice({
