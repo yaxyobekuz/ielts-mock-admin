@@ -16,6 +16,7 @@ import Test from "./pages/Test";
 import Home from "./pages/Home";
 import Tests from "./pages/Tests";
 import Login from "./pages/Login";
+import Result from "./pages/Result";
 import Reading from "./pages/Reading";
 import Writing from "./pages/Writing";
 import Results from "./pages/Results";
@@ -88,7 +89,7 @@ const App = () => {
           {/* Test results */}
           <Route path="results" element={<Outlet />}>
             <Route index element={<Results />} />
-            {/* <Route path=":submissionId/:module?" element={<Submission />} /> */}
+            <Route path=":resultId" element={<Result />} />
           </Route>
         </Route>
 
