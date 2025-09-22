@@ -84,14 +84,14 @@
 
   /* Table */
 
-  table,
-  thead,
-  tbody,
-  tfoot {
+  table:not(.tiptap table),
+  thead:not(.tiptap thead),
+  tbody:not(.tiptap tbody),
+  tfoot:not(.tiptap tfoot) {
     @apply block w-full;
   }
 
-  table {
+  table:not(.tiptap table) {
     @apply overflow-hidden w-full;
 
     tr {
