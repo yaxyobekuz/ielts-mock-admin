@@ -17,6 +17,12 @@ const useLocalStorage = (storageKey) => {
     localStorage.setItem(storageKey, JSON.stringify(currentData));
   };
 
+  // Get single property
+  const getProperty = (property) => {
+    const data = getData();
+    return data[property];
+  };
+
   // Remove data from localStorage
   const removeData = () => {
     localStorage.removeItem(storageKey);
@@ -30,6 +36,7 @@ const useLocalStorage = (storageKey) => {
     setData,
     getData,
     removeData,
+    getProperty,
     updateProperty,
   };
 };
