@@ -138,7 +138,7 @@ const SubmissionItem = ({
 
         {/* Invite link */}
         <Link
-          to={`/links/link/${link}`}
+          to={`/links/${link}`}
           className="flex items-center justify-center gap-1.5 relative z-10 text-gray-500 hover:text-blue-500"
         >
           <SquareArrowOutUpRight
