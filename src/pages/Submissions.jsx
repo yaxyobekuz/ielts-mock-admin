@@ -37,7 +37,7 @@ const Submissions = () => {
       .finally(() => updateProperty("isLoading", false));
   };
 
-  // Load user profile
+  // Load submission
   useEffect(() => {
     isLoading && loadSubmissions();
   }, []);
@@ -76,20 +76,20 @@ const Content = ({ isLoading, hasError, submissions = [] }) => {
 };
 
 const SubmissionItem = ({
-  user,
   test,
   link,
   _id: id,
+  student,
   startedAt,
-  isChecked,
+  isScored,
   finishedAt,
 }) => {
-  const { firstName = "Foydalanuvchi", lastName = "" } = user || {};
+  const { firstName = "Foydalanuvchi", lastName = "" } = student || {};
   return (
     <div className="flex flex-col gap-3.5 justify-between relative w-full min-h-52 bg-gray-100 rounded-3xl p-5 transition-all duration-200 hover:bg-gray-50">
       {/* Profile */}
       <div className="flex items-center gap-3.5">
-        <ProfilePhoto user={user} />
+        <ProfilePhoto user={student} />
 
         <h3 className="text-xl font-medium line-clamp-1">
           {`${firstName} ${lastName}`}
@@ -103,8 +103,8 @@ const SubmissionItem = ({
           <Activity strokeWidth={1.5} size={18} />
           <p className="text-[15px]">
             <span>Holat: </span>
-            <span className={isChecked ? "text-green-600" : "text-red-500"}>
-              Tekshiril{isChecked ? "" : "ma"}gan
+            <span className={isScored ? "text-green-600" : "text-red-500"}>
+              Baholan{isScored ? "" : "ma"}gan
             </span>
           </p>
         </div>
