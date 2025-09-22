@@ -1,0 +1,66 @@
+.tiptap {
+  :first-child {
+    margin-top: 0;
+  }
+
+  table {
+    overflow: hidden;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin: 0;
+
+    td,
+    th {
+      position: relative;
+      box-sizing: border-box;
+      border: 1px solid black;
+      min-width: 1em;
+      padding: 4.8px 8px;
+      vertical-align: top;
+
+      > * {
+        margin-bottom: 0;
+      }
+    }
+
+    th {
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .selectedCell:after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background: rgba(209, 213, 219, 0.5);
+    }
+
+    .column-resize-handle {
+      position: absolute;
+      top: 0;
+      right: -2px;
+      bottom: -2px;
+      width: 4px;
+      pointer-events: none;
+      background-color: #2563eb;
+    }
+
+    .answer-input {
+      width: 116px;
+      min-width: 0px;
+    }
+  }
+
+  .tableWrapper {
+    margin: 1.5rem 0;
+    padding-bottom: 20px;
+    overflow-x: auto;
+  }
+
+  &.resize-cursor {
+    cursor: ew-resize;
+    cursor: col-resize;
+  }
+}
