@@ -34,8 +34,6 @@ import {
   TableCell,
   TableHeader,
 } from "@tiptap/extension-table";
-import { Plugin } from "@tiptap/pm/state";
-import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
 import { Gapcursor } from "@tiptap/extensions";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -43,56 +41,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 // Nodes
 import DropzoneNode from "../format/nodes/DropzoneNode";
 import AnswerInputNode from "../format/nodes/AnswerInputNode";
-
-const CustomImage = Image.extend({
-  addProseMirrorPlugins: () => [
-    new Plugin({
-      props: {
-        handlePaste: (view, event) => {
-          const clipboard = event.clipboardData;
-          if (!clipboard) return false;
-
-          // Block image files
-          if (clipboard.files && clipboard.files.length) {
-            for (const file of Array.from(clipboard.files)) {
-              if (file.type && file.type.startsWith("image/")) return true;
-            }
-          }
-
-          // Block html that contains <img>
-          const html = clipboard.getData?.("text/html") || "";
-          if (html.includes("<img")) return true;
-
-          return false;
-        },
-
-        handleDrop: (view, event) => {
-          const dt = event.dataTransfer;
-          if (!dt) return false;
-
-          // block image files
-          if (dt.files && dt.files.length) {
-            for (const file of Array.from(dt.files)) {
-              if (file.type && file.type.startsWith("image/")) {
-                event.preventDefault();
-                return true;
-              }
-            }
-          }
-
-          // Block html that contains <img>
-          const html = dt.getData?.("text/html") || "";
-          if (html.includes("<img")) {
-            event.preventDefault();
-            return true;
-          }
-
-          return false;
-        },
-      },
-    }),
-  ],
-});
+import ResizableImageNode from "@/format/nodes/ResizableImageNode";
 
 const RichTextEditor = ({
   onChange,
@@ -111,7 +60,7 @@ const RichTextEditor = ({
       TableCell,
       TableHeader,
       Gapcursor,
-      ...(allowImage ? [CustomImage] : []),
+      ...(allowImage ? [ResizableImageNode] : []),
       StarterKit.configure({ heading: false }),
       ...(allowInput ? [AnswerInputNode()] : []),
       ...(allowDropzone ? [DropzoneNode()] : []),
