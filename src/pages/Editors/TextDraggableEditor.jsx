@@ -126,6 +126,7 @@ const TextDraggableEditor = () => {
       <div className="container">
         <div className="flex gap-3.5 w-full pb-5">
           <RichTextEditor
+            allowImage
             allowDropzone
             onChange={setContent}
             initialContent={content}
