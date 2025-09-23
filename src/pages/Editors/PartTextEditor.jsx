@@ -20,7 +20,6 @@ import { useNavigate, useParams } from "react-router-dom";
 // Hooks
 import useModule from "@/hooks/useModule";
 import useDebouncedState from "@/hooks/useDebouncedState";
-import UploadImageModal from "@/components/modal/UploadImageModal";
 
 const PartTextEditor = () => {
   // State & Hooks
@@ -94,8 +93,6 @@ const PartTextEditor = () => {
           initialContent={content}
         />
       </div>
-
-      <UploadImageModal />
     </div>
   );
 };

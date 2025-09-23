@@ -17,15 +17,15 @@ import usePathSegments from "@/hooks/usePathSegments";
 
 // Components
 import MainBgLoader from "@/components/loaders/MainBgLoader";
+import UploadImageModal from "@/components/modal/UploadImageModal";
 
 const EditorLayout = () => {
-  const { testId, partNumber } = useParams();
+  const { testId } = useParams();
   const { pathSegments } = usePathSegments();
   const module = pathSegments[3];
 
   const { getModuleData, setModule } = useModule(module, testId);
   const parts = getModuleData();
-  const part = parts?.find((p) => p.number === Number(partNumber));
 
   const { setField, isLoading, hasError } = useObjectState({
     hasError: false,
@@ -61,7 +61,13 @@ const EditorLayout = () => {
     return <MainBgLoader hasError={hasError} onButtonClick={loadTest} />;
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+
+      <UploadImageModal />
+    </>
+  );
 };
 
 export default EditorLayout;
