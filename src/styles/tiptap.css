@@ -1,4 +1,6 @@
 .tiptap {
+  position: relative;
+
   :first-child {
     margin-top: 0;
   }
