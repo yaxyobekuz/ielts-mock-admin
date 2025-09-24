@@ -1,11 +1,11 @@
 // Icons
 import { Trash } from "lucide-react";
 
+// Helpers
+import { isNumber } from "@/lib/helpers";
+
 // Toast
 import { toast } from "@/notification/toast";
-
-// Helpers
-import { isNumber } from "../../lib/helpers";
 
 // Api
 import { sectionsApi } from "@/api/sections.api";
@@ -13,19 +13,22 @@ import { sectionsApi } from "@/api/sections.api";
 // React
 import { useState, useCallback, useEffect } from "react";
 
+// Components
+import EditorHeader from "@/components/EditorHeader";
+import RichTextEditor from "@/components/RichTextEditor";
+
 // Router
 import { useNavigate, useParams } from "react-router-dom";
 
-// Components
-import EditorHeader from "../../components/EditorHeader";
-import RichTextEditor from "../../components/RichTextEditor";
-
 // Hooks
-import useModule from "../../hooks/useModule";
-import useDebouncedState from "../../hooks/useDebouncedState";
+import useStore from "@/hooks/useStore";
+import useModule from "@/hooks/useModule";
+import usePathSegments from "@/hooks/usePathSegments";
+import useDebouncedState from "@/hooks/useDebouncedState";
 
 const TextEditor = () => {
   // State & Hooks
+  const { pathSegments } = usePathSegments();
   const modules = ["listening", "reading", "writing"];
   const { testId, partNumber, module, sectionIndex } = useParams();
   const { getModuleData, updateSection } = useModule(module, testId);
@@ -49,7 +52,10 @@ const TextEditor = () => {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const { updateProperty, getProperty } = useStore("coords");
   const [content, setContent] = useDebouncedState(section?.text, setIsSaving);
+  const coordsKey = `${pathSegments[1]}-${pathSegments[3]}-${pathSegments[4]}-${pathSegments[5]}-${pathSegments[6]}`;
+  const allCoords = getProperty(coordsKey) || section?.coords || {};
   const [description, setDescription] = useDebouncedState(
     section?.description || "",
     setIsSaving
@@ -61,6 +67,7 @@ const TextEditor = () => {
 
   // Original
   const [original, setOriginal] = useState({
+    coords: allCoords,
     content: section?.text,
     description: section?.description || "",
     answers: JSON.stringify(section?.answers || [""]),
@@ -70,7 +77,8 @@ const TextEditor = () => {
   const hasContentChanged =
     content !== original.content ||
     description !== original.description ||
-    JSON.stringify(answers) !== original.answers;
+    JSON.stringify(answers) !== original.answers ||
+    JSON.stringify(allCoords) !== JSON.stringify(original.coords);
 
   const handleNavigate = () => {
     const path = `/tests/${testId}/preview/${module}/${partNumber}#s-${sectionIndex}`;
@@ -81,8 +89,15 @@ const TextEditor = () => {
     if (isUpdating) return;
     setIsUpdating(true);
 
+    let coords = {};
+    Object.keys(allCoords || {}).forEach((key) => {
+      const value = allCoords[key];
+      if (value) coords[key] = value;
+    });
+
     // Update section data from store
     const sectionData = {
+      coords,
       description,
       text: content,
       answers: answers.filter(Boolean),
@@ -94,6 +109,7 @@ const TextEditor = () => {
         if (code !== "sectionUpdated") throw new Error();
         handleNavigate();
         setIsSaving(false);
+        updateProperty(coordsKey, null);
         setOriginal({ content, description, answers });
         updateSection(partNumber, section, sectionIndex);
       })
@@ -121,6 +137,7 @@ const TextEditor = () => {
         <div className="flex gap-3.5 w-full pb-5">
           <RichTextEditor
             allowInput
+            coords={allCoords}
             onChange={setContent}
             initialContent={content}
             className="shrink-0 w-2/3 h-full"
