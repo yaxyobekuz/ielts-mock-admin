@@ -102,7 +102,7 @@ const ModulesNavbar = ({ testId }) => {
   const to = (m) => `tests/${testId}/preview/${m}/1`;
 
   return (
-    <div className="flex items-center gap-3.5 sticky top-0 inset-x-0 z-10 container h-14 bg-white">
+    <div className="flex items-center gap-3.5 sticky top-0 inset-x-0 z-20 container h-14 bg-white">
       <Link
         to={`/tests/${testId}`}
         className="btn shrink-0 size-11 bg-gray-100 p-0 rounded-full hover:bg-gray-200"
@@ -125,7 +125,7 @@ const ModulesNavbar = ({ testId }) => {
 };
 
 const PartsNavbar = ({ testId, module, parts, addPart }) => (
-  <div className="fixed bottom-0 inset-x-0 container h-14 bg-white">
+  <div className="fixed z-20 bottom-0 inset-x-0 container h-14 bg-white">
     <div className="flex items-center gap-3.5 size-full">
       <Nav
         fullSizeBtn
