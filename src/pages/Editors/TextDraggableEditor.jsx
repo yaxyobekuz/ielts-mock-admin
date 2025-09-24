@@ -13,19 +13,22 @@ import { sectionsApi } from "@/api/sections.api";
 // React
 import { useState, useCallback, useEffect } from "react";
 
+// Components
+import EditorHeader from "@/components/EditorHeader";
+import RichTextEditor from "@/components/RichTextEditor";
+
+// Hooks
+import useStore from "@/hooks/useStore";
+import useModule from "@/hooks/useModule";
+import usePathSegments from "@/hooks/usePathSegments";
+import useDebouncedState from "@/hooks/useDebouncedState";
+
 // Router
 import { useNavigate, useParams } from "react-router-dom";
 
-// Components
-import EditorHeader from "../../components/EditorHeader";
-import RichTextEditor from "../../components/RichTextEditor";
-
-// Hooks
-import useModule from "../../hooks/useModule";
-import useDebouncedState from "../../hooks/useDebouncedState";
-
 const TextDraggableEditor = () => {
   // State & Hooks
+  const { pathSegments } = usePathSegments();
   const modules = ["listening", "reading", "writing"];
   const { testId, partNumber, module, sectionIndex } = useParams();
   const { getModuleData, updateSection } = useModule(module, testId);
@@ -49,7 +52,10 @@ const TextDraggableEditor = () => {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const { updateProperty, getProperty } = useStore("coords");
   const [content, setContent] = useDebouncedState(section?.text, setIsSaving);
+  const coordsKey = `${pathSegments[1]}-${pathSegments[3]}-${pathSegments[4]}-${pathSegments[5]}-${pathSegments[6]}`;
+  const allCoords = getProperty(coordsKey) || section?.coords || {};
   const [title, setTitle] = useDebouncedState(
     section?.options?.title,
     setIsSaving
@@ -65,6 +71,7 @@ const TextDraggableEditor = () => {
 
   // Original
   const [original, setOriginal] = useState({
+    coords: allCoords,
     content: section?.text,
     title: section?.options?.title,
     description: section?.description || "",
@@ -76,7 +83,8 @@ const TextDraggableEditor = () => {
     title !== original.title ||
     content !== original.content ||
     description !== original.description ||
-    String(answers) !== String(original.answers);
+    JSON.stringify(answers) !== JSON.stringify(original.answers) ||
+    JSON.stringify(allCoords) !== JSON.stringify(original.coords);
 
   const handleNavigate = () => {
     const path = `/tests/${testId}/preview/${module}/${partNumber}#s-${sectionIndex}`;
@@ -87,7 +95,14 @@ const TextDraggableEditor = () => {
     if (isUpdating) return;
     setIsUpdating(true);
 
+    let coords = {};
+    Object.keys(allCoords || {}).forEach((key) => {
+      const value = allCoords[key];
+      if (value) coords[key] = value;
+    });
+
     const sectionData = {
+      coords,
       description,
       text: content,
       options: { title, data: answers.map((a) => ({ option: a })) },
@@ -100,6 +115,7 @@ const TextDraggableEditor = () => {
 
         handleNavigate();
         setIsSaving(false);
+        updateProperty(coordsKey, null);
         updateSection(partNumber, section, sectionIndex);
         setOriginal({ content, title, description, answers });
       })
@@ -128,6 +144,7 @@ const TextDraggableEditor = () => {
           <RichTextEditor
             allowImage
             allowDropzone
+            coords={allCoords}
             onChange={setContent}
             initialContent={content}
             className="shrink-0 w-2/3 h-full"
