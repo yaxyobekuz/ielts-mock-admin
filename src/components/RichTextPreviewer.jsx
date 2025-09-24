@@ -37,8 +37,8 @@ const RichTextPreviewer = ({
   text,
   initialNumber,
   className = "",
+  allowImage = true,
   allowInput = false,
-  allowImage = false,
   allowDropzone = false,
 }) => {
   if (!text) return null;
