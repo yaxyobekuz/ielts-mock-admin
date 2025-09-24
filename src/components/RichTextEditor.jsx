@@ -35,7 +35,6 @@ import {
   TableHeader,
 } from "@tiptap/extension-table";
 import StarterKit from "@tiptap/starter-kit";
-import { Gapcursor } from "@tiptap/extensions";
 import { useEditor, EditorContent } from "@tiptap/react";
 
 // Nodes
@@ -44,6 +43,7 @@ import AnswerInputNode from "../format/nodes/AnswerInputNode";
 import ResizableImageNode from "@/format/nodes/ResizableImageNode";
 
 const RichTextEditor = ({
+  coords,
   onChange,
   notSticky,
   className = "",
@@ -59,11 +59,10 @@ const RichTextEditor = ({
       TableRow,
       TableCell,
       TableHeader,
-      Gapcursor,
       ...(allowImage ? [ResizableImageNode] : []),
       StarterKit.configure({ heading: false }),
-      ...(allowInput ? [AnswerInputNode()] : []),
-      ...(allowDropzone ? [DropzoneNode()] : []),
+      ...(allowInput ? [AnswerInputNode(1, true, coords)] : []),
+      ...(allowDropzone ? [DropzoneNode(1, true, coords)] : []),
     ],
   });
 

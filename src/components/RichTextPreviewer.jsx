@@ -35,6 +35,7 @@ const CustomImage = Image.extend({
 
 const RichTextPreviewer = ({
   text,
+  coords,
   initialNumber,
   className = "",
   allowImage = true,
@@ -54,8 +55,8 @@ const RichTextPreviewer = ({
         TableHeader,
         ...(allowImage ? [CustomImage] : []),
         StarterKit.configure({ heading: false }),
-        ...(allowInput ? [AnswerInputNode(initialNumber, false)] : []),
-        ...(allowDropzone ? [DropzoneNode(initialNumber, false)] : []),
+        ...(allowInput ? [AnswerInputNode(initialNumber, false, coords)] : []),
+        ...(allowDropzone ? [DropzoneNode(initialNumber, false, coords)] : []),
       ],
     },
     [text, initialNumber]
