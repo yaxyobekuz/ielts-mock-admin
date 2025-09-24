@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 // Initial state
 const initialState = {
   test: {},
+  coords: {},
   result: {},
   submission: {},
   link: { hasError: false, isLoading: true },
