@@ -1,11 +1,12 @@
 import RichTextPreviewer from "../RichTextPreviewer";
 
-const TextDraggable = ({ text, initialNumber, options }) => {
+const TextDraggable = ({ text, initialNumber, options, coords }) => {
   return (
     <div className="flex gap-5 w-full">
       <RichTextPreviewer
         text={text}
         allowDropzone
+        coords={coords}
         initialNumber={initialNumber}
       />
 
