@@ -10,6 +10,7 @@ const Button = ({
     neutral: "bg-gray-100 hover:bg-gray-200 disabled:!bg-gray-100",
     primary: "bg-blue-500 text-white hover:bg-blue-600 disabled:!bg-blue-500",
     danger: "bg-red-500 text-white hover:bg-red-600 disabled:!bg-red-500",
+    lightBlue: "bg-blue-100 text-blue-500 hover:bg-blue-200 disabled:!bg-blue-100",
   };
 
   const sizeClasses = {
