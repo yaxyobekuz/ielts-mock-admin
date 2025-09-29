@@ -1,9 +1,8 @@
+// Helpers
+import { isNumber } from "@/lib/helpers";
 
 // Icons
-import { Trash } from "lucide-react";
-
-// Helpers
-import { isNumber } from "../../lib/helpers";
+import { Check, Trash } from "lucide-react";
 
 // Toast
 import { toast } from "@/notification/toast";
@@ -12,17 +11,19 @@ import { toast } from "@/notification/toast";
 import { sectionsApi } from "@/api/sections.api";
 
 // Components
-import EditorHeader from "../../components/EditorHeader";
+import Input from "@/components/form/Input";
+import Button from "@/components/form/Button";
+import EditorHeader from "@/components/EditorHeader";
+
+// Hooks
+import useModule from "@/hooks/useModule";
+import useDebouncedState from "@/hooks/useDebouncedState";
 
 // Router
 import { useNavigate, useParams } from "react-router-dom";
 
 // React
-import { useState, useCallback, useEffect } from "react";
-
-// Hooks
-import useModule from "../../hooks/useModule";
-import useDebouncedState from "../../hooks/useDebouncedState";
+import { useState, useCallback, useEffect, useMemo } from "react";
 
 const RadioGroupEditor = () => {
   // State & Hooks
@@ -118,22 +119,73 @@ const RadioGroupEditor = () => {
 };
 
 const initialGroupItem = {
-  question: "Question text",
-  answers: [
-    { text: "Answer 1" },
-    { text: "Answer 2" },
-    { text: "Answer 3" },
-    { text: "Answer 4" },
-  ],
+  question: "",
   correctAnswerIndex: 0,
+  answers: [{ text: "" }, { text: "" }, { text: "" }, { text: "" }],
 };
 
 const Groups = ({ onChange, initialGroups = [] }) => {
   const [groups, setGroups] = useState(initialGroups);
+  const initialMaxAnswersCount = useMemo(() => {
+    return groups ? groups[0]?.answers?.length || 4 : 4;
+  }, [initialGroups]);
 
   // Add new group
   const handleAddGroup = useCallback(() => {
     setGroups((prev) => [...prev, { ...initialGroupItem }]);
+  }, []);
+
+  // Copy last group
+  const handleCopyLastGroup = useCallback(() => {
+    setGroups((prev) => {
+      if (prev.length === 0) return prev;
+
+      const lastGroup = prev[prev.length - 1];
+      const copiedGroup = {
+        ...lastGroup,
+        question: "",
+        answers: lastGroup.answers.map((a) => ({ ...a })),
+        correctAnswerIndex: lastGroup.correctAnswerIndex || 0,
+      };
+
+      return [...prev, copiedGroup];
+    });
+  }, []);
+
+  // Update max answers count
+  const handleMaxAnswersChange = useCallback((e) => {
+    const newCount = parseInt(e.target.value, 10);
+
+    setGroups((prev) =>
+      prev.map((group) => {
+        let updatedAnswers = [...group.answers];
+
+        // agar javoblar soni kam bo'lsa -> yangi bo'sh javob qo'shish
+        if (updatedAnswers.length < newCount) {
+          const diff = newCount - updatedAnswers.length;
+          for (let i = 0; i < diff; i++) {
+            updatedAnswers.push({ text: "" });
+          }
+        }
+
+        // agar javoblar soni ortiqcha bo'lsa -> qisqartirish
+        if (updatedAnswers.length > newCount) {
+          updatedAnswers = updatedAnswers.slice(0, newCount);
+        }
+
+        // correctAnswerIndex doim mavjud bo'lishi shart
+        let newCorrectIndex = group.correctAnswerIndex;
+        if (newCorrectIndex >= newCount) {
+          newCorrectIndex = 0; // default bo'lib birinchi javobga o'tadi
+        }
+
+        return {
+          ...group,
+          answers: updatedAnswers,
+          correctAnswerIndex: newCorrectIndex,
+        };
+      })
+    );
   }, []);
 
   // Delete group
@@ -184,6 +236,32 @@ const Groups = ({ onChange, initialGroups = [] }) => {
 
   return (
     <div className="space-y-5 py-5">
+      {/* Select max answers count */}
+      <div className="flex gap-3.5">
+        {/* Label */}
+        <label
+          htmlFor="max-answers-count"
+          className="btn bg-gray-100 border-2 text-base cursor-pointer hover:bg-gray-50"
+        >
+          Javoblar soni
+        </label>
+
+        {/* Select */}
+        <select
+          id="max-answers-count"
+          name="max-answers-count"
+          onChange={handleMaxAnswersChange}
+          defaultValue={initialMaxAnswersCount}
+          className="btn bg-gray-100 border-2"
+        >
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+          <option>5</option>
+          <option>6</option>
+        </select>
+      </div>
+
       {/* Groups list */}
       <ul className="mb-3 space-y-5">
         {groups.map(({ question, answers, correctAnswerIndex }, index) => (
@@ -203,8 +281,8 @@ const Groups = ({ onChange, initialGroups = [] }) => {
               <textarea
                 value={question}
                 placeholder="Group question"
-                className="w-full h-14 resize-none rounded-md px-2.5 py-1"
                 onChange={(e) => handleQuestionChange(index, e.target.value)}
+                className="w-full h-14 resize-none rounded-md px-2.5 py-1 scroll-y-primary"
               />
             </div>
 
@@ -225,12 +303,14 @@ const Groups = ({ onChange, initialGroups = [] }) => {
       </ul>
 
       {/* Add new group */}
-      <button
-        onClick={handleAddGroup}
-        className="flex items-center justify-center w-48 h-9 bg-blue-100 mx-auto text-blue-500 rounded-md"
-      >
-        Add Group +
-      </button>
+      <div className="flex items-center justify-center gap-5 w-full">
+        <Button onClick={handleAddGroup}>Variantlar qo'shish</Button>
+
+        {/* Copy last group */}
+        <Button variant="lightBlue" onClick={handleCopyLastGroup} className="">
+          Oxirgi variantdan nusxa olish
+        </Button>
+      </div>
     </div>
   );
 };
@@ -244,22 +324,28 @@ const Answers = ({
 }) => (
   <ul className="space-y-3.5">
     {answers.map(({ text }, index) => (
-      <li key={index} className="flex gap-3 items-start">
+      <li key={index} className="flex items-center gap-3">
         {/* Correct answer selector */}
-        <input
-          type="radio"
-          className="size-4"
-          name={`radio-${groupNumber}`}
-          checked={correctAnswerIndex === index}
-          onChange={() => onCorrectChange(index)}
-        />
+        <label className="cursor-pointer">
+          <input
+            type="radio"
+            className="hidden peer"
+            name={`radio-${groupNumber}`}
+            checked={correctAnswerIndex === index}
+            onChange={() => onCorrectChange(index)}
+          />
+
+          <div className="group btn p-0 size-8 bg-gray-200 rounded-full peer-checked:bg-green-500">
+            <Check size={18} color="white" className="mt-px" />
+          </div>
+        </label>
 
         {/* Answer text */}
-        <textarea
+        <Input
           value={text}
+          className="w-full"
           placeholder={`Answer ${index + 1}`}
           onChange={(e) => onAnswerChange(index, e.target.value)}
-          className="w-full h-14 resize-none rounded-md px-2.5 py-1"
         />
       </li>
     ))}
