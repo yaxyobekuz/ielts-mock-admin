@@ -37,6 +37,7 @@ import PartTextEditor from "./pages/Editors/PartTextEditor";
 import FlowchartEditor from "./pages/Editors/FlowchartEditor";
 import RadioGroupEditor from "./pages/Editors/RadioGroupEditor";
 import TextDraggableEditor from "./pages/Editors/TextDraggableEditor";
+import CheckboxGroupEditor from "./pages/Editors/CheckboxGroupEditor";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -75,6 +76,10 @@ const App = () => {
                 <Route
                   element={<RadioGroupEditor />}
                   path="radio-group/:sectionIndex"
+                />
+                <Route
+                  element={<CheckboxGroupEditor />}
+                  path="checkbox-group/:sectionIndex"
                 />
               </Route>
             </Route>
