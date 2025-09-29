@@ -204,12 +204,31 @@ const TableContent = ({ module, answers, correctAnswers }) => {
   let wrongAnswers = 0;
 
   const rows = correctAnswersMap.map((key) => {
-    const correctAnswer = (correctAnswers[module][key] || "")
-      .trim()
-      .toLowerCase();
-    const userAnswer = (answers[module]?.[key] || "-").trim().toLowerCase();
+    const correctAnswer = (() => {
+      if (!correctAnswers[module]) return "-";
 
-    const isCorrect = userAnswer === correctAnswer;
+      if (typeof correctAnswers[module][key] === "object") {
+        return correctAnswers[module][key].join(" | ");
+      }
+
+      return (correctAnswers[module][key] || "").trim().toLowerCase();
+    })();
+
+    const userAnswer = (() => {
+      if (!answers[module]) return "-";
+
+      if (typeof answers[module][key] === "object") {
+        return answers[module][key].join(" | ");
+      }
+
+      return (answers[module]?.[key] || "-").trim().toLowerCase();
+    })();
+
+    const isCorrect = (() => {
+      if (userAnswer === "-" && correctAnswer === "-") return false;
+      return userAnswer === correctAnswer;
+    })();
+
     isCorrect ? trueAnswers++ : wrongAnswers++;
 
     return {
