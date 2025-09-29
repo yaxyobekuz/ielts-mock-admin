@@ -203,19 +203,17 @@ const TableContent = ({ module, answers, correctAnswers }) => {
   let trueAnswers = 0;
   let wrongAnswers = 0;
 
-  const rows = correctAnswersMap.map((_, index) => {
-    const correctAnswer = (correctAnswers[module][index + 1] || "")
+  const rows = correctAnswersMap.map((key) => {
+    const correctAnswer = (correctAnswers[module][key] || "")
       .trim()
       .toLowerCase();
-    const userAnswer = (answers[module]?.[index + 1] || "Mavjud emas")
-      .trim()
-      .toLowerCase();
+    const userAnswer = (answers[module]?.[key] || "-").trim().toLowerCase();
 
     const isCorrect = userAnswer === correctAnswer;
     isCorrect ? trueAnswers++ : wrongAnswers++;
 
     return {
-      index,
+      key,
       isCorrect,
       userAnswer,
       correctAnswer,
@@ -257,9 +255,9 @@ const TableContent = ({ module, answers, correctAnswers }) => {
         </thead>
 
         <tbody>
-          {rows.map(({ index, userAnswer, correctAnswer, isCorrect }) => (
-            <tr key={index + module}>
-              <td className="min-w-20 py-1.5">{index + 1}</td>
+          {rows.map(({ key, userAnswer, correctAnswer, isCorrect }) => (
+            <tr key={key + module}>
+              <td className="min-w-20 py-1.5">{key}</td>
               <td className="w-full py-1.5">{userAnswer}</td>
               <td className="w-full py-1.5">{correctAnswer}</td>
               <td className="flex items-center justify-center min-w-20">
@@ -296,7 +294,7 @@ const WritingContent = ({ answers }) => {
 
             {/* Body */}
             <div className="bg-gray-50 px-2 py-3.5 rounded-2xl">
-              <p className="whitespace-pre">{words}</p>
+              <p className="whitespace-break-spaces">{words}</p>
             </div>
           </li>
         );
