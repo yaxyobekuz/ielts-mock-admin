@@ -49,7 +49,7 @@ const Listening = () => {
     return (
       <div className="container">
         <div className="py-8">
-          <div className="w-full bg-red-50 py-3 px-4 mb-5 rounded-xl border border-gray-200 border-red-300">
+          <div className="w-full bg-red-50 py-3 px-4 mb-5 rounded-xl border border-red-300">
             <p className="text-red-700">Part not found</p>
           </div>
         </div>

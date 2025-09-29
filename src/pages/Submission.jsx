@@ -208,7 +208,7 @@ const TableContent = ({ module, answers, correctAnswers }) => {
       if (!correctAnswers[module]) return "-";
 
       if (typeof correctAnswers[module][key] === "object") {
-        return correctAnswers[module][key].join(" | ");
+        return correctAnswers[module][key].join(" | ").trim().toLowerCase();
       }
 
       return (correctAnswers[module][key] || "").trim().toLowerCase();
@@ -218,7 +218,7 @@ const TableContent = ({ module, answers, correctAnswers }) => {
       if (!answers[module]) return "-";
 
       if (typeof answers[module][key] === "object") {
-        return answers[module][key].join(" | ");
+        return answers[module][key].join(" | ").trim().toLowerCase();
       }
 
       return (answers[module]?.[key] || "-").trim().toLowerCase();
