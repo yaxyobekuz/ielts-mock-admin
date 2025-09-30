@@ -21,6 +21,7 @@ import Reading from "./pages/Reading";
 import Writing from "./pages/Writing";
 import Results from "./pages/Results";
 import Register from "./pages/Register";
+import Teachers from "./pages/Teachers";
 import Listening from "./pages/Listening";
 import Submission from "./pages/Submission";
 import Submissions from "./pages/Submissions";
@@ -95,6 +96,11 @@ const App = () => {
           <Route path="results" element={<Outlet />}>
             <Route index element={<Results />} />
             <Route path=":resultId" element={<Result />} />
+          </Route>
+
+          {/* Teachers */}
+          <Route path="teachers" element={<Outlet />}>
+            <Route index element={<Teachers />} />
           </Route>
         </Route>
 
