@@ -1,6 +1,9 @@
 // Components
 import Nav from "./Nav";
 
+// React
+import { useMemo } from "react";
+
 // Router
 import { Link } from "react-router-dom";
 
@@ -13,13 +16,17 @@ import { Settings, User } from "lucide-react";
 // Images
 import ieltsLogo from "@/assets/icons/logo.svg";
 
+// Data
+import { getNavlinksByRole } from "@/data/navlinks";
+
 const Header = () => {
   const { getProperty } = useStore("user");
-  const role = getProperty("role");
+  const { role } = getProperty("data");
+  const navlinks = useMemo(() => getNavlinksByRole(role), [role]);
 
   return (
     <header className="sticky top-0 inset-x-0 w-full z-20 bg-white py-2.5">
-      <div className="flex items-center justify-between container">
+      <div className="flex items-c/*  */enter justify-between container">
         {/* Logo */}
         <Link to="/">
           <img
@@ -34,20 +41,7 @@ const Header = () => {
         {/* Main */}
         <div className="flex items-center gap-3.5">
           {/* Nav */}
-          <Nav
-            role={role}
-            links={[
-              { label: "Asosiy", link: "" },
-              { label: "Testlar", link: "tests" },
-              { label: "Javoblar", link: "submissions" },
-              { label: "Natijalar", link: "results" },
-              { label: "Havolalar", link: "links" },
-              { label: "To'lov", link: "payment" },
-              { label: "Statistika", link: "statistics" },
-              { label: "Ta'riflar", link: "plans" },
-            ]}
-            extraLinks={[{ label: "Ustozlar", link: "teachers" }]}
-          />
+          <Nav links={navlinks} />
 
           {/* Settings */}
           <Link
