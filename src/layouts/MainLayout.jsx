@@ -7,12 +7,12 @@ import Lottie from "lottie-react";
 // Auth api
 import { authApi } from "@/api/auth.api";
 
+// Toast
+import { toast } from "@/notification/toast";
+
 // Hooks
 import useStore from "@/hooks/useStore";
 import usePathSegments from "@/hooks/usePathSegments";
-
-// Router
-import { Link, Outlet, useLocation } from "react-router-dom";
 
 // Components
 import Header from "@/components/Header";
@@ -25,6 +25,9 @@ import duckShrugging from "@/assets/animated/duck-shrugging.json";
 import CreateTestModal from "@/components/modal/CreateTestModal";
 import CreateLinkModal from "@/components/modal/CreateLinkModal";
 import CreateResultModal from "@/components/modal/CreateResultModal";
+
+// Router
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const MainLayout = () => {
   const location = useLocation();
@@ -80,6 +83,7 @@ const UnauthenticatedContent = () => (
 );
 
 const AuthenticatedContent = () => {
+  const navigate = useNavigate();
   const { pathSegments } = usePathSegments();
   const { getData, updateProperty } = useStore("user");
   const isAllowedPage = !["preview", "edit"].includes(pathSegments[2]);
@@ -93,6 +97,13 @@ const AuthenticatedContent = () => {
       .profile()
       .then(({ user, code }) => {
         if (code !== "profileSuccess") throw new Error();
+
+        if (!["supervisor", "teacher"].includes(user.role)) {
+          navigate("/auth/login");
+          localStorage.removeItem("auth");
+          return toast.error("Kirish uchun huquqlaringiz yetarli emas");
+        }
+
         updateProperty("data", user);
       })
       .catch(() => updateProperty("hasError", true))

@@ -1,5 +1,5 @@
+// React
 import { useEffect, useRef } from "react";
-import { Link, Navigate, Outlet } from "react-router-dom";
 
 // Toast
 import { toast } from "@/notification/toast";
@@ -12,6 +12,9 @@ import ieltsBg from "@/assets/backgrounds/ielts.png";
 
 // Hooks
 import usePathSegments from "@/hooks/usePathSegments";
+
+// Router
+import { Link, Navigate, Outlet } from "react-router-dom";
 
 const AuthLayout = () => {
   const auth = localStorage.getItem("auth");

@@ -1,4 +1,8 @@
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+// React
+import { useEffect } from "react";
+
+// Hooks
+import useStore from "@/hooks/useStore";
 
 // Api
 import { authApi } from "@/api/auth.api";
@@ -15,7 +19,9 @@ import { extractNumbers } from "@/lib/helpers";
 
 // Hooks
 import useObjectState from "@/hooks/useObjectState";
-import { useEffect } from "react";
+
+// Router
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { state, setField } = useObjectState({ step: 1, phone: "" });
@@ -64,19 +70,22 @@ const LoginContent = ({ next }) => {
     authApi
       .login({ phone, password })
       .then(({ code, message, token, user }) => {
-        if (code === "loginSuccess") {
-          // Navigate user
-          navigate("/");
+        if (code !== "loginSuccess") throw new Error();
 
-          // Notify user
-          toast.success(message || "Hisobingizga kirdingiz");
-
-          // Save token to localstorage
-          const auth = JSON.stringify({ token, createdAt: Date.now });
-          return localStorage.setItem("auth", auth);
+        if (!["supervisor", "teacher"].includes(user.role)) {
+          navigate("/auth/login");
+          return toast.error("Kirish uchun huquqlaringiz yetarli emas");
         }
 
-        throw new Error();
+        // Navigate user
+        navigate("/");
+
+        // Notify user
+        toast.success(message || "Hisobingizga kirdingiz");
+
+        // Save token to localstorage
+        const auth = JSON.stringify({ token, createdAt: Date.now });
+        return localStorage.setItem("auth", auth);
       })
       .catch(({ message, code }) => {
         toast.error(message || "Nimadir xato ketdi");
@@ -116,8 +125,8 @@ const LoginContent = ({ next }) => {
       />
 
       {/* Submit btn */}
-      <Button size="xl" className="w-full">
-        Kirish
+      <Button disabled={isLoading} size="xl" className="w-full">
+        Kirish{isLoading && "..."}
       </Button>
     </form>
   );
@@ -125,6 +134,7 @@ const LoginContent = ({ next }) => {
 
 const VerifyCodeContent = ({ phone }) => {
   const navigate = useNavigate();
+  const { updateProperty } = useStore("user");
   const { state, setField } = useObjectState({ code: "", isLoading: false });
   const { code, isLoading } = state;
 
@@ -141,15 +151,23 @@ const VerifyCodeContent = ({ phone }) => {
     authApi
       .verify({ phone, code, password, firstName })
       .then(({ token, user, message }) => {
-        // Save token to localstorage
-        const auth = JSON.stringify({ token, createdAt: Date.now });
-        localStorage.setItem("auth", auth);
+        if (!["supervisor", "teacher"].includes(user.role)) {
+          navigate("/auth/login");
+          return toast.error("Kirish uchun huquqlaringiz yetarli emas");
+        }
 
         // Navigate user
         navigate("/");
 
+        // Save user data to store
+        updateProperty("data", user);
+
         // Notify user
-        toast(message || "Hisob muvaffaqiyatli yaratilindi");
+        toast(message || "Hisobingizga kirdingiz");
+
+        // Save token to localstorage
+        const auth = JSON.stringify({ token, createdAt: Date.now });
+        localStorage.setItem("auth", auth);
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => setField("isLoading", false));
@@ -173,8 +191,8 @@ const VerifyCodeContent = ({ phone }) => {
       />
 
       {/* Submit btn */}
-      <Button size="xl" className="w-full">
-        Tasdiqlash
+      <Button disabled={isLoading} size="xl" className="w-full">
+        Tasdiqlash{isLoading && "..."}
       </Button>
 
       <p className="text-gray-500">

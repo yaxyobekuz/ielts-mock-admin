@@ -1,5 +1,3 @@
-import { useNavigate } from "react-router-dom";
-
 // Api
 import { authApi } from "@/api/auth.api";
 
@@ -12,6 +10,9 @@ import Button from "@/components/form/Button";
 
 // Helpers
 import { extractNumbers } from "@/lib/helpers";
+
+// Router
+import { useNavigate } from "react-router-dom";
 
 // Hooks
 import useObjectState from "@/hooks/useObjectState";
@@ -137,8 +138,8 @@ const RegisterContent = ({ next }) => {
       />
 
       {/* Submit btn */}
-      <Button size="xl" className="w-full">
-        Keyingisi
+      <Button disabled={isLoading} size="xl" className="w-full">
+        Keyingisi{isLoading && "..."}
       </Button>
     </form>
   );
@@ -194,8 +195,8 @@ const VerifyCodeContent = ({ phone, firstName, password }) => {
       />
 
       {/* Submit btn */}
-      <Button size="xl" className="w-full">
-        Tasdiqlash
+      <Button disabled={isLoading} size="xl" className="w-full">
+        Tasdiqlash{isLoading && "..."}
       </Button>
 
       <p className="text-gray-500">
