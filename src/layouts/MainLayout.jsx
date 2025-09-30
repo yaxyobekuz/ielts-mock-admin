@@ -25,6 +25,7 @@ import duckShrugging from "@/assets/animated/duck-shrugging.json";
 import CreateTestModal from "@/components/modal/CreateTestModal";
 import CreateLinkModal from "@/components/modal/CreateLinkModal";
 import CreateResultModal from "@/components/modal/CreateResultModal";
+import CreateTeacherModal from "@/components/modal/CreateTeacherModal";
 
 // Router
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -130,6 +131,7 @@ const AuthenticatedContent = () => {
       <CreateTestModal />
       <CreateLinkModal />
       <CreateResultModal />
+      <CreateTeacherModal />
     </div>
   );
 };
