@@ -20,6 +20,7 @@ import Result from "./pages/Result";
 import Reading from "./pages/Reading";
 import Writing from "./pages/Writing";
 import Results from "./pages/Results";
+import Teacher from "./pages/Teacher";
 import Register from "./pages/Register";
 import Teachers from "./pages/Teachers";
 import Listening from "./pages/Listening";
@@ -101,6 +102,7 @@ const App = () => {
           {/* Teachers */}
           <Route path="teachers" element={<Outlet />}>
             <Route index element={<Teachers />} />
+            <Route path=":teacherId" element={<Teacher />} />
           </Route>
         </Route>
 
