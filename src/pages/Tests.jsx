@@ -11,6 +11,9 @@ import useModal from "@/hooks/useModal";
 // Tests api
 import { testsApi } from "@/api/tests.api";
 
+// Components
+import Button from "@/components/form/Button";
+
 // Helpers
 import { formatDate, getRandomNumber } from "@/lib/helpers";
 
@@ -79,20 +82,26 @@ const Main = ({ isLoading, hasError, tests = [] }) => {
 };
 
 const AddNew = () => {
+  const { getData } = useStore("user");
   const { openModal } = useModal("createTest");
 
+  const user = getData()?.data || {};
+  const isTeacher = user.role === "teacher";
+
   return (
-    <button
+    <Button
+      variant="danger"
+      disabled={!isTeacher}
       onClick={() => openModal()}
-      className="group flex items-center justify-center gap-3.5 relative w-full min-h-[200px] bg-[#e31837] rounded-3xl p-5 transition-colors duration-200 hover:bg-red-600"
+      className="relative group gap-3.5 min-h-[200px] !rounded-3xl"
     >
       <span className="text-xl font-medium text-white">Test qo'shish</span>
       <Plus
         size={32}
         color="white"
-        className="transition-transform duration-200 group-hover:rotate-180"
+        className="transition-transform duration-200 group-hover:rotate-180 group-disabled:!rotate-0"
       />
-    </button>
+    </Button>
   );
 };
 

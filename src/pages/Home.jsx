@@ -1,4 +1,7 @@
+// React
 import { useEffect } from "react";
+
+// Router
 import { Link } from "react-router-dom";
 
 // Hooks
@@ -9,6 +12,7 @@ import useModal from "@/hooks/useModal";
 import { testsApi } from "@/api/tests.api";
 
 // Components
+import Button from "@/components/form/Button";
 import LineChart from "@/components/charts/LineChart";
 
 // Icons
@@ -124,7 +128,8 @@ const Profile = ({ user }) => (
   </section>
 );
 
-const Tests = () => {
+const Tests = ({ user }) => {
+  const isTeacher = user.role === "teacher";
   const { openModal } = useModal("createTest");
   const { getData, updateProperty } = useStore("latestTests");
   const { isLoading, hasError, data: tests } = getData();
@@ -228,13 +233,14 @@ const Tests = () => {
         ) : null}
 
         {/* Create new */}
-        <button
+        <Button
+          disabled={!isTeacher}
           onClick={() => openModal()}
-          className="btn h-9 bg-blue-500 p-0 mt-auto rounded-full text-white hover:bg-blue-600"
+          className="h-9 !p-0 mt-auto !rounded-full"
         >
           <span>Test qo'shish</span>
           <Plus size={20} className="ml-2" />
-        </button>
+        </Button>
       </div>
     </section>
   );
