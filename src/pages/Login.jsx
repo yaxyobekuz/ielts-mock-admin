@@ -14,14 +14,14 @@ import { toast } from "@/notification/toast";
 import Input from "@/components/form/Input";
 import Button from "@/components/form/Button";
 
-// Helpers
-import { extractNumbers } from "@/lib/helpers";
-
 // Hooks
 import useObjectState from "@/hooks/useObjectState";
 
 // Router
 import { useLocation, useNavigate } from "react-router-dom";
+
+// Helpers
+import { extractNumbers, formatUzPhone } from "@/lib/helpers";
 
 const Login = () => {
   const { state, setField } = useObjectState({ step: 1, phone: "" });
@@ -43,7 +43,7 @@ const LoginContent = ({ next }) => {
   const url = new URL(window.location.href);
   const params = new URLSearchParams(url.search);
   const passwordParam = params.get("password") || "";
-  const phoneParam = extractNumbers(params.get("phone")) || "";
+  const phoneParam = formatUzPhone(extractNumbers(params.get("phone"))) || "";
 
   const { state, setField } = useObjectState({
     isLoading: false,
@@ -57,18 +57,21 @@ const LoginContent = ({ next }) => {
     e.preventDefault();
     if (isLoading) return;
 
-    if (phone.trim().length !== 12) {
+    const formattedPassword = password?.trim() || "";
+    const formattedPhone = extractNumbers(phone)?.trim() || "";
+
+    if (formattedPhone.length !== 12) {
       return toast.error("Telefon raqam noto'g'ri");
     }
 
-    if (password.trim().length < 6) {
+    if (formattedPassword.length < 6) {
       return toast.error("Parol juda ham qisqa");
     }
 
     setField("isLoading", true);
 
     authApi
-      .login({ phone, password })
+      .login({ phone: formattedPhone, password: formattedPassword })
       .then(({ code, message, token, user }) => {
         if (code !== "loginSuccess") throw new Error();
 
@@ -109,7 +112,7 @@ const LoginContent = ({ next }) => {
         value={phone}
         variant="gray"
         placeholder="Telegram raqamingiz"
-        onChange={(value) => setField("phone", extractNumbers(value))}
+        onChange={(value) => setField("phone", value)}
       />
 
       {/* Password */}

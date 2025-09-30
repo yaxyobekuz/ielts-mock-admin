@@ -62,22 +62,29 @@ const RegisterContent = ({ next }) => {
     e.preventDefault();
     if (isLoading) return;
 
+    const formattedPassword = password?.trim() || "";
+    const formattedPhone = extractNumbers(phone)?.trim() || "";
+
     if (firstName.trim().length === 0) {
       return toast.error("Ismingizni kiriting");
     }
 
-    if (phone.trim().length !== 12) {
+    if (formattedPhone.length !== 12) {
       return toast.error("Telefon raqam noto'g'ri");
     }
 
-    if (password.trim().length < 6) {
+    if (formattedPassword.length < 6) {
       return toast.error("Parol juda ham qisqa");
     }
 
     setField("isLoading", true);
 
     authApi
-      .register({ phone, firstName, password })
+      .register({
+        firstName,
+        phone: formattedPhone,
+        password: formattedPassword,
+      })
       .then(({ code, message }) => {
         if (["codeSent", "codeAlreadySent"].includes(code)) {
           toast.success(message);
@@ -122,7 +129,7 @@ const RegisterContent = ({ next }) => {
         value={phone}
         variant="gray"
         placeholder="Telegram raqamingiz"
-        onChange={(value) => setField("phone", extractNumbers(value))}
+        onChange={(value) => setField("phone", value)}
       />
 
       {/* Password */}
