@@ -10,6 +10,7 @@ const initialState = {
   user: { data: {}, hasError: false, isLoading: true },
   tests: { data: [], hasError: false, isLoading: true },
   results: { data: [], hasError: false, isLoading: true },
+  teachers: { data: [], hasError: false, isLoading: true },
   submissions: { data: [], hasError: false, isLoading: true },
   latestTests: { data: [], hasError: false, isLoading: true },
 };
