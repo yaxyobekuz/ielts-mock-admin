@@ -1,3 +1,5 @@
+import { InputMask } from "@react-input/mask";
+
 const Input = ({
   value,
   onChange,
@@ -52,6 +54,26 @@ const Input = ({
       );
     }
 
+    if (type === "tel") {
+      return (
+        <InputMask
+          id={name}
+          type="tel"
+          {...props}
+          name={name}
+          value={value}
+          autoComplete="off"
+          required={required}
+          disabled={disabled}
+          onChange={handleChange}
+          placeholder={placeholder}
+          replacement={{ _: /\d/ }}
+          mask="+998 (__) ___-__-__"
+          className={`${variantClasses[variant]} ${defaultClasses} ${sizeClasses[size]}`}
+        />
+      );
+    }
+
     return (
       <input
         id={name}
@@ -71,7 +93,7 @@ const Input = ({
   return (
     <div className={`text-left space-y-2 ${className}`}>
       {label && (
-        <label htmlFor={name} className="font-medium text-gray-700">
+        <label htmlFor={name} className="ml-1 font-medium text-gray-700">
           {label} {required && <span className="text-blue-500">*</span>}
         </label>
       )}
