@@ -36,7 +36,7 @@ import { useState, useRef, useEffect } from "react";
 const UploadImageModal = () => {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { closeModal, isOpen } = useModal("uploadImage");
-  const handleUploadImage = (url) => closeModal({ url });
+  const handleUploadImage = (image) => closeModal({ image });
 
   const content = {
     title: "Rasm yuklash",
@@ -108,29 +108,28 @@ const Body = ({ close, onUploadImage }) => {
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!file || isUploading) return;
+
+    setProgress(0);
     setIsUploading(true);
 
-    try {
-      setProgress(0);
-      const formData = new FormData();
-      formData.append("photo", file);
+    const onUploadProgress = (event) => {
+      if (event.total) {
+        const percent = Math.round((event.loaded * 100) / event.total);
+        setProgress(percent);
+      }
+    };
 
-      const res = await uploadApi.uploadPhoto(file, {
-        onUploadProgress: (event) => {
-          if (event.total) {
-            const percent = Math.round((event.loaded * 100) / event.total);
-            setProgress(percent);
-          }
-        },
+    uploadApi
+      .uploadImage(file, { onUploadProgress })
+      .then(({ code, image }) => {
+        if (code !== "imageUploaded") throw new Error();
+        onUploadImage(image);
+      })
+      .catch(({ message }) => toast.error(message || "Rasmni yuklab bo'lmadi"))
+      .finally(() => {
+        close();
+        setIsUploading(false);
       });
-
-      onUploadImage(res.url);
-    } catch {
-      toast.error("Rasmni yuklab bo'lmadi");
-    } finally {
-      close();
-      setIsUploading(false);
-    }
   };
 
   const handleClick = async () => {
