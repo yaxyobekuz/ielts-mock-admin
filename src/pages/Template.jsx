@@ -75,7 +75,7 @@ const Content = ({
   if (hasError) return <ErrorContent />;
 
   const { templateId } = useParams();
-  const { openModal } = useModal("copyTemplate");
+  const { openModal } = useModal("useTemplate");
 
   return (
     <>

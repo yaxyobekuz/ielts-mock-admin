@@ -7,6 +7,7 @@ const initialState = {
   createTest: initialModal,
   createLink: initialModal,
   uploadImage: initialModal,
+  useTemplate: initialModal,
   createResult: initialModal,
   createTeacher: initialModal,
 };
