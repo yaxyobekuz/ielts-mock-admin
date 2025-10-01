@@ -24,6 +24,7 @@ import Teacher from "./pages/Teacher";
 import Register from "./pages/Register";
 import Teachers from "./pages/Teachers";
 import Listening from "./pages/Listening";
+import Templates from "./pages/Templates";
 import Submission from "./pages/Submission";
 import Submissions from "./pages/Submissions";
 
@@ -103,6 +104,12 @@ const App = () => {
           <Route path="teachers" element={<Outlet />}>
             <Route index element={<Teachers />} />
             <Route path=":teacherId" element={<Teacher />} />
+          </Route>
+
+          {/* Templates */}
+          <Route path="templates" element={<Outlet />}>
+            <Route index element={<Templates />} />
+            {/* <Route path=":templateId" element={<Template />} /> */}
           </Route>
         </Route>
 
