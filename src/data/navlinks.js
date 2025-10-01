@@ -44,6 +44,11 @@ const navlinks = [
     link: "statistics",
     allowed: ["supervisor", "teacher"],
   },
+  {
+    label: "Shablonlar",
+    link: "templates",
+    allowed: ["supervisor", "teacher"],
+  },
 ];
 
 export const getNavlinksByRole = (role) => {
