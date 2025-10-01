@@ -1,19 +1,19 @@
 import api from "./api";
 
 export const uploadApi = {
-  uploadPhoto: async (file, config = {}) => {
+  uploadImage: async (file, config = {}) => {
     const formData = new FormData();
-    formData.append("photo", file);
-    return await api.post("/api/upload/photo", formData, {
+    formData.append("image", file);
+    return await api.post("/api/upload/image", formData, {
       headers: { "Content-Type": "multipart/form-data" },
       ...config,
     });
   },
 
-  uploadPhotos: async (files, config = {}) => {
+  uploadImages: async (files, config = {}) => {
     const formData = new FormData();
-    files.forEach((file) => formData.append("photos", file));
-    return await api.post("/api/upload/photos", formData, {
+    files.forEach((file) => formData.append("images", file));
+    return await api.post("/api/upload/images", formData, {
       headers: { "Content-Type": "multipart/form-data" },
       ...config,
     });
