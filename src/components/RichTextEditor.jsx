@@ -111,11 +111,22 @@ const Toolbar = ({
   const { openModal, data, updateModalData } = useModal("uploadImage");
 
   useEffect(() => {
-    if (data?.editor) {
-      updateModalData({ url: "", editor: false });
-      editor.chain().focus().setImage({ src: data?.url }).run();
+    const image = data?.image;
+
+    if (data?.editor && image) {
+      let src = "";
+      updateModalData({ image: null, editor: false });
+
+      if (image.original.width <= image.sizes.large.width) {
+        src = image.original.url;
+      } else {
+        src = image.sizes.large.url;
+      }
+
+      editor.chain().focus().setImage({ src }).run();
+      src = "";
     }
-  }, [data?.url]);
+  }, [data?.image]);
 
   useEffect(() => {
     // Force component re-render
