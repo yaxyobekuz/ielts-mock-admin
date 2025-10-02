@@ -45,6 +45,11 @@ const navlinks = [
     allowed: ["supervisor", "teacher"],
   },
   {
+    label: "Asboblar",
+    link: "tools",
+    allowed: ["teacher"],
+  },
+  {
     label: "Shablonlar",
     link: "templates",
     allowed: ["supervisor", "teacher"],
