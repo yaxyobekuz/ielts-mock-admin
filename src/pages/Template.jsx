@@ -103,6 +103,7 @@ const Content = ({
         </button>
       </div>
 
+      {/* Main */}
       <div className="flex gap-5">
         {/* Details */}
         <div className="w-full space-y-5">

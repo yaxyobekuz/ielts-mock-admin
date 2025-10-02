@@ -1,15 +1,24 @@
 // React
 import { useMemo } from "react";
 
+// Hooks
+import useModal from "@/hooks/useModal";
+
 // Router
 import { Link } from "react-router-dom";
 
 // Icons
-import { Verified } from "lucide-react";
+import { SaveAll, Verified } from "lucide-react";
 
 const TemplateItem = ({ title, _id: id, description, banner }) => {
+  const { openModal } = useModal("useTemplate");
+
   const bannerStyles = useMemo(() => {
-    if (banner) return { backgroundImage: `url(${banner.sizes.medium.url})` };
+    if (banner)
+      return {
+        backgroundColor: "#e31837",
+        backgroundImage: `url(${banner.sizes.medium.url})`,
+      };
     return {};
   }, [banner?._id]);
 
@@ -18,8 +27,9 @@ const TemplateItem = ({ title, _id: id, description, banner }) => {
       style={bannerStyles}
       className="group flex flex-col bg-cover justify-between relative overflow-hidden w-full min-h-52 bg-gray-100 rounded-3xl space-y-5 transition-colors duration-200 hover:bg-gray-50"
     >
-      {/* Top (Verified badge) */}
-      <div className="flex items-center justify-end p-5 pb-0">
+      {/* Top  */}
+      <div className="flex items-center justify-between gap-3.5 p-5 pb-0">
+        {/* Verified badge */}
         <div
           className={`${
             banner ? "bg-black/20 text-white" : "bg-blue-500/20 text-blue-600"
@@ -32,6 +42,20 @@ const TemplateItem = ({ title, _id: id, description, banner }) => {
           />
           <span className="text-sm">Tasdiqlangan</span>
         </div>
+
+        {/* Use template */}
+        <button
+          title="Shablondan nusxa ko'chirish"
+          aria-label="Shablondan nusxa ko'chirish"
+          onClick={() => openModal({ templateId: id })}
+          className={`${
+            banner
+              ? "bg-black/20 text-white hover:bg-black/50"
+              : "bg-blue-500/20 text-blue-600 hover:bg-blue-500/30"
+          } z-10 btn gap-1.5 size-10 p-0 rounded-full backdrop-blur-sm`}
+        >
+          <SaveAll size={18} strokeWidth={1.5} />
+        </button>
       </div>
 
       {/* Bottom */}
