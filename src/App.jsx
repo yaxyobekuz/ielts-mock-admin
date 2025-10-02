@@ -30,6 +30,9 @@ import Templates from "./pages/Templates";
 import Submission from "./pages/Submission";
 import Submissions from "./pages/Submissions";
 
+// Tool pages
+import PdfViewer from "./pages/tools/PdfViewer";
+
 // Layouts
 import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
@@ -117,7 +120,7 @@ const App = () => {
           {/* Tools */}
           <Route path="tools" element={<Outlet />}>
             <Route index element={<Tools />} />
-            {/* <Route path=":ToolsId" element={<Template />} /> */}
+            <Route path="pdf-viewer" element={<PdfViewer />} />
           </Route>
         </Route>
 
