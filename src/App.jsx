@@ -16,6 +16,7 @@ import Test from "./pages/Test";
 import Home from "./pages/Home";
 import Tests from "./pages/Tests";
 import Login from "./pages/Login";
+import Tools from "./pages/Tools";
 import Result from "./pages/Result";
 import Reading from "./pages/Reading";
 import Writing from "./pages/Writing";
@@ -111,6 +112,12 @@ const App = () => {
           <Route path="templates" element={<Outlet />}>
             <Route index element={<Templates />} />
             <Route path=":templateId" element={<Template />} />
+          </Route>
+
+          {/* Tools */}
+          <Route path="tools" element={<Outlet />}>
+            <Route index element={<Tools />} />
+            {/* <Route path=":ToolsId" element={<Template />} /> */}
           </Route>
         </Route>
 
