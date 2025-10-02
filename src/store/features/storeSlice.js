@@ -6,6 +6,7 @@ const initialState = {
   coords: {},
   result: {},
   teacher: {},
+  pdfFile: {},
   template: {},
   submission: {},
   link: { hasError: false, isLoading: true },

@@ -7,7 +7,7 @@ const useDebouncedState = (initialValue, setLoader, delay = 1000) => {
   const debouncedSetValue = useCallback(
     debounce((v) => {
       setValue(v);
-      setLoader(false);
+      setLoader(false, v);
     }, delay),
     []
   );
