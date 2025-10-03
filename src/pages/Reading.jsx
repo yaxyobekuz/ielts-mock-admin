@@ -4,6 +4,9 @@ import { useMemo } from "react";
 // Components
 import Icon from "../components/Icon";
 
+// Icons
+import { Settings } from "lucide-react";
+
 // Hooks
 import useModule from "../hooks/useModule";
 
@@ -64,10 +67,24 @@ const Reading = () => {
   return (
     <div className="container">
       <div className="pt-5">
-        {/* Part header */}
-        <div className="w-full bg-gray-100 py-3 px-4 mb-5 rounded-xl border border-gray-200">
-          <h1 className="mb-1 text-base font-bold">Part {partNumber}</h1>
-          <p>Read the text and answer questions</p>
+        <div className="flex gap-5 mb-5">
+          {/* Part header */}
+          <div className="w-full h-20 bg-gray-100 py-3 px-4 rounded-xl border border-gray-200">
+            <h1 className="mb-1 text-base font-bold">Part {partNumber}</h1>
+            <p>Read the text and answer questions</p>
+          </div>
+
+          {/* Edit module */}
+          <Link
+            to={`/tests/${testId}/edit/${module}`}
+            className="group btn size-20 aspect-square bg-gray-100 rounded-xl border border-gray-200 hover:bg-gray-200 hover:text-blue-500"
+          >
+            <Settings
+              size={24}
+              strokeWidth={1.5}
+              className="transition-all duration-200 group-hover:rotate-[360deg]"
+            />
+          </Link>
         </div>
 
         {/* Main */}

@@ -1,5 +1,5 @@
+// React
 import { useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
 
 // Components
 import Icon from "../components/Icon";
@@ -8,7 +8,11 @@ import Icon from "../components/Icon";
 import useModule from "../hooks/useModule";
 
 // Icons
+import { Settings } from "lucide-react";
 import penIcon from "../assets/icons/pen.svg";
+
+// Router
+import { Link, useParams } from "react-router-dom";
 
 // Data
 import questionsType from "../data/questionsType";
@@ -27,20 +31,14 @@ const Writing = () => {
   const parts = getModuleData();
 
   // Calculate current part and cumulative question count
-  const { currentPart, cumulativeQuestions } = useMemo(() => {
+  const { currentPart } = useMemo(() => {
     const partNum = parseInt(partNumber);
     const part = parts?.find((p) => p.number === partNum);
-    const cumulative = parts
-      ?.slice(0, partNum - 1)
-      ?.reduce((acc, part) => acc + part.totalQuestions, 0);
 
-    return {
-      currentPart: part,
-      cumulativeQuestions: cumulative,
-    };
+    return { currentPart: part };
   }, [parts, partNumber, module]);
 
-  const { sections, text } = currentPart || {};
+  const { text } = currentPart || {};
 
   // Return error if part not found
   if (!currentPart) {
@@ -58,13 +56,27 @@ const Writing = () => {
   return (
     <div className="container">
       <div className="pt-5">
-        {/* Part header */}
-        <div className="w-full bg-gray-100 py-3 px-4 mb-5 rounded-xl border border-gray-200">
-          <h1 className="mb-1 text-base font-bold">Part {partNumber}</h1>
-          <p>
-            You should spend about 20 minutes on this task. Write at least 150
-            words
-          </p>
+        <div className="flex gap-5 mb-5">
+          {/* Part header */}
+          <div className="w-full h-20 bg-gray-100 py-3 px-4 rounded-xl border border-gray-200">
+            <h1 className="mb-1 text-base font-bold">Part {partNumber}</h1>
+            <p>
+              You should spend about 20 minutes on this task. Write at least 150
+              words
+            </p>
+          </div>
+
+          {/* Edit module */}
+          <Link
+            to={`/tests/${testId}/edit/${module}`}
+            className="group btn size-20 aspect-square bg-gray-100 rounded-xl border border-gray-200 hover:bg-gray-200 hover:text-blue-500"
+          >
+            <Settings
+              size={24}
+              strokeWidth={1.5}
+              className="transition-all duration-200 group-hover:rotate-[360deg]"
+            />
+          </Link>
         </div>
 
         {/* Main */}
