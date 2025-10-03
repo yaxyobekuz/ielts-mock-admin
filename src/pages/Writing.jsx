@@ -40,7 +40,7 @@ const Writing = () => {
     };
   }, [parts, partNumber, module]);
 
-  const { description, sections, text } = currentPart || {};
+  const { sections, text } = currentPart || {};
 
   // Return error if part not found
   if (!currentPart) {

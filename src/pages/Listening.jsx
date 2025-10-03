@@ -102,7 +102,7 @@ const Section = ({
   partNumber,
   initialQuestionNumber,
 }) => {
-  const { title, description, type } = section;
+  const { description, type } = section;
   const QuestionComponent = questionsMap[type];
 
   return (
@@ -114,7 +114,11 @@ const Section = ({
       <div className="flex items-start justify-between gap-5">
         {/* Section details */}
         <div className="mb-4 space-y-2">
-          <h2 className="font-bold">{title}</h2>
+          <h2 className="font-bold">
+            Questions {initialQuestionNumber} -{" "}
+            {initialQuestionNumber + section.questionsCount - 1}{" "}
+            <span className="font-normal text-gray-500">({section.type})</span>
+          </h2>
           <p>{description}</p>
         </div>
 
