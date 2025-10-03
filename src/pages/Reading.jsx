@@ -1,5 +1,5 @@
+// React
 import { useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
 
 // Components
 import Icon from "../components/Icon";
@@ -10,9 +10,15 @@ import useModule from "../hooks/useModule";
 // Icons
 import penIcon from "../assets/icons/pen.svg";
 
+// Router
+import { Link, useParams } from "react-router-dom";
+
 // Data
 import questionsType from "../data/questionsType";
 import usePathSegments from "../hooks/usePathSegments";
+
+// Components
+import RichTextPreviewer from "@/components/RichTextPreviewer";
 
 const questionsMap = {};
 questionsType.forEach((q) => (questionsMap[q.value] = q.component));
@@ -47,7 +53,7 @@ const Reading = () => {
     return (
       <div className="container">
         <div className="py-8">
-          <div className="w-full bg-red-50 py-3 px-4 mb-5 rounded-xl border border-gray-200 border-red-300">
+          <div className="w-full bg-red-50 py-3 px-4 mb-5 rounded-xl border border-red-300">
             <p className="text-red-700">Part not found</p>
           </div>
         </div>
@@ -105,7 +111,6 @@ const Reading = () => {
   );
 };
 
-// Individual section component
 const Section = ({
   index,
   testId,
@@ -131,7 +136,8 @@ const Section = ({
             {initialQuestionNumber + section.questionsCount - 1}{" "}
             <span className="font-normal text-gray-500">({section.type})</span>
           </h2>
-          <p>{description}</p>
+
+          <RichTextPreviewer text={description} />
         </div>
 
         {/* Edit button */}

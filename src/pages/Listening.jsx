@@ -17,6 +17,9 @@ import { Link, useParams } from "react-router-dom";
 import questionsType from "../data/questionsType";
 import usePathSegments from "../hooks/usePathSegments";
 
+// Components
+import RichTextPreviewer from "@/components/RichTextPreviewer";
+
 const questionsMap = {};
 questionsType.forEach((q) => (questionsMap[q.value] = q.component));
 
@@ -119,7 +122,8 @@ const Section = ({
             {initialQuestionNumber + section.questionsCount - 1}{" "}
             <span className="font-normal text-gray-500">({section.type})</span>
           </h2>
-          <p>{description}</p>
+
+          <RichTextPreviewer text={description} />
         </div>
 
         {/* Edit button */}
