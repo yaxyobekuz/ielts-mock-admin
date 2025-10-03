@@ -259,6 +259,10 @@ const Groups = ({ onChange, initialGroups = [] }) => {
           <option>4</option>
           <option>5</option>
           <option>6</option>
+          <option>7</option>
+          <option>8</option>
+          <option>9</option>
+          <option>10</option>
         </select>
       </div>
 
@@ -345,7 +349,7 @@ const Answers = ({
           value={text}
           className="w-full"
           placeholder={`Answer ${index + 1}`}
-          onChange={(e) => onAnswerChange(index, e.target.value)}
+          onChange={(value) => onAnswerChange(index, value)}
         />
       </li>
     ))}
