@@ -92,7 +92,7 @@ const AnswerInput = ({
       const rect = container?.getBoundingClientRect();
       if (!rect) return;
       const y = e.clientY - rect.top - 12;
-      const x = e.clientX - rect.left - 106;
+      const x = e.clientX - rect.left - 86;
 
       coords = { x, y };
       setCoords({ x, y });
@@ -138,15 +138,15 @@ const AnswerInput = ({
         isMoved ? "absolute z-10 max-w-32 !min-w-0" : ""
       } inline-block px-1 py-px select-none`}
     >
-      <div className="flex items-center gap-1.5 relative">
+      <div className="flex items-center gap-1.5 relative w-full">
         <input
           type="text"
           placeholder={inputIndex}
-          className="answer-input pr-5"
           id={`answer-input-${inputIndex}`}
+          className={`${isMoved ? "min-w-32" : ""} answer-input pr-5`}
         />
 
-        <div className="flex items-center gap-px absolute -right-5">
+        <div className="flex items-center gap-px absolute right-0">
           {/* Move */}
           <button
             title="Move input"
