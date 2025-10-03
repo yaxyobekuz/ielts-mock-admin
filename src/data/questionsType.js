@@ -2,6 +2,7 @@
 import Text from "../components/questions/Text";
 import Flowchart from "../components/questions/Flowchart";
 import RadioGroup from "../components/questions/RadioGroup";
+import GridMatching from "../components/questions/GridMatching";
 import CheckboxGroup from "../components/questions/CheckboxGroup";
 import TextDraggable from "../components/questions/TextDraggable";
 
@@ -9,6 +10,7 @@ import TextDraggable from "../components/questions/TextDraggable";
 import textBg from "../assets/backgrounds/text-preview.jpg";
 import flowchartBg from "../assets/backgrounds/flowchart-preview.jpg";
 import radioGroupBg from "../assets/backgrounds/radiogroup-preview.jpg";
+import gridMatchingBg from "../assets/backgrounds/grid-matching-preview.jpg";
 import checkboxGroupBg from "../assets/backgrounds/checkboxgroup-preview.jpg";
 import textDraggableBg from "../assets/backgrounds/text-draggable-preview.jpg";
 
@@ -42,6 +44,12 @@ const questionsType = [
     image: checkboxGroupBg,
     value: "checkbox-group",
     component: CheckboxGroup,
+  },
+  {
+    label: "Grid matching",
+    image: gridMatchingBg,
+    value: "grid-matching",
+    component: GridMatching,
   },
 ];
 

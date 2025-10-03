@@ -44,6 +44,7 @@ import TextEditor from "./pages/Editors/TextEditor";
 import PartTextEditor from "./pages/Editors/PartTextEditor";
 import FlowchartEditor from "./pages/Editors/FlowchartEditor";
 import RadioGroupEditor from "./pages/Editors/RadioGroupEditor";
+import GridMatchingEditor from "./pages/Editors/GridMatchingEditor";
 import TextDraggableEditor from "./pages/Editors/TextDraggableEditor";
 import CheckboxGroupEditor from "./pages/Editors/CheckboxGroupEditor";
 
@@ -88,6 +89,10 @@ const App = () => {
                 <Route
                   element={<CheckboxGroupEditor />}
                   path="checkbox-group/:sectionIndex"
+                />
+                <Route
+                  element={<GridMatchingEditor />}
+                  path="grid-matching/:sectionIndex"
                 />
               </Route>
             </Route>
