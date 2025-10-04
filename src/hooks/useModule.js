@@ -2,6 +2,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   addModulePart,
   setModuleData,
+  updateModuleData,
   updateModulePart,
   addModuleSection,
   updateModuleSection,
@@ -15,13 +16,18 @@ const useModule = (module, moduleId) => {
   const getModuleData = () => {
     return useSelector((state) => {
       const data = state.module[module];
-      return data ? data[moduleId]?.parts : null;
+      return data ? data[moduleId] : null;
     });
   };
 
   // Add module part
   const setModule = (data, id = moduleId, type = module) => {
     dispatch(setModuleData({ type, id, data }));
+  };
+
+  // Add module part
+  const updateModule = (data, id = moduleId, type = module) => {
+    dispatch(updateModuleData({ type, id, data }));
   };
 
   // Add module part
@@ -61,6 +67,7 @@ const useModule = (module, moduleId) => {
     setModule,
     updatePart,
     addSection,
+    updateModule,
     getModuleData,
     updateSection,
   };
