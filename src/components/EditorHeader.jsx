@@ -35,7 +35,7 @@ const EditorHeader = ({
       document.body.classList.remove("overflow-y-hidden");
     } else {
       window.scrollTo({ top: 0, behavior: "auto" });
-      document.body.classList.add("overflow-y-scroll");
+      document.body.classList.add("overflow-y-hidden");
     }
   };
 
