@@ -25,7 +25,7 @@ const EditorLayout = () => {
   const module = pathSegments[3];
 
   const { getModuleData, setModule } = useModule(module, testId);
-  const parts = getModuleData();
+  const { parts } = getModuleData() || {};
 
   const { setField, isLoading, hasError } = useObjectState({
     hasError: false,

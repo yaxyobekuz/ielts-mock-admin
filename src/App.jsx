@@ -41,6 +41,7 @@ import EditorLayout from "./layouts/EditorLayout";
 
 // Editor pages
 import TextEditor from "./pages/Editors/TextEditor";
+import ModuleEditor from "./pages/Editors/ModuleEditor";
 import PartTextEditor from "./pages/Editors/PartTextEditor";
 import FlowchartEditor from "./pages/Editors/FlowchartEditor";
 import RadioGroupEditor from "./pages/Editors/RadioGroupEditor";
@@ -70,29 +71,37 @@ const App = () => {
                 <Route path="listening/:partNumber" element={<Listening />} />
               </Route>
 
-              {/* Editors */}
-              <Route path="edit/:module/:partNumber" element={<EditorLayout />}>
-                <Route path="part-text" element={<PartTextEditor />} />
-                <Route path="text/:sectionIndex" element={<TextEditor />} />
+              {/* Section editors */}
+              <Route path="edit/:module" element={<EditorLayout />}>
+                <Route index element={<ModuleEditor />} />
+
+                <Route
+                  path=":partNumber/part-text"
+                  element={<PartTextEditor />}
+                />
+                <Route
+                  path=":partNumber/text/:sectionIndex"
+                  element={<TextEditor />}
+                />
                 <Route
                   element={<FlowchartEditor />}
-                  path="flowchart/:sectionIndex"
+                  path=":partNumber/flowchart/:sectionIndex"
                 />
                 <Route
                   element={<TextDraggableEditor />}
-                  path="text-draggable/:sectionIndex"
+                  path=":partNumber/text-draggable/:sectionIndex"
                 />
                 <Route
                   element={<RadioGroupEditor />}
-                  path="radio-group/:sectionIndex"
+                  path=":partNumber/radio-group/:sectionIndex"
                 />
                 <Route
                   element={<CheckboxGroupEditor />}
-                  path="checkbox-group/:sectionIndex"
+                  path=":partNumber/checkbox-group/:sectionIndex"
                 />
                 <Route
                   element={<GridMatchingEditor />}
-                  path="grid-matching/:sectionIndex"
+                  path=":partNumber/grid-matching/:sectionIndex"
                 />
               </Route>
             </Route>
