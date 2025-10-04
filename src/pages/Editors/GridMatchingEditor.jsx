@@ -28,7 +28,7 @@ const GridMatchingEditor = () => {
   const modules = ["listening", "reading", "writing"];
   const { testId, partNumber, module, sectionIndex } = useParams();
   const { getModuleData, updateSection } = useModule(module, testId);
-  const parts = getModuleData();
+  const { parts } = getModuleData() || {};
 
   // Data
   const part = parts?.find((p) => p.number === parseInt(partNumber));

@@ -26,7 +26,7 @@ const PartTextEditor = () => {
   const modules = ["reading", "writing"];
   const { testId, partNumber, module } = useParams();
   const { getModuleData, updatePart } = useModule(module, testId);
-  const parts = getModuleData();
+  const { parts } = getModuleData() || {};
 
   // Validators
   const isInvalidModule = !modules.includes(module);

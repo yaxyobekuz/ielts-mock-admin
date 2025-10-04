@@ -36,7 +36,7 @@ const TestLayout = () => {
     module,
     testId
   );
-  const parts = getModuleData();
+  const { parts } = getModuleData() || {};
   const part = parts?.find((p) => p.number === Number(partNumber));
 
   const { setField, isLoading, hasError } = useObjectState({
@@ -52,8 +52,6 @@ const TestLayout = () => {
       .getById(testId)
       .then(({ code, test }) => {
         if (code !== "testFetched") throw new Error();
-
-        setField("test", test);
         setModule(test.reading, test._id, "reading");
         setModule(test.writing, test._id, "writing");
         setModule(test.listening, test._id, "listening");
