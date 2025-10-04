@@ -32,7 +32,7 @@ const Listening = () => {
   const module = pathSegments[3];
 
   const { getModuleData } = useModule(module, testId);
-  const parts = getModuleData();
+  const { parts, duration } = getModuleData();
 
   // Calculate current part and cumulative question count
   const { currentPart, cumulativeQuestions } = useMemo(() => {
@@ -70,7 +70,10 @@ const Listening = () => {
           {/* Part header */}
           <div className="w-full h-20 bg-gray-100 py-3 px-4 rounded-xl border border-gray-200">
             <h1 className="mb-1 text-base font-bold">Part {partNumber}</h1>
-            <p>Listen and answer questions</p>
+            <div className="flex items-center justify-between">
+              <p>Listen and answer questions</p>
+              <p className="text-gray-500">{duration} minutes</p>
+            </div>
           </div>
 
           {/* Edit module */}
