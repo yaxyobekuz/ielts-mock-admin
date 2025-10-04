@@ -7,4 +7,6 @@ export const testsApi = {
   create: async (data) => await api.post("/api/tests", data),
   delete: async (id) => await api.delete(`/api/tests/${id}`),
   update: async (id, data) => await api.put(`/api/tests/${id}`, data),
+  updateModule: async (id, module, data) =>
+    await api.put(`/api/tests/${id}/${module}`, data),
 };
