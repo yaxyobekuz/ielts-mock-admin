@@ -19,6 +19,6 @@ export const testsApi = {
     });
   },
   deleteAudioFromModule: async (id, module, audioId) => {
-    return await api.post(`/api/tests/${id}/${module}/audios/${audioId}`);
+    return await api.delete(`/api/tests/${id}/${module}/audios/${audioId}`);
   },
 };

@@ -23,10 +23,11 @@ import useModule from "@/hooks/useModule";
 import useObjectState from "@/hooks/useObjectState";
 
 // Icons
-import { ArrowLeft, Clock, Music } from "lucide-react";
+import { ArrowLeft, Clock, Music, Trash } from "lucide-react";
 
 // Modals
 import AddAudioToModuleModal from "@/components/modal/AddAudioToModuleModal";
+import DeleteAudioFromModuleModal from "@/components/modal/DeleteAudioFromModuleModal";
 
 const ModuleEditor = () => {
   const { testId, module } = useParams();
@@ -35,12 +36,14 @@ const ModuleEditor = () => {
   const { duration: initialDuration, audios } = getModuleData() || {};
 
   const {
+    audio,
     duration,
     setField,
     isLoading,
     isOpenAddAudioToModuleModal,
     isOpenDeleteAudioFromModuleModal,
   } = useObjectState({
+    audio: null,
     isLoading: false,
     duration: initialDuration,
     isOpenAddAudioToModuleModal: false,
@@ -109,7 +112,7 @@ const ModuleEditor = () => {
             </form>
           </section>
 
-          {/* Audio */}
+          {/* Audios */}
           {isListening && (
             <section className="max-w-md w-full bg-gray-50 rounded-3xl p-5 space-y-5">
               {/* Top */}
@@ -119,13 +122,30 @@ const ModuleEditor = () => {
               </div>
 
               {/* Main */}
-              {audios.map(({ _id: id, url }) => (
-                <div key={id} className="flex items-center gap-3.5">
+              {audios.map(({ _id: id, url }, index) => (
+                <div key={id} className="flex items-center">
+                  {/* Index */}
+                  <div className="btn shrink-0 size-10 bg-white p-0 rounded-r-none">
+                    {index + 1}
+                  </div>
+
+                  {/* Audio */}
                   <audio
                     controls
                     src={url}
-                    className="w-full bg-gray-100 h-10 rounded-md"
+                    className="w-full bg-gray-100 h-10 rounded-none"
                   />
+
+                  {/* Delete btn */}
+                  <button
+                    onClick={() => {
+                      setField("audio", { id, url, index: index + 1 });
+                      setField("isOpenDeleteAudioFromModuleModal", true);
+                    }}
+                    className="btn shrink-0 size-10 bg-red-100 rounded-l-none p-0 text-red-500 hover:bg-red-200"
+                  >
+                    <Trash size={18} />
+                  </button>
                 </div>
               ))}
 
@@ -147,6 +167,14 @@ const ModuleEditor = () => {
         module={module}
         isOpen={isOpenAddAudioToModuleModal}
         closeModal={() => setField("isOpenAddAudioToModuleModal")}
+      />
+
+      <DeleteAudioFromModuleModal
+        audio={audio}
+        testId={testId}
+        module={module}
+        isOpen={isOpenDeleteAudioFromModuleModal}
+        closeModal={() => setField("isOpenDeleteAudioFromModuleModal")}
       />
     </div>
   );
