@@ -25,33 +25,42 @@ import useObjectState from "@/hooks/useObjectState";
 // Icons
 import { ArrowLeft, Clock, Music } from "lucide-react";
 
+// Modals
+import AddAudioToModuleModal from "@/components/modal/AddAudioToModuleModal";
+
 const ModuleEditor = () => {
   const { testId, module } = useParams();
   const isListening = module === "listening";
   const { getModuleData, updateModule } = useModule(module, testId);
-  const { duration: initialDuration, audios: initialAudios } =
-    getModuleData() || {};
+  const { duration: initialDuration, audios } = getModuleData() || {};
 
-  const { audios, isloading, duration, setField } = useObjectState({
-    isloading: false,
-    audios: initialAudios,
+  const {
+    duration,
+    setField,
+    isLoading,
+    isOpenAddAudioToModuleModal,
+    isOpenDeleteAudioFromModuleModal,
+  } = useObjectState({
+    isLoading: false,
     duration: initialDuration,
+    isOpenAddAudioToModuleModal: false,
+    isOpenDeleteAudioFromModuleModal: false,
   });
 
   const handleUpdateDuration = (e) => {
     e.preventDefault();
-    if (isloading) return;
-    setField("isloading", true);
+    if (isLoading) return;
+    setField("isLoading", true);
 
     testsApi
-      .updateModule(testId, module, { duration })
-      .then(({ code, updates, module }) => {
-        if (code !== "moduleUpdated") throw new Error();
-        updateModule(updates, testId, module);
-        toast.success("Vaqt muvaffaqiyatli yangilandi");
+      .updateModuleDuration(testId, module, { duration })
+      .then(({ code, duration, module, message }) => {
+        if (code !== "moduleDurationUpdated") throw new Error();
+        updateModule({ duration }, testId, module);
+        toast.success(message || "Vaqt muvaffaqiyatli yangilandi");
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
-      .finally(() => setField("isloading", false));
+      .finally(() => setField("isLoading", false));
   };
 
   useEffect(() => {
@@ -66,7 +75,7 @@ const ModuleEditor = () => {
       <main className="container pt-8">
         <div className="flex gap-5 justify-center">
           {/* Time */}
-          <section className="max-w-md w-full bg-gray-50 rounded-3xl p-5">
+          <section className="max-w-md w-full h-max bg-gray-50 rounded-3xl p-5">
             <form onSubmit={handleUpdateDuration} className="space-y-5">
               {/* Top */}
               <div className="flex items-center justify-between">
@@ -86,7 +95,7 @@ const ModuleEditor = () => {
                 max={180}
                 type="number"
                 value={duration}
-                disabled={isloading}
+                disabled={isLoading}
                 placeholder="Minutlarda"
                 name={`${module}-duration`}
                 onChange={(value) =>
@@ -94,15 +103,15 @@ const ModuleEditor = () => {
                 }
               />
 
-              <Button disabled={isloading} size="lg" className="w-full">
-                Yangilash{isloading && "..."}
+              <Button disabled={isLoading} size="lg" className="w-full">
+                Yangilash{isLoading && "..."}
               </Button>
             </form>
           </section>
 
           {/* Audio */}
           {isListening && (
-            <section className="max-w-md w-full bg-gray-50 rounded-3xl p-5">
+            <section className="max-w-md w-full bg-gray-50 rounded-3xl p-5 space-y-5">
               {/* Top */}
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-medium">Audiolar</h2>
@@ -110,10 +119,35 @@ const ModuleEditor = () => {
               </div>
 
               {/* Main */}
+              {audios.map(({ _id: id, url }) => (
+                <div key={id} className="flex items-center gap-3.5">
+                  <audio
+                    controls
+                    src={url}
+                    className="w-full bg-gray-100 h-10 rounded-md"
+                  />
+                </div>
+              ))}
+
+              {/* Add new */}
+              <Button
+                size="lg"
+                className="w-full"
+                onClick={() => setField("isOpenAddAudioToModuleModal", true)}
+              >
+                Qo'shish{isLoading && "..."}
+              </Button>
             </section>
           )}
         </div>
       </main>
+
+      <AddAudioToModuleModal
+        testId={testId}
+        module={module}
+        isOpen={isOpenAddAudioToModuleModal}
+        closeModal={() => setField("isOpenAddAudioToModuleModal")}
+      />
     </div>
   );
 };
