@@ -17,6 +17,7 @@ import Home from "./pages/Home";
 import Tests from "./pages/Tests";
 import Login from "./pages/Login";
 import Tools from "./pages/Tools";
+import Stats from "./pages/Stats";
 import Result from "./pages/Result";
 import Reading from "./pages/Reading";
 import Writing from "./pages/Writing";
@@ -136,6 +137,9 @@ const App = () => {
             <Route index element={<Tools />} />
             <Route path="pdf-viewer" element={<PdfViewer />} />
           </Route>
+
+          {/* Stats */}
+          <Route path="statistics" element={<Stats />} />
         </Route>
 
         {/* Auth */}
