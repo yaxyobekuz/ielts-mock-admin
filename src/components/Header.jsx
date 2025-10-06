@@ -1,6 +1,3 @@
-// Components
-import Nav from "./Nav";
-
 // React
 import { useMemo } from "react";
 
@@ -11,7 +8,11 @@ import { Link } from "react-router-dom";
 import useStore from "@/hooks/useStore";
 
 // Icons
-import { Settings, User } from "lucide-react";
+import { Settings } from "lucide-react";
+
+// Componetns
+import Nav from "./Nav";
+import ProfilePhoto from "./ProfilePhoto";
 
 // Images
 import ieltsLogo from "@/assets/icons/logo.svg";
@@ -53,14 +54,13 @@ const Header = () => {
           </Link>
 
           {/* Profile */}
-          <Link
-            to="/profile"
+          <button
             title="Profil"
             aria-label="Profil"
             className="btn size-11 bg-gray-100 p-0 rounded-full hover:bg-gray-200"
           >
-            <User size={22} strokeWidth={1.5} />
-          </Link>
+            <ProfilePhoto size={44} className="size-11 rounded-full" />
+          </button>
         </div>
       </div>
     </header>
