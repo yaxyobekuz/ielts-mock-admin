@@ -27,7 +27,7 @@ export const getRandomNumber = (min = 0, max = 1) => {
 };
 
 // Time formatters
-export const formatDate = (input) => {
+export const formatDate = (input, hideYear = false) => {
   if (!input) return null;
 
   const date = new Date(input);
@@ -52,7 +52,9 @@ export const formatDate = (input) => {
 
   const monthName = months[date.getMonth()];
 
-  return `${day}-${monthName}, ${year}`;
+  let result = `${day}-${monthName}`;
+  if (!hideYear) result += `, ${year}`;
+  return result;
 };
 
 export const formatTime = (input) => {
