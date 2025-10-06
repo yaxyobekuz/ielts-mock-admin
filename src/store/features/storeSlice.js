@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 // Initial state
 const initialState = {
   test: {},
+  stats: {},
   coords: {},
   result: {},
   teacher: {},
