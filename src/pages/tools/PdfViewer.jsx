@@ -82,8 +82,8 @@ const Uploader = ({ onUpload }) => {
       return false;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      setError("Fayl hajmi 10MB dan oshmasligi kerak");
+    if (file.size > 1000 * 1024 * 1024) {
+      setError("Fayl hajmi 1GB dan oshmasligi kerak");
       return false;
     }
 
@@ -173,7 +173,7 @@ const Uploader = ({ onUpload }) => {
         </label>
 
         {/* Alert info */}
-        <p className="text-xs text-gray-500 mt-4">Maksimal hajm: 10MB</p>
+        <p className="text-xs text-gray-500 mt-4">Maksimal hajm: 1GB</p>
       </div>
 
       {error && (
