@@ -24,17 +24,21 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { extractNumbers, formatUzPhone } from "@/lib/helpers";
 
 const Login = () => {
-  const { state, setField } = useObjectState({ step: 1, phone: "" });
-  const { step, phone } = state;
+  const { step, phone, password, setField } = useObjectState({
+    step: 1,
+    phone: "",
+    password: "",
+  });
 
   const handleNext = (data) => {
     setField("step", 2);
     setField("phone", data?.phone);
+    setField("password", data?.password);
   };
 
   // Steps
   if (step === 1) return <LoginContent next={handleNext} />;
-  return <VerifyCodeContent phone={phone} />;
+  return <VerifyCodeContent phone={phone} password={password} />;
 };
 
 const LoginContent = ({ next }) => {
@@ -42,16 +46,14 @@ const LoginContent = ({ next }) => {
   const navigate = useNavigate();
   const url = new URL(window.location.href);
   const params = new URLSearchParams(url.search);
-  const passwordParam = params.get("password") || "";
-  const phoneParam = formatUzPhone(extractNumbers(params.get("phone")) || "");
+  const passwordParam = params.get("password")?.trim() || "";
+  const phoneParam = formatUzPhone(extractNumbers(params.get("phone"))) || "";
 
-  const { state, setField } = useObjectState({
+  const { phone, password, isLoading, setField } = useObjectState({
     isLoading: false,
     phone: phoneParam,
     password: passwordParam,
   });
-
-  const { phone, password, isLoading } = state;
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -60,11 +62,11 @@ const LoginContent = ({ next }) => {
     const formattedPassword = password?.trim() || "";
     const formattedPhone = extractNumbers(phone)?.trim() || "";
 
-    if (formattedPhone.length !== 12) {
+    if (formattedPhone.trim().length !== 12) {
       return toast.error("Telefon raqam noto'g'ri");
     }
 
-    if (formattedPassword.length < 6) {
+    if (formattedPassword.trim().length < 6) {
       return toast.error("Parol juda ham qisqa");
     }
 
@@ -72,7 +74,7 @@ const LoginContent = ({ next }) => {
 
     authApi
       .login({ phone: formattedPhone, password: formattedPassword })
-      .then(({ code, message, token, user }) => {
+      .then(({ code, message, token }) => {
         if (code !== "loginSuccess") throw new Error();
 
         if (!["supervisor", "teacher"].includes(user.role)) {
@@ -91,8 +93,10 @@ const LoginContent = ({ next }) => {
         return localStorage.setItem("auth", auth);
       })
       .catch(({ message, code }) => {
-        toast.error(message || "Nimadir xato ketdi");
-        if (code === "accountNotVerified") next({ phone });
+        toast(message || "Nimadir xato ketdi", { icon: "☹️" });
+        if (code === "accountNotVerified") {
+          next({ phone: formattedPhone, password: formattedPassword });
+        }
       })
       .finally(() => setField("isLoading", false));
   };
@@ -135,12 +139,15 @@ const LoginContent = ({ next }) => {
   );
 };
 
-const VerifyCodeContent = ({ phone }) => {
+const VerifyCodeContent = ({ phone, password }) => {
   const navigate = useNavigate();
   const { updateProperty } = useStore("user");
-  const { state, setField } = useObjectState({ code: "", isLoading: false });
-  const { code, isLoading } = state;
+  const { code, isLoading, setField } = useObjectState({
+    code: "",
+    isLoading: false,
+  });
 
+  // For registration
   const handleVerify = (e) => {
     e.preventDefault();
     if (isLoading) return;
@@ -152,7 +159,7 @@ const VerifyCodeContent = ({ phone }) => {
     setField("isLoading", true);
 
     authApi
-      .verify({ phone, code, password, firstName })
+      .verify({ phone, code, password })
       .then(({ token, user, message }) => {
         if (!["supervisor", "teacher"].includes(user.role)) {
           navigate("/auth/login");
