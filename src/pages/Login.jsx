@@ -47,7 +47,7 @@ const LoginContent = ({ next }) => {
   const url = new URL(window.location.href);
   const params = new URLSearchParams(url.search);
   const passwordParam = params.get("password")?.trim() || "";
-  const phoneParam = formatUzPhone(extractNumbers(params.get("phone"))) || "";
+  const phoneParam = formatUzPhone(extractNumbers(params.get("phone")) || "");
 
   const { phone, password, isLoading, setField } = useObjectState({
     isLoading: false,
