@@ -18,45 +18,31 @@ import { useNavigate } from "react-router-dom";
 import useObjectState from "@/hooks/useObjectState";
 
 const Register = () => {
-  const { state, setField } = useObjectState({
+  const { phone, step, password, setField } = useObjectState({
     step: 1,
     phone: "",
     password: "",
-    firstName: "",
   });
-  const { phone, step, firstName, password } = state;
 
-  const handleNext = ({ phone, firstName, password }) => {
+  const handleNext = ({ phone, password }) => {
     setField("step", 2);
     setField("phone", phone);
     setField("password", password);
-    setField("firstName", firstName);
   };
 
   // Steps
-  if (step === 1) {
-    return <RegisterContent next={handleNext} />;
-  }
-
-  return (
-    <VerifyCodeContent
-      phone={phone}
-      password={password}
-      firstName={firstName}
-    />
-  );
+  if (step === 1) return <RegisterContent next={handleNext} />;
+  return <VerifyCodeContent phone={phone} password={password} />;
 };
 
 const RegisterContent = ({ next }) => {
   const navigate = useNavigate();
-  const { state, setField } = useObjectState({
+  const { phone, password, firstName, isLoading, setField } = useObjectState({
     phone: "",
     password: "",
     firstName: "",
     isLoading: false,
   });
-
-  const { phone, password, firstName, isLoading } = state;
 
   const handleRegister = (e) => {
     e.preventDefault();
@@ -88,7 +74,7 @@ const RegisterContent = ({ next }) => {
       .then(({ code, message }) => {
         if (["codeSent", "codeAlreadySent"].includes(code)) {
           toast.success(message);
-          return next({ phone, firstName, password });
+          return next({ phone: formattedPhone, password: formattedPassword });
         }
 
         throw new Error();
@@ -99,7 +85,7 @@ const RegisterContent = ({ next }) => {
         if (code === "phoneAlreadyUsed") {
           navigate(
             `/auth/login?phone=${phone}&password=${encodeURIComponent(
-              password
+              formattedPassword
             )}`
           );
         }
@@ -152,10 +138,12 @@ const RegisterContent = ({ next }) => {
   );
 };
 
-const VerifyCodeContent = ({ phone, firstName, password }) => {
+const VerifyCodeContent = ({ phone, password }) => {
   const navigate = useNavigate();
-  const { state, setField } = useObjectState({ code: "", isLoading: false });
-  const { code, isLoading } = state;
+  const { code, isLoading, setField } = useObjectState({
+    code: "",
+    isLoading: false,
+  });
 
   const handleVerify = (e) => {
     e.preventDefault();
@@ -168,8 +156,8 @@ const VerifyCodeContent = ({ phone, firstName, password }) => {
     setField("isLoading", true);
 
     authApi
-      .verify({ phone, code, password, firstName })
-      .then(({ token, user, message }) => {
+      .verify({ phone, code, password })
+      .then(({ token, message }) => {
         // Save token to localstorage
         const auth = JSON.stringify({ token, createdAt: Date.now });
         localStorage.setItem("auth", auth);
