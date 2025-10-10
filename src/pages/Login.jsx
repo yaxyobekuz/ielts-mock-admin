@@ -74,7 +74,7 @@ const LoginContent = ({ next }) => {
 
     authApi
       .login({ phone: formattedPhone, password: formattedPassword })
-      .then(({ code, message, token }) => {
+      .then(({ code, message, token, user }) => {
         if (code !== "loginSuccess") throw new Error();
 
         if (!["supervisor", "teacher"].includes(user.role)) {
