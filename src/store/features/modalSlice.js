@@ -4,10 +4,12 @@ const initialModal = { isOpen: false, data: {}, isLoading: false };
 
 // Initial state
 const initialState = {
+  profile: initialModal,
   createTest: initialModal,
   createLink: initialModal,
   uploadImage: initialModal,
   useTemplate: initialModal,
+  updateAvatar: initialModal,
   createResult: initialModal,
   createTeacher: initialModal,
 };
