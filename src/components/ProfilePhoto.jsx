@@ -39,8 +39,8 @@ const ProfilePhoto = ({
 const Photo = ({ avatar, fullName, className, size }) => (
   <img
     width={size}
-    src={avatar}
     height={size}
+    src={avatar.sizes.small.url}
     alt={`${fullName}ning profil rasmi`}
     title={`${fullName}ning profil rasmi`}
     className={`${className} bg-gray-200 text-[10px] object-cover object-center aspect-square`}

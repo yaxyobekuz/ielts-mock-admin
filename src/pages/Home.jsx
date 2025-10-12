@@ -31,8 +31,19 @@ const Home = () => {
   return (
     <div className="container pt-8">
       <div className="space-y-6">
-        {/* Title */}
-        <h1>{user.firstName} xush kelibsiz!</h1>
+        {/* Top */}
+        <div className="flex items-center gap-3.5">
+          {/* Title */}
+          <h1>{user.firstName} xush kelibsiz!</h1>
+
+          {/* User role */}
+          <div
+            title="Rolingiz"
+            className="bg-green-50 text-green-500 px-1.5 rounded-md border border-green-200 text-sm"
+          >
+            {user.role}
+          </div>
+        </div>
 
         {/* Tests status */}
         <div className="flex items-center gap-5 w-2/3">
