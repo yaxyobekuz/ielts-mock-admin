@@ -95,49 +95,54 @@ const Home = () => {
   );
 };
 
-const Profile = ({ user }) => (
-  <section
-    style={{ backgroundImage: `url(${educationBg})` }}
-    className="flex flex-col justify-between overflow-hidden w-full h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square rounded-3xl"
-  >
-    {/* Top */}
-    <div className="flex items-center justify-end p-5">
-      <Link
-        to="/profile"
-        title="Profil"
-        aria-label="Profil"
-        className="btn size-10 p-0 rounded-full bg-black/20 backdrop-blur-sm"
-      >
-        <Pencil color="white" size={18} />
-      </Link>
-    </div>
+const Profile = ({ user }) => {
+  const avatar = user.avatar?.sizes?.medium?.url;
+  const { openModal } = useModal("profile");
 
-    {/* Bottom */}
-    <div className="w-full p-5 mt-auto bg-gradient-to-b from-transparent to-black">
-      <div className="flex items-center justify-between mb-3">
-        {/* Full name */}
-        <h2 className="line-clamp-1 capitalize text-xl font-medium text-white">
-          {user.firstName} {user.lastName}
-        </h2>
-
-        {/* Phone */}
-        <span className="shrink-0 text-gray-200">
-          {formatUzPhone(user.phone)}
-        </span>
+  return (
+    <section
+      style={{ backgroundImage: `url(${avatar || educationBg})` }}
+      className="flex flex-col justify-between overflow-hidden w-full h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square rounded-3xl"
+    >
+      {/* Top */}
+      <div className="flex items-center justify-end p-5">
+        <button
+          title="Profilni tahrirlash"
+          aria-label="Profilni tahrirlash"
+          onClick={() => openModal({ openEditor: true })}
+          className="btn size-10 p-0 rounded-full bg-black/20 backdrop-blur-sm"
+        >
+          <Pencil color="white" size={18} />
+        </button>
       </div>
 
-      {/* Balance */}
-      <Link
-        to="/payment"
-        title="Hisobni to'ldirish"
-        className="btn p-0 rounded-full border border-white text-gray-200 hover:bg-white/20"
-      >
-        <span>{user.balance?.toLocaleString()} so'm</span>
-        <Plus size={20} className="ml-2" />
-      </Link>
-    </div>
-  </section>
-);
+      {/* Bottom */}
+      <div className="w-full p-5 mt-auto bg-gradient-to-b from-transparent to-black">
+        <div className="flex items-center justify-between mb-3">
+          {/* Full name */}
+          <h2 className="line-clamp-1 capitalize text-xl font-medium text-white">
+            {user.firstName} {user.lastName}
+          </h2>
+
+          {/* Phone */}
+          <span className="shrink-0 text-gray-200">
+            {formatUzPhone(user.phone)}
+          </span>
+        </div>
+
+        {/* Balance */}
+        <Link
+          to="/payment"
+          title="Hisobni to'ldirish"
+          className="btn p-0 rounded-full border border-white text-gray-200 hover:bg-white/20"
+        >
+          <span>{user.balance?.toLocaleString()} so'm</span>
+          <Plus size={20} className="ml-2" />
+        </Link>
+      </div>
+    </section>
+  );
+};
 
 const Tests = ({ user }) => {
   const isTeacher = user.role === "teacher";
@@ -265,7 +270,7 @@ const Stats = () => (
 
       {/* Link */}
       <Link
-        to="/tests"
+        to="/statistics"
         title="Statistika"
         aria-label="Statistika"
         className="btn size-10 p-0 rounded-full bg-white backdrop-blur-sm"
