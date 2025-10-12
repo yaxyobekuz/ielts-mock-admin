@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
 // Hooks
+import useModal from "@/hooks/useModal";
 import useStore from "@/hooks/useStore";
 
 // Icons
@@ -23,11 +24,13 @@ import { getNavlinksByRole } from "@/data/navlinks";
 const Header = () => {
   const { getProperty } = useStore("user");
   const { role } = getProperty("data");
+  const { openModal } = useModal("profile");
+  const handleOpenProfileModal = () => openModal();
   const navlinks = useMemo(() => getNavlinksByRole(role), [role]);
 
   return (
     <header className="sticky top-0 inset-x-0 w-full z-20 bg-white py-2.5">
-      <div className="flex items-c/*  */enter justify-between container">
+      <div className="flex items-center justify-between container">
         {/* Logo */}
         <Link to="/">
           <img
@@ -57,6 +60,7 @@ const Header = () => {
           <button
             title="Profil"
             aria-label="Profil"
+            onClick={handleOpenProfileModal}
             className="btn size-11 bg-gray-100 p-0 rounded-full hover:bg-gray-200"
           >
             <ProfilePhoto size={44} className="size-11 rounded-full" />
