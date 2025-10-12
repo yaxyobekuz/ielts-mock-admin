@@ -12,6 +12,7 @@ const initialState = {
   updateAvatar: initialModal,
   createResult: initialModal,
   createTeacher: initialModal,
+  deleteSection: initialModal,
 };
 
 export const modalSlice = createSlice({
