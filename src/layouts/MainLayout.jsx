@@ -22,9 +22,11 @@ import MainBgLoader from "@/components/loaders/MainBgLoader";
 import duckShrugging from "@/assets/animated/duck-shrugging.json";
 
 // Modals
+import ProfileModal from "@/components/modal/ProfileModal";
 import CreateTestModal from "@/components/modal/CreateTestModal";
 import CreateLinkModal from "@/components/modal/CreateLinkModal";
 import UseTemplateModal from "@/components/modal/UseTemplateModal";
+import UpdateAvatarModal from "@/components/modal/UpdateAvatarModal";
 import CreateResultModal from "@/components/modal/CreateResultModal";
 import CreateTeacherModal from "@/components/modal/CreateTeacherModal";
 
@@ -129,10 +131,12 @@ const AuthenticatedContent = () => {
       <Outlet />
 
       {/* Modals */}
+      <ProfileModal />
       <CreateTestModal />
       <CreateLinkModal />
       <UseTemplateModal />
       <CreateResultModal />
+      <UpdateAvatarModal />
       <CreateTeacherModal />
     </div>
   );
