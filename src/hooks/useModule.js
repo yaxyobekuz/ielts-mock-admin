@@ -1,4 +1,3 @@
-import { useSelector, useDispatch } from "react-redux";
 import {
   addModulePart,
   setModuleData,
@@ -6,7 +5,9 @@ import {
   updateModulePart,
   addModuleSection,
   updateModuleSection,
+  deleteModuleSection,
 } from "../store/features/moduleSlice";
+import { useSelector, useDispatch } from "react-redux";
 
 // Custom hook for accessing store and dispatch
 const useModule = (module, moduleId) => {
@@ -35,6 +36,9 @@ const useModule = (module, moduleId) => {
 
   // Add section
   const addSection = (data) => dispatch(addModuleSection(data));
+
+  // Delete section
+  const deleteSection = (data) => dispatch(deleteModuleSection(data));
 
   // Update section
   const updateSection = (partNumber, data, sectionIndex) => {
@@ -70,6 +74,7 @@ const useModule = (module, moduleId) => {
     updateModule,
     getModuleData,
     updateSection,
+    deleteSection,
   };
 };
 

@@ -51,6 +51,25 @@ export const moduleSlice = createSlice({
       }
     },
 
+    // Delete section
+    deleteModuleSection: (state, action) => {
+      const { testId, sectionId, module, partNumber } = action.payload;
+
+      if (state[module] && state[module][testId]) {
+        const parts = state[module][testId].parts;
+        const part = parts.find((p) => p.number == partNumber);
+
+        if (!part) return console.error(`Part ${partNumber} is not defined`);
+        part.sections = part.sections.filter((s) => s._id !== sectionId);
+        part.totalQuestions = part.sections.reduce(
+          (total, section) => total + (section.questionsCount || 0),
+          0
+        );
+      } else {
+        console.error(`Test ${testId}: ${module} module is not defined`);
+      }
+    },
+
     // Update section
     updateModuleSection: (state, action) => {
       const { type, id, partNumber, sectionIndex, data } = action.payload;
@@ -119,6 +138,7 @@ export const {
   removeModulePart,
   updateModuleData,
   updateModuleSection,
+  deleteModuleSection,
 } = moduleSlice.actions;
 
 // Export reducer as default
