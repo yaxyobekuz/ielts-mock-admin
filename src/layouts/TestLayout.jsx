@@ -26,6 +26,7 @@ import { Link, Outlet, useParams } from "react-router-dom";
 // Components
 import Nav from "@/components/Nav";
 import MainBgLoader from "@/components/loaders/MainBgLoader";
+import DeleteSectionModal from "@/components/modal/DeleteSectionModal";
 
 const TestLayout = () => {
   const { testId, partNumber } = useParams();
@@ -85,6 +86,8 @@ const TestLayout = () => {
           addSection={addSection}
         />
       </main>
+
+      <DeleteSectionModal />
 
       <PartsNavbar
         parts={parts}
