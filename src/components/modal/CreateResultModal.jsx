@@ -214,7 +214,7 @@ const Body = ({ close, submissionId }) => {
       <div className="flex justify-end gap-5 w-full">
         <Button
           type="button"
-          onClick={close}
+          onClick={()=> close()}
           className="w-32"
           variant="neutral"
         >
