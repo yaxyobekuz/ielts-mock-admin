@@ -35,12 +35,12 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { formatDate, formatTime, formatUzPhone } from "@/lib/helpers";
 
 const ProfileModal = () => {
-  const { closeModal, isOpen } = useModal("profile");
+  const { closeModal, isOpen, data } = useModal("profile");
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const content = {
     title: "Mening profilim",
-    body: <Body close={closeModal} />,
+    body: <Body close={closeModal} defaultOpenEditor={!!data?.openEditor} />,
   };
 
   if (isDesktop) {
@@ -75,7 +75,7 @@ const ProfileModal = () => {
   );
 };
 
-const Body = ({ close }) => {
+const Body = ({ close, defaultOpenEditor }) => {
   const { openModal } = useModal("updateAvatar");
   const { getProperty, updateProperty } = useStore("user");
   const {
@@ -87,14 +87,14 @@ const Body = ({ close }) => {
     firstName: initialFirstName,
   } = getProperty("data") || {};
 
-  const { setField, lastName, firstName, isLoading, isOpen, bio } =
+  const { setField, setFields, lastName, firstName, isLoading, isOpen, bio } =
     useObjectState({
       phone,
-      isOpen: false,
       bio: initialBio,
       isLoading: false,
-      firstName: initialFirstName,
+      isOpen: defaultOpenEditor,
       lastName: initialLastName,
+      firstName: initialFirstName,
     });
 
   const isChanged = useMemo(() => {
@@ -103,19 +103,26 @@ const Body = ({ close }) => {
       initialLastName !== lastName ||
       initialFirstName !== firstName
     );
-  }, [lastName, firstName, initialLastName, initialFirstName]);
+  }, [lastName, firstName, initialLastName, initialFirstName, bio, initialBio]);
 
   const handleEditProfile = (e) => {
     e.preventDefault();
     if (isLoading || !isChanged) return;
     setField("isLoading", true);
 
+    const formData = {
+      bio: bio.trim(),
+      lastName: lastName.trim(),
+      firstName: firstName.trim(),
+    };
+
     usersApi
-      .update({ firstName, lastName })
-      .then(({ code, user }) => {
+      .update(formData)
+      .then(({ code, user, updates }) => {
         if (code !== "userUpdated") throw new Error();
 
         close();
+        setFields(updates);
         updateProperty("data", user);
         toast.success("Profil ma'lumotlari yangilandi");
       })
@@ -193,7 +200,7 @@ const Body = ({ close }) => {
           <div className="flex justify-end gap-5 w-full">
             <Button
               type="button"
-              onClick={()=> close()}
+              onClick={() => close()}
               className="w-32"
               variant="neutral"
             >
