@@ -4,14 +4,15 @@ import { useMemo } from "react";
 // Components
 import Icon from "../components/Icon";
 
-// Icons
-import { Settings } from "lucide-react";
-
 // Hooks
+import useModal from "@/hooks/useModal";
 import useModule from "../hooks/useModule";
 
 // Icons
 import penIcon from "../assets/icons/pen.svg";
+
+// Icons
+import { Settings, Trash } from "lucide-react";
 
 // Router
 import { Link, useParams } from "react-router-dom";
@@ -21,6 +22,7 @@ import questionsType from "../data/questionsType";
 import usePathSegments from "../hooks/usePathSegments";
 
 // Components
+import Button from "@/components/form/Button";
 import RichTextPreviewer from "@/components/RichTextPreviewer";
 
 const questionsMap = {};
@@ -125,8 +127,9 @@ const Section = ({
   partNumber,
   initialQuestionNumber,
 }) => {
-  const { description, type } = section;
+  const { description, type, _id } = section;
   const QuestionComponent = questionsMap[type];
+  const { openModal } = useModal("deleteSection");
 
   return (
     <section
@@ -146,14 +149,30 @@ const Section = ({
           <RichTextPreviewer text={description} />
         </div>
 
-        {/* Edit button */}
-        <Link
-          to={`/tests/${testId}/edit/${module}/${partNumber}/${type}/${index}`}
-          className="flex items-center justify-center gap-3.5 h-9 px-5 bg-blue-500 rounded-md text-white"
-        >
-          <span>Tahrirlash</span>
-          <Icon size={20} src={penIcon} alt="Pen" className="size-5" />
-        </Link>
+        {/* Action buttons */}
+        <div className="flex gap-3.5">
+          {/* Edit button */}
+          <Link
+            to={`/tests/${testId}/edit/${module}/${partNumber}/${type}/${index}`}
+            className="flex items-center justify-center gap-3.5 h-9 px-5 bg-blue-500 rounded-md text-white"
+          >
+            <span>Tahrirlash</span>
+            <Icon size={20} src={penIcon} alt="Pen" className="size-5" />
+          </Link>
+
+          {/* Delete section */}
+          <Button
+            variant="danger"
+            className="size-9 !p-0"
+            title="Bo'limni o'chirish"
+            aria-label="Bo'limni o'chirish"
+            onClick={() =>
+              openModal({ partNumber, testId, sectionId: _id, module })
+            }
+          >
+            <Trash size={20} />
+          </Button>
+        </div>
       </div>
 
       {/* Main */}
