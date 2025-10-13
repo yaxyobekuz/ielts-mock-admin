@@ -1,3 +1,13 @@
+// Icons
+import {
+  Plus,
+  Copy,
+  Columns2,
+  BookCheck,
+  Grid2x2Plus,
+  EllipsisVertical,
+} from "lucide-react";
+
 // React
 import { useEffect } from "react";
 
@@ -17,10 +27,8 @@ import Button from "@/components/form/Button";
 // Helpers
 import { formatDate, getRandomNumber } from "@/lib/helpers";
 
-// Icons
-import { BookCheck, Columns2, Pin, PinOff, Plus } from "lucide-react";
-
 // Components
+import Dropdown from "@/components/Dropdown";
 import TestTakenCountChart from "@/components/charts/TestTakenCountChart";
 
 const Tests = () => {
@@ -106,14 +114,17 @@ const AddNew = () => {
 };
 
 const TestItem = ({
-  pin,
   title,
   _id: id,
   createdAt,
   taken = 0,
+  isTemplate,
   totalParts = 0,
   totalTaken = 0,
 }) => {
+  const { getProperty } = useStore("user");
+  const { openModal } = useModal("createTemplate");
+  const isTeacher = getProperty("data")?.role === "teacher";
   const data = [
     {
       id: "Umumiy",
@@ -135,17 +146,28 @@ const TestItem = ({
         <h3 className="text-xl font-medium capitalize">{title}</h3>
 
         {/* Pin toogle */}
-        <button
-          title={pin ? "Unpin" : "Pin"}
-          aria-label={pin ? "Unpin" : "Pin"}
+        <Dropdown
+          title="Sozlamalar"
+          aria-label="Sozlamalar"
+          menu={{
+            items: [
+              {
+                disabled: true,
+                children: "Nusxa olish",
+                icon: <Copy size={18} strokeWidth={1.5} />,
+              },
+              {
+                disabled: !isTeacher || isTemplate,
+                action: () => openModal({ testId: id }),
+                icon: <Grid2x2Plus size={18} strokeWidth={1.5} />,
+                children: `Shablon yarat${isTemplate ? "ilingan" : "ish"}`,
+              },
+            ],
+          }}
           className="flex items-center justify-center relative z-10 size-10 bg-white rounded-full"
         >
-          {pin ? (
-            <PinOff size={18} className="rotate-45" color="red" />
-          ) : (
-            <Pin size={18} className="rotate-45" />
-          )}
-        </button>
+          <EllipsisVertical size={20} />
+        </Dropdown>
       </div>
 
       <div className="flex items-end gap-2 ">
