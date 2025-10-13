@@ -32,6 +32,7 @@ const TextComponent = questionsMap["text"];
 const Reading = () => {
   const { partNumber, testId } = useParams();
   const { pathSegments } = usePathSegments();
+  const { openModal } = useModal("deletePart");
   const module = pathSegments[3];
 
   const { getModuleData } = useModule(module, testId);
@@ -53,6 +54,10 @@ const Reading = () => {
 
   const { sections, text } = currentPart || {};
 
+  const handleOpenModal = () => {
+    openModal({ testId, module, partNumber, partId: currentPart._id });
+  };
+
   // Return error if part not found
   if (!currentPart) {
     return (
@@ -71,11 +76,24 @@ const Reading = () => {
       <div className="pt-5">
         <div className="flex gap-5 mb-5">
           {/* Part header */}
-          <div className="w-full h-20 bg-gray-100 py-3 px-4 rounded-xl border border-gray-200">
-            <h1 className="mb-1 text-base font-bold">Part {partNumber}</h1>
-            <div className="flex items-center justify-between">
-              <p>Read the text and answer questions</p>
+          <div className="flex items-center justify-between w-full h-20 bg-gray-100 py-3 px-4 rounded-xl border border-gray-200">
+            <div>
+              <h1 className="mb-1 text-base font-bold">Part {partNumber}</h1>
+              <p>Listen and answer questions</p>
+            </div>
+
+            <div className="flex items-center gap-3.5">
               <p className="text-gray-500">{duration} minutes</p>
+
+              <Button
+                variant="danger"
+                className="size-9 !p-0"
+                onClick={handleOpenModal}
+                title={`Part ${partNumber}ni o'chirish`}
+                aria-label={`Part ${partNumber}ni o'chirish`}
+              >
+                <Trash size={20} />
+              </Button>
             </div>
           </div>
 
