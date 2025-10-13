@@ -2,6 +2,9 @@
 import {
   Plus,
   Copy,
+  Edit,
+  User,
+  Activity,
   Columns2,
   BookCheck,
   Grid2x2Plus,
@@ -22,14 +25,13 @@ import useModal from "@/hooks/useModal";
 import { testsApi } from "@/api/tests.api";
 
 // Components
+import Dropdown from "@/components/Dropdown";
+
+// Components
 import Button from "@/components/form/Button";
 
 // Helpers
-import { formatDate, getRandomNumber } from "@/lib/helpers";
-
-// Components
-import Dropdown from "@/components/Dropdown";
-import TestTakenCountChart from "@/components/charts/TestTakenCountChart";
+import { formatDate, formatTime } from "@/lib/helpers";
 
 const Tests = () => {
   const { getData, updateProperty } = useStore("tests");
@@ -116,34 +118,23 @@ const AddNew = () => {
 const TestItem = ({
   title,
   _id: id,
+  isCopied,
   createdAt,
-  taken = 0,
+  createdBy,
   isTemplate,
+  isTemplated,
   totalParts = 0,
-  totalTaken = 0,
+  totalSubmissions = 0,
 }) => {
   const { getProperty } = useStore("user");
   const { openModal } = useModal("createTemplate");
   const isTeacher = getProperty("data")?.role === "teacher";
-  const data = [
-    {
-      id: "Umumiy",
-      data: [
-        { x: "Du", y: getRandomNumber(0, 3) },
-        { x: "Se", y: getRandomNumber(0, 3) },
-        { x: "Pay", y: getRandomNumber(0, 3) },
-        { x: "Ju", y: getRandomNumber(0, 3) },
-        { x: "Sha", y: getRandomNumber(0, 3) },
-        { x: "Yak", y: getRandomNumber(0, 3) },
-      ],
-    },
-  ];
 
   return (
     <div className="flex flex-col justify-between relative w-full min-h-52 bg-gray-100 rounded-3xl p-5 space-y-5 transition-colors duration-200 hover:bg-gray-50">
       <div className="flex items-center justify-between">
         {/* Title */}
-        <h3 className="text-xl font-medium capitalize">{title}</h3>
+        <h3 className="line-clamp-1 text-xl font-medium capitalize">{title}</h3>
 
         {/* Pin toogle */}
         <Dropdown
@@ -152,8 +143,12 @@ const TestItem = ({
           menu={{
             items: [
               {
+                children: "Tahrirlash",
+                icon: <Edit size={18} strokeWidth={1.5} />,
+              },
+              {
                 disabled: true,
-                children: "Nusxa olish",
+                children: "Nusxa ko'chirish",
                 icon: <Copy size={18} strokeWidth={1.5} />,
               },
               {
@@ -164,26 +159,47 @@ const TestItem = ({
               },
             ],
           }}
-          className="flex items-center justify-center relative z-10 size-10 bg-white rounded-full"
+          className="flex items-center justify-center relative shrink-0 z-10 size-10 bg-white rounded-full"
         >
           <EllipsisVertical size={20} />
         </Dropdown>
       </div>
 
-      <div className="flex items-end gap-2 ">
-        {/* Details */}
-        <div className="shrink-0">
-          <b className="font-semibold text-lg">{taken}ta</b>
-          <p className="text-gray-500">Xaftalik yechishlar soni</p>
+      {/* Mid */}
+      <div className="space-y-1.5">
+        {/* Created by */}
+        <div className="flex items-center gap-1.5">
+          <User strokeWidth={1.5} size={18} className="shrink-0" />
+          <p className="text-[15px] line-clamp-1">
+            <span>Ustoz: </span>
+            <span className="text-gray-500">
+              {createdBy?.firstName} {createdBy?.lastName || ""}
+            </span>
+          </p>
         </div>
 
-        {/* Stats */}
-        <TestTakenCountChart
-          data={data}
-          className="w-full h-14"
-          color={taken >= 20 ? "#22c55e" : "#3b82f6"}
-          gradientId={taken >= 20 ? "gradientA" : "gradientB"}
-        />
+        {/* Status */}
+        <div className="flex items-start gap-1.5">
+          <Activity strokeWidth={1.5} size={18} className="shrink-0 mt-0.5" />
+          <p className="text-[15px]">
+            <span>Holati: </span>
+
+            {/* Is copied */}
+            {isCopied && (
+              <span className="text-yellow-600">Nusxa ko'chirilgan </span>
+            )}
+
+            {/* Is template */}
+            {isTemplate && (
+              <span className="text-blue-600">Shablon sifatida saqlangan </span>
+            )}
+
+            {/* Is templated */}
+            {!isTemplated && (
+              <span className="text-pink-600">Shablondan ko'chirilgan</span>
+            )}
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center justify-between">
@@ -194,7 +210,7 @@ const TestItem = ({
             className="flex items-center gap-1.5"
           >
             <BookCheck strokeWidth={1.5} size={18} />
-            <span>{totalTaken}ta</span>
+            <span>{totalSubmissions}ta</span>
           </div>
 
           {/* Parts count */}
@@ -204,7 +220,10 @@ const TestItem = ({
           </div>
         </div>
 
-        <p className="text-gray-500 text-[15px]">{formatDate(createdAt)}</p>
+        <p className="text-[15px]">
+          {formatDate(createdAt)}{" "}
+          <span className="text-gray-500">{formatTime(createdAt)}</span>
+        </p>
       </div>
 
       {/* Link */}
