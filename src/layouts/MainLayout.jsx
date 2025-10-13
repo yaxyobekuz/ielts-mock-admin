@@ -32,6 +32,7 @@ import CreateTeacherModal from "@/components/modal/CreateTeacherModal";
 
 // Router
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import CreateTemplateModal from "@/components/modal/CreateTemplateModal";
 
 const MainLayout = () => {
   const location = useLocation();
@@ -138,6 +139,7 @@ const AuthenticatedContent = () => {
       <CreateResultModal />
       <UpdateAvatarModal />
       <CreateTeacherModal />
+      <CreateTemplateModal />
     </div>
   );
 };

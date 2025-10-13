@@ -14,6 +14,7 @@ const initialState = {
   createResult: initialModal,
   createTeacher: initialModal,
   deleteSection: initialModal,
+  createTemplate: initialModal,
 };
 
 export const modalSlice = createSlice({
