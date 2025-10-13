@@ -4,6 +4,7 @@ import {
   updateModuleData,
   updateModulePart,
   addModuleSection,
+  deleteModulePart,
   updateModuleSection,
   deleteModuleSection,
 } from "../store/features/moduleSlice";
@@ -40,6 +41,9 @@ const useModule = (module, moduleId) => {
   // Delete section
   const deleteSection = (data) => dispatch(deleteModuleSection(data));
 
+  // Delete part
+  const deletePart = (data) => dispatch(deleteModulePart(data));
+
   // Update section
   const updateSection = (partNumber, data, sectionIndex) => {
     dispatch(
@@ -71,6 +75,7 @@ const useModule = (module, moduleId) => {
     setModule,
     updatePart,
     addSection,
+    deletePart,
     updateModule,
     getModuleData,
     updateSection,
