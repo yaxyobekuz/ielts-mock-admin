@@ -223,3 +223,7 @@ a.active {
 .scroll-y-primary::-webkit-scrollbar {
   @apply w-1;
 }
+
+.hidden-scroll::-webkit-scrollbar {
+  @apply hidden;
+}
