@@ -1,5 +1,5 @@
 // Router
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 // Hooks
 import usePathSegments from "@/hooks/usePathSegments";
@@ -18,8 +18,7 @@ const Nav = ({
   initialStyle = { left: 4, width: 81 },
 }) => {
   const linkRefs = useRef([]);
-  const location = useLocation();
-  const { pathSegments } = usePathSegments();
+  const { pathSegments, location } = usePathSegments();
   const [activeStyle, setActiveStyle] = useState(initialStyle);
 
   const navLinks = useMemo(() => {
