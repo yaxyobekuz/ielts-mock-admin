@@ -111,9 +111,9 @@ const Body = ({ close, defaultOpenEditor }) => {
     setField("isLoading", true);
 
     const formData = {
-      bio: bio.trim(),
-      lastName: lastName.trim(),
-      firstName: firstName.trim(),
+      bio: bio?.trim(),
+      lastName: lastName?.trim(),
+      firstName: firstName?.trim(),
     };
 
     usersApi
