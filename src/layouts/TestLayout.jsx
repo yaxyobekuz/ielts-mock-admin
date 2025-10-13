@@ -26,6 +26,9 @@ import { Link, Outlet, useParams } from "react-router-dom";
 // Components
 import Nav from "@/components/Nav";
 import MainBgLoader from "@/components/loaders/MainBgLoader";
+
+// Modals
+import DeletePartModal from "@/components/modal/DeletePartModal";
 import DeleteSectionModal from "@/components/modal/DeleteSectionModal";
 
 const TestLayout = () => {
@@ -37,6 +40,7 @@ const TestLayout = () => {
     module,
     testId
   );
+
   const { parts } = getModuleData() || {};
   const part = parts?.find((p) => p.number === Number(partNumber));
 
@@ -87,6 +91,7 @@ const TestLayout = () => {
         />
       </main>
 
+      <DeletePartModal />
       <DeleteSectionModal />
 
       <PartsNavbar
@@ -150,7 +155,7 @@ const PartsNavbar = ({ testId, module, parts, addPart }) => (
 );
 
 const AddPartButton = ({ totalParts, addPart, module, testId }) => {
-  if (totalParts > 5) return;
+  if (totalParts > 6 || module === "writing") return;
   const { isLoading, setField } = useObjectState({ isLoading: false });
 
   const handleAddPart = () => {
