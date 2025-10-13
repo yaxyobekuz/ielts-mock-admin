@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 // Icons
 import { SaveAll, Verified } from "lucide-react";
 
-const TemplateItem = ({ title, _id: id, description, banner }) => {
+const TemplateItem = ({ title, _id: id, description, banner, isVerified }) => {
   const { openModal } = useModal("useTemplate");
 
   const bannerStyles = useMemo(() => {
@@ -28,20 +28,22 @@ const TemplateItem = ({ title, _id: id, description, banner }) => {
       className="group flex flex-col bg-cover justify-between relative overflow-hidden w-full min-h-52 bg-gray-100 rounded-3xl space-y-5 transition-colors duration-200 hover:bg-gray-50"
     >
       {/* Top  */}
-      <div className="flex items-center justify-between gap-3.5 p-5 pb-0">
+      <div className="flex items-center gap-3.5 p-5 pb-0">
         {/* Verified badge */}
-        <div
-          className={`${
-            banner ? "bg-black/20 text-white" : "bg-blue-500/20 text-blue-600"
-          } btn gap-1.5 h-10 py-0 px-3 rounded-full backdrop-blur-sm`}
-        >
-          <Verified
-            size={18}
-            strokeWidth={1.5}
-            className="transition-transform duration-200 group-hover:rotate-[360deg]"
-          />
-          <span className="text-sm">Tasdiqlangan</span>
-        </div>
+        {isVerified && (
+          <div
+            className={`${
+              banner ? "bg-black/20 text-white" : "bg-blue-500/20 text-blue-600"
+            } btn gap-1.5 h-10 py-0 px-3 rounded-full backdrop-blur-sm`}
+          >
+            <Verified
+              size={18}
+              strokeWidth={1.5}
+              className="transition-transform duration-200 group-hover:rotate-[360deg]"
+            />
+            <span className="text-sm">Tasdiqlangan</span>
+          </div>
+        )}
 
         {/* Use template */}
         <button
@@ -52,7 +54,7 @@ const TemplateItem = ({ title, _id: id, description, banner }) => {
             banner
               ? "bg-black/20 text-white hover:bg-black/50"
               : "bg-blue-500/20 text-blue-600 hover:bg-blue-500/30"
-          } z-10 btn gap-1.5 size-10 p-0 rounded-full backdrop-blur-sm`}
+          } z-10 btn gap-1.5 size-10 p-0 rounded-full backdrop-blur-sm ml-auto`}
         >
           <SaveAll size={18} strokeWidth={1.5} />
         </button>
