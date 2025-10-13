@@ -70,6 +70,28 @@ export const moduleSlice = createSlice({
       }
     },
 
+    // Delete part
+    deleteModulePart: (state, action) => {
+      const { testId, module, partId } = action.payload;
+      const moduleData = state?.[module]?.[testId];
+
+      if (state[module] && moduleData) {
+        let parts = moduleData.parts;
+        parts = parts.filter((p) => p._id !== partId);
+
+        parts = parts.map((p, i) => ({ ...p, number: i + 1 }));
+        moduleData.parts = parts;
+        moduleData.partsCount = parts.length;
+
+        moduleData.totalQuestions = parts.reduce(
+          (total, part) => total + (part.questionsCount || 0),
+          0
+        );
+      } else {
+        console.error(`Test ${testId}: ${module} module is not defined`);
+      }
+    },
+
     // Update section
     updateModuleSection: (state, action) => {
       const { type, id, partNumber, sectionIndex, data } = action.payload;
@@ -137,6 +159,7 @@ export const {
   updateModulePart,
   removeModulePart,
   updateModuleData,
+  deleteModulePart,
   updateModuleSection,
   deleteModuleSection,
 } = moduleSlice.actions;
