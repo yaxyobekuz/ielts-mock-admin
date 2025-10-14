@@ -22,7 +22,7 @@ const CreateTestModal = () => (
   <ResponsiveModal
     name="createTest"
     title="Test qo'shish"
-    description="Test qo'shish"
+    description="Test qo'shish uchun sarlavhani kiriting, istasangiz izoh ham qo'shing."
   >
     <Content />
   </ResponsiveModal>

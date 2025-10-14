@@ -18,10 +18,11 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 const ResponsiveModal = ({
   children,
   name = "",
+  className = "",
   description = "",
   title = "Modal sarlavhasi",
 }) => {
-  const { closeModal, isOpen } = useModal(name);
+  const { closeModal, isOpen, data } = useModal(name);
   const [isLoading, setIsLoading] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 640px)");
   const hanldeCloseModal = () => !isLoading && closeModal();
@@ -30,12 +31,13 @@ const ResponsiveModal = ({
     isLoading,
     setIsLoading,
     close: hanldeCloseModal,
+    ...(data || {}),
   });
 
   if (isDesktop) {
     return (
       <Dialog open={isOpen} onOpenChange={hanldeCloseModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className={`max-w-md ${className}`}>
           {/* Header */}
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
@@ -53,7 +55,7 @@ const ResponsiveModal = ({
 
   return (
     <Drawer open={isOpen} onOpenChange={hanldeCloseModal}>
-      <DrawerContent className="px-5 pb-5">
+      <DrawerContent className={`px-5 pb-5 ${className}`}>
         {/* Header */}
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
