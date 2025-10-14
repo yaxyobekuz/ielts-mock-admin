@@ -215,7 +215,7 @@ const TestItem = ({
             )}
 
             {/* Is templated */}
-            {!isTemplated && (
+            {isTemplated && (
               <span className="text-pink-600">Shablondan ko'chirilgan</span>
             )}
           </p>
