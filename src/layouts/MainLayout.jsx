@@ -24,6 +24,7 @@ import duckShrugging from "@/assets/animated/duck-shrugging.json";
 // Modals
 import ProfileModal from "@/components/modal/ProfileModal";
 import EditTestModal from "@/components/modal/EditTestModal";
+import DeleteTestModal from "@/components/modal/DeleteTestModal";
 import CreateTestModal from "@/components/modal/CreateTestModal";
 import CreateLinkModal from "@/components/modal/CreateLinkModal";
 import UseTemplateModal from "@/components/modal/UseTemplateModal";
@@ -136,6 +137,7 @@ const AuthenticatedContent = () => {
       <ProfileModal />
       <EditTestModal />
       <CreateTestModal />
+      <DeleteTestModal />
       <CreateLinkModal />
       <UseTemplateModal />
       <CreateResultModal />

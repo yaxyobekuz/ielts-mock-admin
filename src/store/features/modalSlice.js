@@ -6,6 +6,7 @@ const initialModal = { isOpen: false, data: {}, isLoading: false };
 const initialState = {
   profile: initialModal,
   editTest: initialModal,
+  deleteTest: initialModal,
   createTest: initialModal,
   deletePart: initialModal,
   createLink: initialModal,
