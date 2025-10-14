@@ -1,6 +1,3 @@
-// React
-import { useState } from "react";
-
 // Components
 import Input from "../form/Input";
 import Button from "../form/Button";
@@ -14,74 +11,24 @@ import { toast } from "@/notification/toast";
 // Router
 import { useNavigate } from "react-router-dom";
 
+// Components
+import ResponsiveModal from "../ResponsiveModal";
+
 // Hooks
-import useModal from "@/hooks/useModal";
 import useStore from "@/hooks/useStore";
-import useMediaQuery from "@/hooks/useMediaQuery";
 import useObjectState from "@/hooks/useObjectState";
 
-// Ui components
-import {
-  Dialog,
-  DialogTitle,
-  DialogHeader,
-  DialogContent,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
+const CreateTestModal = () => (
+  <ResponsiveModal
+    name="createTest"
+    title="Test qo'shish"
+    description="Test qo'shish"
+  >
+    <Content />
+  </ResponsiveModal>
+);
 
-const CreateTestModal = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const isDesktop = useMediaQuery("(min-width: 640px)");
-  const { closeModal, isOpen } = useModal("createTest");
-  const hanldeCloseModal = () => !isLoading && closeModal();
-
-  const content = {
-    title: "Test qo'shish",
-    body: (
-      <Body
-        isLoading={isLoading}
-        close={hanldeCloseModal}
-        setIsLoading={setIsLoading}
-      />
-    ),
-    description: `Yangi test qo'shish uchun sarlavhani kiriting, istasangiz rasm ham yuklang`,
-  };
-
-  if (isDesktop) {
-    return (
-      <Dialog open={isOpen} onOpenChange={hanldeCloseModal}>
-        <DialogContent className="sm:max-w-[425px]">
-          {/* Header */}
-          <DialogHeader>
-            <DialogTitle>{content.title}</DialogTitle>
-            <DialogDescription>{content.description}</DialogDescription>
-          </DialogHeader>
-
-          {/* Body */}
-          {content.body}
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  return (
-    <Drawer open={isOpen} onOpenChange={hanldeCloseModal}>
-      <DrawerContent className="px-5 pb-5">
-        {/* Header */}
-        <DialogHeader>
-          <DialogTitle>{content.title}</DialogTitle>
-          <DialogDescription>{content.description}</DialogDescription>
-        </DialogHeader>
-
-        {/* Body */}
-        {content.body}
-      </DrawerContent>
-    </Drawer>
-  );
-};
-
-const Body = ({ close, isLoading, setIsLoading }) => {
+const Content = ({ close, isLoading, setIsLoading }) => {
   const navigate = useNavigate();
   const { getData, updateProperty } = useStore("tests");
   const { isLoading: isTestsLoading, data: tests } = getData();
