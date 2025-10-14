@@ -204,6 +204,7 @@ const Body = ({ close, isLoading, setIsLoading, testId }) => {
             progress={progress}
             isUploading={isLoading}
             label="Banner (ixtiyoriy)"
+            initialFiles={banner ? [banner] : []}
             onChange={(banners) => setField("banner", banners[0])}
           />
 
