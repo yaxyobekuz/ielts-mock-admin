@@ -104,7 +104,7 @@ const Content = ({ close, isLoading, setIsLoading }) => {
           Bekor qilish
         </Button>
 
-        <Button type="submit" className="w-32">
+        <Button disabled={isLoading} type="submit" className="w-32">
           Qo'shish
         </Button>
       </div>

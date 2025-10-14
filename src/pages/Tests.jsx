@@ -12,9 +12,6 @@ import {
   EllipsisVertical,
 } from "lucide-react";
 
-// Router
-import { Link } from "react-router-dom";
-
 // Hooks
 import useStore from "@/hooks/useStore";
 import useModal from "@/hooks/useModal";
@@ -30,6 +27,9 @@ import Button from "@/components/form/Button";
 
 // React
 import { useCallback, useEffect } from "react";
+
+// Router
+import { Link, useNavigate } from "react-router-dom";
 
 // Helpers
 import { formatDate, formatTime } from "@/lib/helpers";
@@ -63,32 +63,31 @@ const Tests = () => {
       <h1>Testlar</h1>
 
       {/* Main */}
-      <main className="grid grid-cols-4 gap-5">
-        <Main isLoading={isLoading} hasError={hasError} tests={tests} />
+      <main>
+        {/* Skeleton loader */}
+        {isLoading && (
+          <ul className="grid grid-cols-4 gap-5">
+            {Array.from({ length: 8 }, (_, index) => (
+              <TestItemSkeleton key={index} />
+            ))}
+          </ul>
+        )}
+
+        {/* Error content */}
+        {!isLoading && hasError ? <div className="">Error</div> : null}
+
+        {/* Tests */}
+        {!isLoading && !hasError && tests?.length ? (
+          <div className="grid grid-cols-4 gap-5">
+            <AddNew />
+
+            {tests.map((test) => (
+              <TestItem key={test?._id} {...test} />
+            ))}
+          </div>
+        ) : null}
       </main>
     </div>
-  );
-};
-
-const Main = ({ isLoading, hasError, tests = [] }) => {
-  if (isLoading) {
-    return Array.from({ length: 8 }, (_, index) => {
-      return <TestItemSkeleton key={index} />;
-    });
-  }
-
-  if (hasError) {
-    return <div className="">Error</div>;
-  }
-
-  return (
-    <>
-      <AddNew />
-
-      {tests.map((test) => (
-        <TestItem key={test?._id} {...test} />
-      ))}
-    </>
   );
 };
 
@@ -120,6 +119,7 @@ const TestItem = ({
   title,
   _id: id,
   isCopied,
+  template,
   createdAt,
   createdBy,
   isTemplate,
@@ -128,18 +128,23 @@ const TestItem = ({
   totalParts = 0,
   totalSubmissions = 0,
 }) => {
+  const navigate = useNavigate();
   const { openModal } = useModal("createTemplate");
 
   const openCreateTemplateModal = useCallback(() => {
     openModal({ testId: id });
-  }, [id, openModal]);
+  }, [id]);
 
   const openEditTestModal = useCallback(() => {
     openModal({ testId: id, description, title }, "editTest");
-  }, [id, openModal, description, title]);
+  }, [id, description, title]);
+
+  const openDeleteTestModal = useCallback(() => {
+    openModal({ testId: id }, "deleteTest");
+  }, [id]);
 
   return (
-    <div className="flex flex-col justify-between relative w-full min-h-52 bg-gray-100 rounded-3xl p-5 space-y-5 transition-colors duration-200 hover:bg-gray-50">
+    <div className="flex flex-col justify-between relative w-full min-h-52 bg-gray-100 rounded-3xl p-5 transition-colors duration-200 hover:bg-gray-50">
       <div className="flex items-center justify-between">
         {/* Title */}
         <h3 className="line-clamp-1 text-xl font-medium capitalize">{title}</h3>
@@ -157,8 +162,9 @@ const TestItem = ({
               },
               isTemplate
                 ? {
-                    children: <Link>Shablonni ko'rish</Link>,
+                    children: "Shablonni ko'rish",
                     icon: <Grid2x2 size={18} strokeWidth={1.5} />,
+                    action: () => navigate(`/templates/${template}`),
                   }
                 : {
                     children: `Shablon yaratish`,
@@ -168,6 +174,7 @@ const TestItem = ({
               {
                 variant: "danger",
                 children: "O'chirish",
+                action: openDeleteTestModal,
                 icon: <Trash size={18} strokeWidth={1.5} />,
               },
             ],
@@ -249,7 +256,7 @@ const TestItem = ({
 };
 
 const TestItemSkeleton = () => (
-  <div className="w-full min-h-52 bg-gray-100 rounded-3xl p-5 space-y-5 animate-pulse" />
+  <li className="w-full min-h-52 bg-gray-100 rounded-3xl p-5 space-y-5 animate-pulse" />
 );
 
 export default Tests;
