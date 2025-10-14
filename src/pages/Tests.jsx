@@ -1,9 +1,10 @@
 // Icons
 import {
   Plus,
-  Copy,
   Edit,
   User,
+  Trash,
+  Grid2x2,
   Activity,
   Columns2,
   BookCheck,
@@ -127,9 +128,7 @@ const TestItem = ({
   totalParts = 0,
   totalSubmissions = 0,
 }) => {
-  const { getProperty } = useStore("user");
   const { openModal } = useModal("createTemplate");
-  const isTeacher = getProperty("data")?.role === "teacher";
 
   const openCreateTemplateModal = useCallback(() => {
     openModal({ testId: id });
@@ -156,16 +155,20 @@ const TestItem = ({
                 action: openEditTestModal,
                 icon: <Edit size={18} strokeWidth={1.5} />,
               },
+              isTemplate
+                ? {
+                    children: <Link>Shablonni ko'rish</Link>,
+                    icon: <Grid2x2 size={18} strokeWidth={1.5} />,
+                  }
+                : {
+                    children: `Shablon yaratish`,
+                    action: openCreateTemplateModal,
+                    icon: <Grid2x2Plus size={18} strokeWidth={1.5} />,
+                  },
               {
-                disabled: true,
-                children: "Nusxa ko'chirish",
-                icon: <Copy size={18} strokeWidth={1.5} />,
-              },
-              {
-                action: openCreateTemplateModal,
-                disabled: !isTeacher || isTemplate,
-                icon: <Grid2x2Plus size={18} strokeWidth={1.5} />,
-                children: `Shablon yarat${isTemplate ? "ilgan" : "ish"}`,
+                variant: "danger",
+                children: "O'chirish",
+                icon: <Trash size={18} strokeWidth={1.5} />,
               },
             ],
           }}

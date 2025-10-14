@@ -39,6 +39,10 @@ const Content = ({
   const { getData, updateProperty } = useStore("tests");
   const { isLoading: isTestsLoading, data: tests } = getData();
 
+  const { getData: getSingleTests, updateProperty: updateSingleTest } =
+    useStore("test");
+  const singleTests = getSingleTests();
+
   const { title, description, setField } = useObjectState({
     title: initialTitle || "",
     description: initialDescription || "",
@@ -77,6 +81,15 @@ const Content = ({
             description: test.description,
           };
           updateProperty("data", newTests);
+        }
+
+        // Update single test from store
+        if (singleTests[testId]) {
+          updateSingleTest(testId, {
+            ...singleTests[testId],
+            title: test.title,
+            description: test.description,
+          });
         }
       })
       .catch(({ message }) =>

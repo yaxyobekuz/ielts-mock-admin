@@ -1,5 +1,14 @@
-// React
-import { useEffect } from "react";
+// Icons
+import {
+  Edit,
+  Clock,
+  Grid2x2,
+  LinkIcon,
+  Columns2,
+  RefreshCcw,
+  Grid2x2Plus,
+  ArrowUpRight,
+} from "lucide-react";
 
 // Api
 import { testsApi } from "@/api/tests.api";
@@ -7,6 +16,9 @@ import { linksApi } from "@/api/links.api";
 
 // Toast
 import { toast } from "@/notification/toast";
+
+// React
+import { useCallback, useEffect } from "react";
 
 // Components
 import CopyButton from "@/components/CopyButton";
@@ -27,9 +39,6 @@ import { formatDate, formatTime } from "@/lib/helpers";
 import readingBg from "@/assets/backgrounds/reading.webp";
 import writingBg from "@/assets/backgrounds/writing.webp";
 import listeningBg from "@/assets/backgrounds/listening.webp";
-
-// Icons
-import { ArrowUpRight, Clock, Columns2, RefreshCcw } from "lucide-react";
 
 const Test = () => {
   const { testId } = useParams();
@@ -98,26 +107,29 @@ const modules = [
   },
 ];
 
-const Content = (test) => {
-  const {
-    title,
-    image,
-    writing,
-    reading,
-    hasError,
-    createdAt,
-    createdBy,
-    listening,
-    isLoading,
-    totalParts,
-    description,
-  } = test;
+const Content = ({
+  title,
+  hasError,
+  createdAt,
+  isLoading,
+  totalParts,
+  isTemplate,
+  description,
+  ...rest
+}) => {
+  const { testId } = useParams();
+  const { openModal } = useModal("createLink");
+
+  const openCreateTemplateModal = useCallback(() => {
+    openModal({ testId }, "createTemplate");
+  }, [testId]);
+
+  const openEditTestModal = useCallback(() => {
+    openModal({ testId, description, title }, "editTest");
+  }, [testId, description, title]);
 
   if (isLoading) return <LoadingContent />;
   if (hasError) return <ErrorContent />;
-
-  const { testId } = useParams();
-  const { openModal } = useModal("createLink");
 
   return (
     <>
@@ -144,10 +156,40 @@ const Content = (test) => {
 
       {/* Action buttons */}
       <div className="flex items-center justify-end gap-5">
+        {/* Template link */}
+        {isTemplate && (
+          <Link className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100">
+            <Grid2x2 size={20} strokeWidth={1.5} />
+            Shablonni ko'rish
+          </Link>
+        )}
+
+        {/* Open create template modal button */}
+        {!isTemplate && (
+          <button
+            onClick={openCreateTemplateModal}
+            className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
+          >
+            <Grid2x2Plus size={20} strokeWidth={1.5} />
+            Shablon yaratish
+          </button>
+        )}
+
+        {/* Open edit test modal button */}
+        <button
+          onClick={openEditTestModal}
+          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
+        >
+          <Edit size={20} strokeWidth={1.5} />
+          Tahrirlash
+        </button>
+
+        {/* Open create link modal button */}
         <button
           onClick={() => openModal({ testId })}
           className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
         >
+          <LinkIcon size={20} strokeWidth={1.5} />
           Taklif havolasini yaratish
         </button>
       </div>
@@ -156,7 +198,7 @@ const Content = (test) => {
         {/* Modules */}
         <ul className="grid grid-cols-3 gap-5 col-span-3">
           {modules.map(({ image, title, link }, index) => {
-            const partsCount = test[title.toLowerCase()]?.partsCount || 0;
+            const partsCount = rest[title?.toLowerCase()]?.partsCount || 0;
             return (
               <li
                 key={index}
