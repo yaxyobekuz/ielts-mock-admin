@@ -2,6 +2,7 @@
 import {
   Edit,
   Clock,
+  Trash,
   Grid2x2,
   LinkIcon,
   Columns2,
@@ -110,6 +111,7 @@ const modules = [
 const Content = ({
   title,
   hasError,
+  template,
   createdAt,
   isLoading,
   totalParts,
@@ -156,9 +158,21 @@ const Content = ({
 
       {/* Action buttons */}
       <div className="flex items-center justify-end gap-5">
+        {/* Open edit test modal button */}
+        <button
+          onClick={openEditTestModal}
+          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
+        >
+          <Edit size={20} strokeWidth={1.5} />
+          Tahrirlash
+        </button>
+
         {/* Template link */}
         {isTemplate && (
-          <Link className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100">
+          <Link
+            to={`/templates/${template}`}
+            className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
+          >
             <Grid2x2 size={20} strokeWidth={1.5} />
             Shablonni ko'rish
           </Link>
@@ -175,15 +189,6 @@ const Content = ({
           </button>
         )}
 
-        {/* Open edit test modal button */}
-        <button
-          onClick={openEditTestModal}
-          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
-        >
-          <Edit size={20} strokeWidth={1.5} />
-          Tahrirlash
-        </button>
-
         {/* Open create link modal button */}
         <button
           onClick={() => openModal({ testId })}
@@ -191,6 +196,16 @@ const Content = ({
         >
           <LinkIcon size={20} strokeWidth={1.5} />
           Taklif havolasini yaratish
+        </button>
+
+        {/* Open create link modal button */}
+        <button
+          title="Testni o'chirish"
+          aria-label="Testni o'chirish"
+          onClick={() => openModal({ testId }, "deleteTest")}
+          className="btn size-11 bg-red-50 p-0 rounded-full text-red-500 hover:bg-red-100"
+        >
+          <Trash size={20} strokeWidth={1.5} />
         </button>
       </div>
 
