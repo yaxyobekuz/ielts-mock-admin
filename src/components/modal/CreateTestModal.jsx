@@ -1,24 +1,9 @@
-// Ui components
-import {
-  Dialog,
-  DialogTitle,
-  DialogHeader,
-  DialogContent,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerFooter,
-  DrawerContent,
-} from "@/components/ui/drawer";
+// React
+import { useState } from "react";
 
 // Components
 import Input from "../form/Input";
 import Button from "../form/Button";
-
-// Icons
-import { FolderUp } from "lucide-react";
 
 // Api
 import { testsApi } from "@/api/tests.api";
@@ -35,19 +20,37 @@ import useStore from "@/hooks/useStore";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import useObjectState from "@/hooks/useObjectState";
 
+// Ui components
+import {
+  Dialog,
+  DialogTitle,
+  DialogHeader,
+  DialogContent,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
+
 const CreateTestModal = () => {
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const [isLoading, setIsLoading] = useState(false);
+  const isDesktop = useMediaQuery("(min-width: 640px)");
   const { closeModal, isOpen } = useModal("createTest");
+  const hanldeCloseModal = () => !isLoading && closeModal();
 
   const content = {
     title: "Test qo'shish",
-    body: <Body close={closeModal} />,
+    body: (
+      <Body
+        isLoading={isLoading}
+        close={hanldeCloseModal}
+        setIsLoading={setIsLoading}
+      />
+    ),
     description: `Yangi test qo'shish uchun sarlavhani kiriting, istasangiz rasm ham yuklang`,
   };
 
   if (isDesktop) {
     return (
-      <Dialog open={isOpen} onOpenChange={closeModal}>
+      <Dialog open={isOpen} onOpenChange={hanldeCloseModal}>
         <DialogContent className="sm:max-w-[425px]">
           {/* Header */}
           <DialogHeader>
@@ -63,8 +66,8 @@ const CreateTestModal = () => {
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={closeModal}>
-      <DrawerContent>
+    <Drawer open={isOpen} onOpenChange={hanldeCloseModal}>
+      <DrawerContent className="px-5 pb-5">
         {/* Header */}
         <DialogHeader>
           <DialogTitle>{content.title}</DialogTitle>
@@ -73,105 +76,81 @@ const CreateTestModal = () => {
 
         {/* Body */}
         {content.body}
-
-        {/* Footer */}
-        <DrawerFooter className="pt-2">
-          <DrawerClose asChild>
-            <button variant="outline">Bekor qilish</button>
-          </DrawerClose>
-        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );
 };
 
-const Body = ({ close }) => {
+const Body = ({ close, isLoading, setIsLoading }) => {
   const navigate = useNavigate();
   const { getData, updateProperty } = useStore("tests");
   const { isLoading: isTestsLoading, data: tests } = getData();
 
-  const { state, setField } = useObjectState({ image: null, title: "" });
-  const { image, title } = state;
+  const { title, description, setField } = useObjectState({
+    title: "",
+    description: "",
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (isLoading) return;
 
-    if (!title || title.trim().length === 0) {
+    if (!title?.trim()?.length) {
       return toast.error("Sarlavha kiritilmadi");
     }
 
-    toast.promise(
-      testsApi
-        .create({ title, image })
-        .then(({ test, code }) => {
-          if (code !== "testCreated") throw new Error();
-          if (!isTestsLoading) updateProperty("data", [test, ...tests]);
-          navigate(`/tests/${test._id}`);
-        })
-        .finally(close),
-      {
-        error: "Test qo'shilmadi!",
-        success: "Test qo'shildi!",
-        loading: "Test qo'shilmoqda...",
-      }
-    );
-  };
+    setIsLoading(true);
+    let success = false;
 
-  const handleChange = (files) => {
-    const file = files[0];
-    if (!file) return;
-    setField("image", URL.createObjectURL(file));
-  };
+    testsApi
+      .create({ title: title.trim(), description: description?.trim() || "" })
+      .then(({ test, code }) => {
+        if (code !== "testCreated") throw new Error();
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.currentTarget.click();
-    }
+        success = true;
+        navigate(`/tests/${test._id}`);
+        if (!isTestsLoading) updateProperty("data", [test, ...tests]);
+      })
+      .catch(({ message }) =>
+        toast.error(message || "Noma'lum xatolik yuz berdi")
+      )
+      .finally(() => {
+        success && close();
+        setIsLoading(false);
+      });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <Input
-        border={true}
+        required
         size="lg"
+        border={true}
         variant="gray"
         maxLength={32}
-        name="test-name"
-        placeholder="Sarlavha"
+        label="Sarlavha"
+        name="test-title"
+        placeholder="Sarlavhani kiriitng"
         onChange={(value) => setField("title", value)}
       />
 
-      {/* Image input */}
-      <label
-        tabIndex={0}
-        onKeyDown={handleKeyDown}
-        className="group w-full outline-none"
-      >
-        <Input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          name="image-file-input"
-          onChange={handleChange}
-        />
-        <div className="flex items-center justify-center gap-3.5 cursor-pointer w-full h-24 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 group-focus:border-blue-500">
-          <span>{image ? "Boshqa rasm" : "Rasm"} tanlash</span>
-          <FolderUp size={22} strokeWidth={1.5} />
-        </div>
-      </label>
-
-      {/* Preview */}
-      {image && (
-        <div className="flex justify-center w-full">
-          <img src={image} alt="Preview" className="max-h-40 bg-gray-200" />
-        </div>
-      )}
+      <Input
+        size="lg"
+        label="Izoh"
+        border={true}
+        variant="gray"
+        type="textarea"
+        maxLength={144}
+        name="test-description"
+        placeholder="Izoh (Ixtiyoriy)"
+        onChange={(value) => setField("description", value)}
+      />
 
       {/* Buttons */}
       <div className="flex justify-end gap-5 w-full">
         <Button
           type="button"
-          onClick={()=> close()}
+          onClick={() => close()}
           className="w-32"
           variant="neutral"
         >
