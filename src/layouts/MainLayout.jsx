@@ -23,16 +23,17 @@ import duckShrugging from "@/assets/animated/duck-shrugging.json";
 
 // Modals
 import ProfileModal from "@/components/modal/ProfileModal";
+import EditTestModal from "@/components/modal/EditTestModal";
 import CreateTestModal from "@/components/modal/CreateTestModal";
 import CreateLinkModal from "@/components/modal/CreateLinkModal";
 import UseTemplateModal from "@/components/modal/UseTemplateModal";
 import UpdateAvatarModal from "@/components/modal/UpdateAvatarModal";
 import CreateResultModal from "@/components/modal/CreateResultModal";
 import CreateTeacherModal from "@/components/modal/CreateTeacherModal";
+import CreateTemplateModal from "@/components/modal/CreateTemplateModal";
 
 // Router
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import CreateTemplateModal from "@/components/modal/CreateTemplateModal";
 
 const MainLayout = () => {
   const location = useLocation();
@@ -133,6 +134,7 @@ const AuthenticatedContent = () => {
 
       {/* Modals */}
       <ProfileModal />
+      <EditTestModal />
       <CreateTestModal />
       <CreateLinkModal />
       <UseTemplateModal />

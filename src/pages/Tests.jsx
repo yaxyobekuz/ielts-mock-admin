@@ -11,9 +11,6 @@ import {
   EllipsisVertical,
 } from "lucide-react";
 
-// React
-import { useEffect } from "react";
-
 // Router
 import { Link } from "react-router-dom";
 
@@ -29,6 +26,9 @@ import Dropdown from "@/components/Dropdown";
 
 // Components
 import Button from "@/components/form/Button";
+
+// React
+import { useCallback, useEffect } from "react";
 
 // Helpers
 import { formatDate, formatTime } from "@/lib/helpers";
@@ -123,12 +123,21 @@ const TestItem = ({
   createdBy,
   isTemplate,
   isTemplated,
+  description,
   totalParts = 0,
   totalSubmissions = 0,
 }) => {
   const { getProperty } = useStore("user");
   const { openModal } = useModal("createTemplate");
   const isTeacher = getProperty("data")?.role === "teacher";
+
+  const openCreateTemplateModal = useCallback(() => {
+    openModal({ testId: id });
+  }, [id, openModal]);
+
+  const openEditTestModal = useCallback(() => {
+    openModal({ testId: id, description, title }, "editTest");
+  }, [id, openModal, description, title]);
 
   return (
     <div className="flex flex-col justify-between relative w-full min-h-52 bg-gray-100 rounded-3xl p-5 space-y-5 transition-colors duration-200 hover:bg-gray-50">
@@ -144,6 +153,7 @@ const TestItem = ({
             items: [
               {
                 children: "Tahrirlash",
+                action: openEditTestModal,
                 icon: <Edit size={18} strokeWidth={1.5} />,
               },
               {
@@ -152,10 +162,10 @@ const TestItem = ({
                 icon: <Copy size={18} strokeWidth={1.5} />,
               },
               {
+                action: openCreateTemplateModal,
                 disabled: !isTeacher || isTemplate,
-                action: () => openModal({ testId: id }),
                 icon: <Grid2x2Plus size={18} strokeWidth={1.5} />,
-                children: `Shablon yarat${isTemplate ? "ilingan" : "ish"}`,
+                children: `Shablon yarat${isTemplate ? "ilgan" : "ish"}`,
               },
             ],
           }}
