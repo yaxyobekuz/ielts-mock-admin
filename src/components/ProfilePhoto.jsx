@@ -11,6 +11,7 @@ import { extractNumbers } from "@/lib/helpers";
 const ProfilePhoto = ({
   user,
   size = 48,
+  photoSize = "small",
   className = "size-12 rounded-full",
 }) => {
   const { getProperty } = useStore("user");
@@ -28,6 +29,7 @@ const ProfilePhoto = ({
     size,
     avatar,
     userId,
+    photoSize,
     fullName: `${firstName} ${lastName || ""}`.trim(),
     className: `flex items-center justify-center font-semibold shrink-0 ${className}`,
   };
@@ -37,13 +39,13 @@ const ProfilePhoto = ({
 };
 
 // Photo image
-const Photo = ({ avatar, fullName, className, size }) => (
+const Photo = ({ avatar, fullName, className, size, photoSize }) => (
   <img
     width={size}
     height={size}
-    src={avatar.sizes?.small?.url}
     alt={`${fullName}ning profil rasmi`}
     title={`${fullName}ning profil rasmi`}
+    src={avatar.sizes?.[photoSize || "small"]?.url}
     className={`${className} bg-gray-200 text-[10px] object-cover object-center aspect-square`}
   />
 );

@@ -305,6 +305,7 @@ const Profile = ({ student }) => (
     {/* Photo */}
     <ProfilePhoto
       user={student}
+      photoSize="medium"
       className="absolute inset-0 z-0 size-full text-9xl"
     />
   </section>
