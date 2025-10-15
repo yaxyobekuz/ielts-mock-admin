@@ -12,10 +12,6 @@ import {
   EllipsisVertical,
 } from "lucide-react";
 
-// Hooks
-import useStore from "@/hooks/useStore";
-import useModal from "@/hooks/useModal";
-
 // Tests api
 import { testsApi } from "@/api/tests.api";
 
@@ -28,6 +24,11 @@ import Button from "@/components/form/Button";
 // React
 import { useCallback, useEffect } from "react";
 
+// Hooks
+import useStore from "@/hooks/useStore";
+import useModal from "@/hooks/useModal";
+import usePermission from "@/hooks/usePermission";
+
 // Router
 import { Link, useNavigate } from "react-router-dom";
 
@@ -35,6 +36,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { formatDate, formatTime } from "@/lib/helpers";
 
 const Tests = () => {
+  const { checkPermission, user } = usePermission();
   const { getData, updateProperty } = useStore("tests");
   const { isLoading, hasError, data: tests } = getData();
 
@@ -79,10 +81,14 @@ const Tests = () => {
         {/* Tests */}
         {!isLoading && !hasError && tests?.length ? (
           <div className="grid grid-cols-4 gap-5">
-            <AddNew />
+            <AddNew user={user} checkPermission={checkPermission} />
 
             {tests.map((test) => (
-              <TestItem key={test?._id} {...test} />
+              <TestItem
+                {...test}
+                key={test?._id}
+                checkPermission={checkPermission}
+              />
             ))}
           </div>
         ) : null}
@@ -91,16 +97,15 @@ const Tests = () => {
   );
 };
 
-const AddNew = () => {
-  const { getData } = useStore("user");
+const AddNew = ({ user, checkPermission }) => {
   const { openModal } = useModal("createTest");
-
-  const user = getData()?.data || {};
-  if (user.role !== "teacher") return null;
+  const canCreateTest =
+    checkPermission("canCreateTest") && user.role === "teacher";
 
   return (
     <Button
       variant="danger"
+      disabled={!canCreateTest}
       onClick={() => openModal()}
       className="relative group gap-3.5 min-h-[200px] !rounded-3xl"
     >
@@ -125,20 +130,29 @@ const TestItem = ({
   isTemplated,
   description,
   totalParts = 0,
+  checkPermission,
   totalSubmissions = 0,
 }) => {
   const navigate = useNavigate();
   const { openModal } = useModal("createTemplate");
 
+  // Permissions
+  const canEditTest = checkPermission("canEditTest");
+  const canDeleteTest = checkPermission("canDeleteTest");
+  const canCreateTemplate = checkPermission("canCreateTemplate");
+
   const openCreateTemplateModal = useCallback(() => {
+    if (!canCreateTemplate) return;
     openModal({ testId: id });
   }, [id]);
 
   const openEditTestModal = useCallback(() => {
+    if (!canEditTest) return;
     openModal({ testId: id, description, title }, "editTest");
   }, [id, description, title]);
 
   const openDeleteTestModal = useCallback(() => {
+    if (!canDeleteTest) return;
     openModal({ testId: id }, "deleteTest");
   }, [id]);
 
@@ -155,6 +169,7 @@ const TestItem = ({
           menu={{
             items: [
               {
+                disabled: !canEditTest,
                 children: "Tahrirlash",
                 action: openEditTestModal,
                 icon: <Edit size={18} strokeWidth={1.5} />,
@@ -166,6 +181,7 @@ const TestItem = ({
                     action: () => navigate(`/templates/${template}`),
                   }
                 : {
+                    disabled: !canCreateTemplate,
                     children: `Shablon yaratish`,
                     action: openCreateTemplateModal,
                     icon: <Grid2x2Plus size={18} strokeWidth={1.5} />,
@@ -173,6 +189,7 @@ const TestItem = ({
               {
                 variant: "danger",
                 children: "O'chirish",
+                disabled: !canDeleteTest,
                 action: openDeleteTestModal,
                 icon: <Trash size={18} strokeWidth={1.5} />,
               },

@@ -31,6 +31,7 @@ import { Link, useParams } from "react-router-dom";
 import useModal from "@/hooks/useModal";
 import useStore from "@/hooks/useStore";
 import useModule from "@/hooks/useModule";
+import usePermission from "@/hooks/usePermission";
 import useObjectState from "@/hooks/useObjectState";
 
 // Helpers
@@ -120,13 +121,22 @@ const Content = ({
   ...rest
 }) => {
   const { testId } = useParams();
+  const { checkPermission } = usePermission();
   const { openModal } = useModal("createLink");
 
+  // Permissions
+  const canEditTest = checkPermission("canEditTest");
+  const canDeleteTest = checkPermission("canDeleteTest");
+  const canCreateLink = checkPermission("canCreateLink");
+  const canCreateTemplate = checkPermission("canCreateTemplate");
+
   const openCreateTemplateModal = useCallback(() => {
+    if (!canCreateTemplate) return;
     openModal({ testId }, "createTemplate");
   }, [testId]);
 
   const openEditTestModal = useCallback(() => {
+    if (!canEditTest) return;
     openModal({ testId, description, title }, "editTest");
   }, [testId, description, title]);
 
@@ -160,8 +170,9 @@ const Content = ({
       <div className="flex items-center justify-end gap-5">
         {/* Open edit test modal button */}
         <button
+          disabled={!canEditTest}
           onClick={openEditTestModal}
-          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
+          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
         >
           <Edit size={20} strokeWidth={1.5} />
           Tahrirlash
@@ -181,6 +192,7 @@ const Content = ({
         {/* Open create template modal button */}
         {!isTemplate && (
           <button
+            disabled={!canCreateTemplate}
             onClick={openCreateTemplateModal}
             className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
           >
@@ -191,19 +203,21 @@ const Content = ({
 
         {/* Open create link modal button */}
         <button
+          disabled={!canCreateLink}
           onClick={() => openModal({ testId })}
-          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
+          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
         >
           <LinkIcon size={20} strokeWidth={1.5} />
           Taklif havolasini yaratish
         </button>
 
-        {/* Open create link modal button */}
+        {/* Open delete test modal button */}
         <button
           title="Testni o'chirish"
+          disabled={!canDeleteTest}
           aria-label="Testni o'chirish"
           onClick={() => openModal({ testId }, "deleteTest")}
-          className="btn size-11 bg-red-50 p-0 rounded-full text-red-500 hover:bg-red-100"
+          className="btn size-11 bg-red-50 p-0 rounded-full text-red-500 hover:bg-red-100 disabled:opacity-50 disabled:hover:bg-red-50"
         >
           <Trash size={20} strokeWidth={1.5} />
         </button>
