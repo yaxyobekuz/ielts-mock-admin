@@ -10,7 +10,14 @@ import { Link } from "react-router-dom";
 // Icons
 import { SaveAll, Verified } from "lucide-react";
 
-const TemplateItem = ({ title, _id: id, description, banner, isVerified }) => {
+const TemplateItem = ({
+  title,
+  _id: id,
+  banner,
+  isVerified,
+  description,
+  canUseTemplate,
+}) => {
   const { openModal } = useModal("useTemplate");
 
   const bannerStyles = useMemo(() => {
@@ -47,14 +54,15 @@ const TemplateItem = ({ title, _id: id, description, banner, isVerified }) => {
 
         {/* Use template */}
         <button
+          disabled={!canUseTemplate}
           title="Shablondan nusxa ko'chirish"
           aria-label="Shablondan nusxa ko'chirish"
           onClick={() => openModal({ templateId: id })}
           className={`${
             banner
-              ? "bg-black/20 text-white hover:bg-black/50"
-              : "bg-blue-500/20 text-blue-600 hover:bg-blue-500/30"
-          } z-10 btn gap-1.5 size-10 p-0 rounded-full backdrop-blur-sm ml-auto`}
+              ? "bg-black/20 text-white hover:bg-black/50 disabled:hover:bg-black/20"
+              : "bg-blue-500/20 text-blue-600 hover:bg-blue-500/30 disabled:hover:bg-blue-500/20"
+          } z-10 btn gap-1.5 size-10 p-0 rounded-full backdrop-blur-sm ml-auto disabled:opacity-50`}
         >
           <SaveAll size={18} strokeWidth={1.5} />
         </button>

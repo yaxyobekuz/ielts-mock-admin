@@ -4,12 +4,13 @@ import { useEffect } from "react";
 // Router
 import { Link } from "react-router-dom";
 
+// Api
+import { testsApi } from "@/api/tests.api";
+
 // Hooks
 import useStore from "@/hooks/useStore";
 import useModal from "@/hooks/useModal";
-
-// Api
-import { testsApi } from "@/api/tests.api";
+import usePermission from "@/hooks/usePermission";
 
 // Components
 import Button from "@/components/form/Button";
@@ -147,8 +148,11 @@ const Profile = ({ user }) => {
 const Tests = ({ user }) => {
   const isTeacher = user.role === "teacher";
   const { openModal } = useModal("createTest");
+  const { checkPermission } = usePermission("teacher", user);
   const { getData, updateProperty } = useStore("latestTests");
+
   const { isLoading, hasError, data: tests } = getData();
+  const canCreateTest = checkPermission("canCreateTest") && isTeacher;
 
   const loadTests = () => {
     updateProperty("hasError");
@@ -250,7 +254,7 @@ const Tests = ({ user }) => {
 
         {/* Create new */}
         <Button
-          disabled={!isTeacher}
+          disabled={!canCreateTest}
           onClick={() => openModal()}
           className="h-9 !p-0 mt-auto !rounded-full"
         >

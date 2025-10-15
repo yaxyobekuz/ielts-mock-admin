@@ -16,6 +16,7 @@ import { templatesApi } from "@/api/templates.api";
 // Hooks
 import useModal from "@/hooks/useModal";
 import useStore from "@/hooks/useStore";
+import usePermission from "@/hooks/usePermission";
 import useObjectState from "@/hooks/useObjectState";
 
 // Components
@@ -28,6 +29,10 @@ const Template = () => {
   const { templateId } = useParams();
   const { getProperty, updateProperty } = useStore("template");
   const template = getProperty(templateId);
+
+  // Permissions
+  const { checkPermission } = usePermission();
+  const canUseTemplate = checkPermission("canUseTemplate");
 
   const { setField, isLoading, hasError } = useObjectState({
     hasError: false,
@@ -57,7 +62,12 @@ const Template = () => {
 
   return (
     <div className="container py-8 space-y-6">
-      <Content isLoading={isLoading} hasError={hasError} {...template} />
+      <Content
+        {...template}
+        hasError={hasError}
+        isLoading={isLoading}
+        canUseTemplate={canUseTemplate}
+      />
     </div>
   );
 };
@@ -69,13 +79,14 @@ const Content = ({
   createdAt,
   isLoading,
   description,
+  canUseTemplate,
   extraTemplates,
 }) => {
-  if (isLoading) return <LoadingContent />;
-  if (hasError) return <ErrorContent />;
-
   const { templateId } = useParams();
   const { openModal } = useModal("useTemplate");
+
+  if (isLoading) return <LoadingContent />;
+  if (hasError) return <ErrorContent />;
 
   return (
     <>
@@ -96,8 +107,9 @@ const Content = ({
       {/* Action buttons */}
       <div className="flex items-center justify-end gap-5">
         <button
-          onClick={() => openModal({ templateId })}
-          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
+          disabled={!canUseTemplate}
+          onClick={() => canUseTemplate && openModal({ templateId })}
+          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
         >
           Shablondan nusxa ko'chirish
         </button>
@@ -126,7 +138,11 @@ const Content = ({
         <section className="w-[345px] shrink-0 space-y-5">
           <h2 className="text-xl font-medium">Boshqa shablonlar</h2>
           {extraTemplates?.map((template) => (
-            <TemplateItem key={template._id} {...template} />
+            <TemplateItem
+              {...template}
+              key={template._id}
+              canUseTemplate={canUseTemplate}
+            />
           ))}
         </section>
       </div>

@@ -1,8 +1,9 @@
-// Hooks
-import useStore from "@/hooks/useStore";
-
 // React
 import { useEffect } from "react";
+
+// Hooks
+import useStore from "@/hooks/useStore";
+import usePermission from "@/hooks/usePermission";
 
 // Templates api
 import { templatesApi } from "@/api/templates.api";
@@ -40,13 +41,21 @@ const Templates = () => {
 
       {/* Main */}
       <main className="grid grid-cols-4 gap-5">
-        <Main isLoading={isLoading} hasError={hasError} templates={templates} />
+        <MainContent
+          hasError={hasError}
+          isLoading={isLoading}
+          templates={templates}
+        />
       </main>
     </div>
   );
 };
 
-const Main = ({ isLoading, hasError, templates = [] }) => {
+const MainContent = ({ isLoading, hasError, templates = [] }) => {
+  // Permissions
+  const { checkPermission } = usePermission();
+  const canUseTemplate = checkPermission("canUseTemplate");
+
   if (isLoading) {
     return Array.from({ length: 8 }, (_, index) => {
       return <TemplateItemSkeleton key={index} />;
@@ -58,7 +67,11 @@ const Main = ({ isLoading, hasError, templates = [] }) => {
   }
 
   return templates.map((template) => (
-    <TemplateItem key={template?._id} {...template} />
+    <TemplateItem
+      {...template}
+      key={template?._id}
+      canUseTemplate={canUseTemplate}
+    />
   ));
 };
 

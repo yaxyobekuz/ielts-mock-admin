@@ -34,11 +34,16 @@ import { submissionsApi } from "@/api/submissions.api";
 
 // Helpers
 import { formatDate, formatTime, getIeltsScore } from "@/lib/helpers";
+import usePermission from "@/hooks/usePermission";
 
 const Submission = () => {
   const { submissionId } = useParams();
   const { getProperty, updateProperty } = useStore("submission");
   const submission = getProperty(submissionId);
+
+  // Permissions
+  const { checkPermission } = usePermission();
+  const canCreateResult = checkPermission("canCreateResult");
 
   const { setField, isLoading, hasError } = useObjectState({
     hasError: false,
@@ -69,10 +74,10 @@ const Submission = () => {
   // Content
   if (isLoading) return <LoadingContent />;
   if (hasError) return <ErrorContent />;
-  return <Main {...submission} />;
+  return <MainContent {...submission} canCreateResult={canCreateResult} />;
 };
 
-const Main = ({
+const MainContent = ({
   test,
   link,
   result,
@@ -83,6 +88,7 @@ const Main = ({
   isScored,
   finishedAt,
   correctAnswers,
+  canCreateResult,
 }) => {
   const { module = "listening" } = useParams();
   const { openModal } = useModal("createResult");
@@ -172,8 +178,9 @@ const Main = ({
           {/* Evaluate */}
           {!isScored && !result && (
             <button
+              disabled={!canCreateResult}
               onClick={() => openModal({ submissionId: id })}
-              className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
+              className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
             >
               <Star size={20} strokeWidth={1.5} />
               <span>Baholash</span>
