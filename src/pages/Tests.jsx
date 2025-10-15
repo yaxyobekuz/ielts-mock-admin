@@ -96,12 +96,11 @@ const AddNew = () => {
   const { openModal } = useModal("createTest");
 
   const user = getData()?.data || {};
-  const isTeacher = user.role === "teacher";
+  if (user.role !== "teacher") return null;
 
   return (
     <Button
       variant="danger"
-      disabled={!isTeacher}
       onClick={() => openModal()}
       className="relative group gap-3.5 min-h-[200px] !rounded-3xl"
     >
