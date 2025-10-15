@@ -17,6 +17,7 @@ import questionsType from "@/data/questionsType";
 
 // Hooks
 import useModule from "@/hooks/useModule";
+import usePermission from "@/hooks/usePermission";
 import useObjectState from "@/hooks/useObjectState";
 import usePathSegments from "@/hooks/usePathSegments";
 
@@ -35,6 +36,10 @@ const TestLayout = () => {
   const { testId, partNumber } = useParams();
   const { pathSegments } = usePathSegments();
   const module = pathSegments[3];
+
+  // Permissions
+  const { checkPermission } = usePermission();
+  const canEditTest = checkPermission("canEditTest");
 
   const { getModuleData, addPart, addSection, setModule } = useModule(
     module,
@@ -87,6 +92,7 @@ const TestLayout = () => {
           module={module}
           testId={testId}
           partId={part?._id}
+          canAdd={canEditTest}
           addSection={addSection}
         />
       </main>
@@ -99,6 +105,7 @@ const TestLayout = () => {
         testId={testId}
         module={module}
         addPart={addPart}
+        canAdd={canEditTest}
       />
     </>
   );
@@ -130,7 +137,7 @@ const ModulesNavbar = ({ testId }) => {
   );
 };
 
-const PartsNavbar = ({ testId, module, parts, addPart }) => (
+const PartsNavbar = ({ testId, module, parts, addPart, canAdd }) => (
   <div className="fixed z-20 bottom-0 inset-x-0 container h-14 bg-white">
     <div className="flex items-center gap-3.5 size-full">
       <Nav
@@ -147,6 +154,7 @@ const PartsNavbar = ({ testId, module, parts, addPart }) => (
       <AddPartButton
         testId={testId}
         module={module}
+        canAdd={canAdd}
         addPart={addPart}
         totalParts={parts?.length || 0}
       />
@@ -154,8 +162,8 @@ const PartsNavbar = ({ testId, module, parts, addPart }) => (
   </div>
 );
 
-const AddPartButton = ({ totalParts, addPart, module, testId }) => {
-  if (totalParts > 6 || module === "writing") return;
+const AddPartButton = ({ totalParts, addPart, module, testId, canAdd }) => {
+  if (totalParts > 6 || module === "writing" || !canAdd) return;
   const { isLoading, setField } = useObjectState({ isLoading: false });
 
   const handleAddPart = () => {
@@ -188,8 +196,8 @@ const AddPartButton = ({ totalParts, addPart, module, testId }) => {
   );
 };
 
-const AddSectionBlock = ({ addSection, module, testId, partId }) => {
-  if (module === "writing") return;
+const AddSectionBlock = ({ addSection, module, testId, partId, canAdd }) => {
+  if (module === "writing" || !canAdd) return;
 
   const { activeQuestion, isLoading, setField } = useObjectState({
     isLoading: false,

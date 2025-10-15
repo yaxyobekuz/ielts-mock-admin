@@ -106,16 +106,18 @@ const Reading = () => {
           </div>
 
           {/* Edit module */}
-          <Link
-            to={`/tests/${testId}/edit/${module}`}
-            className="group btn size-20 aspect-square bg-gray-100 rounded-xl border border-gray-200 hover:bg-gray-200 hover:text-blue-500"
-          >
-            <Settings
-              size={24}
-              strokeWidth={1.5}
-              className="transition-all duration-200 group-hover:rotate-[360deg]"
-            />
-          </Link>
+          {canEditTest && (
+            <Link
+              to={`/tests/${testId}/edit/${module}`}
+              className="group btn size-20 aspect-square bg-gray-100 rounded-xl border border-gray-200 hover:bg-gray-200 hover:text-blue-500"
+            >
+              <Settings
+                size={24}
+                strokeWidth={1.5}
+                className="transition-all duration-200 group-hover:rotate-[360deg]"
+              />
+            </Link>
+          )}
         </div>
 
         {/* Main */}
