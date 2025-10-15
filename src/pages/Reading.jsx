@@ -4,15 +4,16 @@ import { useMemo } from "react";
 // Components
 import Icon from "../components/Icon";
 
-// Hooks
-import useModal from "@/hooks/useModal";
-import useModule from "../hooks/useModule";
-
 // Icons
 import penIcon from "../assets/icons/pen.svg";
 
 // Icons
 import { Settings, Trash } from "lucide-react";
+
+// Hooks
+import useModal from "@/hooks/useModal";
+import useModule from "../hooks/useModule";
+import usePermission from "@/hooks/usePermission";
 
 // Router
 import { Link, useParams } from "react-router-dom";
@@ -38,6 +39,10 @@ const Reading = () => {
   const { getModuleData } = useModule(module, testId);
   const { parts, duration } = getModuleData();
 
+  // Permissions
+  const { checkPermission } = usePermission();
+  const canEditTest = checkPermission("canEditTest");
+
   // Calculate current part and cumulative question count
   const { currentPart, cumulativeQuestions } = useMemo(() => {
     const partNum = parseInt(partNumber);
@@ -54,7 +59,9 @@ const Reading = () => {
 
   const { sections, text } = currentPart || {};
 
+  // Delete part modal handler
   const handleOpenModal = () => {
+    if (!canEditTest) return;
     openModal({ testId, module, partNumber, partId: currentPart._id });
   };
 
@@ -88,6 +95,7 @@ const Reading = () => {
               <Button
                 variant="danger"
                 className="size-9 !p-0"
+                disabled={!canEditTest}
                 onClick={handleOpenModal}
                 title={`Part ${partNumber}ni o'chirish`}
                 aria-label={`Part ${partNumber}ni o'chirish`}
@@ -116,6 +124,7 @@ const Reading = () => {
           <div className="w-full bg-gray-50 p-5 rounded-xl border">
             {/* Edit button */}
             <EditButton
+              disabled={!canEditTest}
               className="max-w-max ml-auto"
               to={`/tests/${testId}/edit/${module}/${partNumber}/part-text`}
             />
@@ -136,6 +145,7 @@ const Reading = () => {
                   module={module}
                   testId={testId}
                   section={section}
+                  canEdit={canEditTest}
                   partNumber={partNumber}
                   key={`${section.questionType}-${index}`}
                   initialQuestionNumber={
@@ -156,6 +166,7 @@ const Section = ({
   testId,
   module,
   section,
+  canEdit,
   partNumber,
   initialQuestionNumber,
 }) => {
@@ -185,16 +196,19 @@ const Section = ({
         <div className="flex gap-3.5">
           {/* Edit button */}
           <EditButton
+            disabled={!canEdit}
             to={`/tests/${testId}/edit/${module}/${partNumber}/${type}/${index}`}
           />
 
           {/* Delete section */}
           <Button
             variant="danger"
+            disabled={!canEdit}
             className="size-9 !p-0"
             title="Bo'limni o'chirish"
             aria-label="Bo'limni o'chirish"
             onClick={() =>
+              canEdit &&
               openModal({ partNumber, testId, sectionId: _id, module })
             }
           >
@@ -215,14 +229,19 @@ const Section = ({
   );
 };
 
-const EditButton = ({ to, className = "" }) => (
-  <Link
-    to={to}
-    className={`${className} flex items-center justify-center gap-3.5 h-9 px-5 bg-blue-500 rounded-md text-white`}
-  >
-    <span>Tahrirlash</span>
-    <Icon size={20} src={penIcon} alt="Pen" className="size-5" />
-  </Link>
-);
+export const EditButton = ({ to, className = "", disabled }) => {
+  const Tag = disabled ? "p" : Link;
+  return (
+    <Tag
+      to={disabled ? undefined : to}
+      className={`${className} ${
+        disabled ? "opacity-50" : ""
+      } flex items-center justify-center gap-3.5 h-9 px-5 bg-blue-500 rounded-md text-white`}
+    >
+      <span>Tahrirlash</span>
+      <Icon size={20} src={penIcon} alt="Pen" className="size-5" />
+    </Tag>
+  );
+};
 
 export default Reading;

@@ -1,18 +1,13 @@
 // React
 import { useMemo } from "react";
 
-// Components
-import Icon from "../components/Icon";
+// Icons
+import { Settings, Trash } from "lucide-react";
 
 // Hooks
 import useModal from "@/hooks/useModal";
 import useModule from "../hooks/useModule";
-
-// Icons
-import penIcon from "../assets/icons/pen.svg";
-
-// Icons
-import { Settings, Trash } from "lucide-react";
+import usePermission from "@/hooks/usePermission";
 
 // Router
 import { Link, useParams } from "react-router-dom";
@@ -22,6 +17,7 @@ import questionsType from "../data/questionsType";
 import usePathSegments from "../hooks/usePathSegments";
 
 // Components
+import { EditButton } from "./Reading";
 import Button from "@/components/form/Button";
 import RichTextPreviewer from "@/components/RichTextPreviewer";
 
@@ -36,6 +32,10 @@ const Listening = () => {
 
   const { getModuleData } = useModule(module, testId);
   const { parts, duration } = getModuleData();
+
+  // Permissions
+  const { checkPermission } = usePermission();
+  const canEditTest = checkPermission("canEditTest");
 
   // Calculate current part and cumulative question count
   const { currentPart, cumulativeQuestions } = useMemo(() => {
@@ -53,7 +53,9 @@ const Listening = () => {
 
   const { sections } = currentPart || {};
 
+  // Open delete part modal handler
   const handleOpenModal = () => {
+    if (!canEditTest) return;
     openModal({ testId, module, partNumber, partId: currentPart._id });
   };
 
@@ -71,66 +73,66 @@ const Listening = () => {
   }
 
   return (
-    <div className="container">
-      <div className="pt-5">
-        <div className="flex gap-5 mb-5">
-          {/* Part header */}
-          <div className="flex items-center justify-between w-full h-20 bg-gray-100 py-3 px-4 rounded-xl border border-gray-200">
-            <div>
-              <h1 className="mb-1 text-base font-bold">Part {partNumber}</h1>
-              <p>Listen and answer questions</p>
-            </div>
-
-            <div className="flex items-center gap-3.5">
-              <p className="text-gray-500">{duration} minutes</p>
-
-              <Button
-                variant="danger"
-                className="size-9 !p-0"
-                onClick={handleOpenModal}
-                title={`Part ${partNumber}ni o'chirish`}
-                aria-label={`Part ${partNumber}ni o'chirish`}
-              >
-                <Trash size={20} />
-              </Button>
-            </div>
+    <div className="container pt-5">
+      <div className="flex gap-5 mb-5">
+        {/* Part header */}
+        <div className="flex items-center justify-between w-full h-20 bg-gray-100 py-3 px-4 rounded-xl border border-gray-200">
+          <div>
+            <h1 className="mb-1 text-base font-bold">Part {partNumber}</h1>
+            <p>Listen and answer questions</p>
           </div>
 
-          {/* Edit module */}
-          <Link
-            to={`/tests/${testId}/edit/${module}`}
-            className="group btn size-20 aspect-square bg-gray-100 rounded-xl border border-gray-200 hover:bg-gray-200 hover:text-blue-500"
-          >
-            <Settings
-              size={24}
-              strokeWidth={1.5}
-              className="transition-all duration-200 group-hover:rotate-[360deg]"
+          <div className="flex items-center gap-3.5">
+            <p className="text-gray-500">{duration} minutes</p>
+
+            <Button
+              variant="danger"
+              className="size-9 !p-0"
+              disabled={!canEditTest}
+              onClick={handleOpenModal}
+              title={`Part ${partNumber}ni o'chirish`}
+              aria-label={`Part ${partNumber}ni o'chirish`}
+            >
+              <Trash size={20} />
+            </Button>
+          </div>
+        </div>
+
+        {/* Edit module */}
+        <Link
+          to={`/tests/${testId}/edit/${module}`}
+          className="group btn size-20 aspect-square bg-gray-100 rounded-xl border border-gray-200 hover:bg-gray-200 hover:text-blue-500"
+        >
+          <Settings
+            size={24}
+            strokeWidth={1.5}
+            className="transition-all duration-200 group-hover:rotate-[360deg]"
+          />
+        </Link>
+      </div>
+
+      {/* Sections content */}
+      <div className="w-full">
+        {sections?.map((section, index) => {
+          const prevSectionsTotalQuestions = sections
+            .slice(0, index)
+            .reduce((acc, sec) => acc + sec.questionsCount, 0);
+
+          return (
+            <Section
+              index={index}
+              module={module}
+              testId={testId}
+              section={section}
+              canEdit={canEditTest}
+              partNumber={partNumber}
+              key={`${section.questionType}-${index}`}
+              initialQuestionNumber={
+                prevSectionsTotalQuestions + cumulativeQuestions + 1
+              }
             />
-          </Link>
-        </div>
-
-        {/* Sections content */}
-        <div className="w-full">
-          {sections?.map((section, index) => {
-            const prevSectionsTotalQuestions = sections
-              .slice(0, index)
-              .reduce((acc, sec) => acc + sec.questionsCount, 0);
-
-            return (
-              <Section
-                index={index}
-                module={module}
-                testId={testId}
-                section={section}
-                partNumber={partNumber}
-                key={`${section.questionType}-${index}`}
-                initialQuestionNumber={
-                  prevSectionsTotalQuestions + cumulativeQuestions + 1
-                }
-              />
-            );
-          })}
-        </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -142,6 +144,7 @@ const Section = ({
   testId,
   module,
   section,
+  canEdit,
   partNumber,
   initialQuestionNumber,
 }) => {
@@ -170,21 +173,20 @@ const Section = ({
         {/* Action buttons */}
         <div className="flex gap-3.5">
           {/* Edit button */}
-          <Link
+          <EditButton
+            disabled={!canEdit}
             to={`/tests/${testId}/edit/${module}/${partNumber}/${type}/${index}`}
-            className="flex items-center justify-center gap-3.5 h-9 px-5 bg-blue-500 rounded-md text-white"
-          >
-            <span>Tahrirlash</span>
-            <Icon size={20} src={penIcon} alt="Pen" className="size-5" />
-          </Link>
+          />
 
           {/* Delete section */}
           <Button
             variant="danger"
+            disabled={!canEdit}
             className="size-9 !p-0"
             title="Bo'limni o'chirish"
             aria-label="Bo'limni o'chirish"
             onClick={() =>
+              canEdit &&
               openModal({ partNumber, testId, sectionId: _id, module })
             }
           >
