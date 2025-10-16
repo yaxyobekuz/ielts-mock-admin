@@ -58,7 +58,7 @@ const RegisterContent = ({ next }) => {
     const formattedPassword = password?.trim() || "";
     const formattedPhone = extractNumbers(phone)?.trim() || "";
 
-    if (firstName.trim().length === 0) {
+    if (!firstName?.trim().length) {
       return toast.error("Ismingizni kiriting");
     }
 
@@ -178,14 +178,21 @@ const VerifyCodeContent = ({ phone, password, createdAt, onBack }) => {
     e.preventDefault();
     if (isLoading) return;
 
-    if (String(code)?.trim()?.length !== 4) {
+    const formattedCode = extractNumbers(code)?.trim() || "";
+    const formattedPhone = extractNumbers(phone)?.trim() || "";
+
+    if (formattedPhone.length !== 12) {
+      return toast.error("Telefon raqam noto'g'ri");
+    }
+
+    if (formattedCode.trim()?.length !== 4) {
       return toast.error("Kod to'g'ri kiritilmadi");
     }
 
     setField("isLoading", true);
 
     authApi
-      .verify({ phone, code, password })
+      .verify({ phone: formattedPhone, code: formattedCode, password })
       .then(({ token, message }) => {
         // Save token to localstorage
         const auth = JSON.stringify({ token, createdAt: Date.now });
@@ -203,11 +210,16 @@ const VerifyCodeContent = ({ phone, password, createdAt, onBack }) => {
 
   const handleResendCode = () => {
     if (isResending || !canResend) return;
+    const formattedPhone = extractNumbers(phone)?.trim() || "";
+
+    if (formattedPhone.length !== 12) {
+      return toast.error("Telefon raqam noto'g'ri");
+    }
 
     setField("isResending", true);
 
     authApi
-      .resendCode({ phone })
+      .resendCode({ phone: formattedPhone })
       .then(({ message, createdAt }) => {
         toast.success(message || "Kod qayta yuborildi");
         const remainingSeconds = getRemainingSeconds(createdAt);
