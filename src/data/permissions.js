@@ -22,6 +22,16 @@ const permissions = {
     groupColor: "bg-orange-500",
     methodColor: "bg-emerald-500",
   },
+  canEditLink: {
+    name: "Havolani tahrirlash",
+    groupColor: "bg-orange-500",
+    methodColor: "bg-amber-500",
+  },
+  canDeleteLink: {
+    name: "Havolani o'chirish",
+    groupColor: "bg-orange-500",
+    methodColor: "bg-rose-500",
+  },
 
   // Result
   canCreateResult: {
