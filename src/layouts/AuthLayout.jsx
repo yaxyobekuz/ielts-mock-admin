@@ -56,7 +56,7 @@ const UnauthenticatedContent = () => {
           <h1 className="mb-3 text-2xl font-semibold">
             {isLogin ? (
               <div className="animate__animated animate__fadeIn">
-                Qaytganingiz bilan
+                Hisobga kirish
               </div>
             ) : (
               <span className="inline-block animate__animated animate__fadeIn">
