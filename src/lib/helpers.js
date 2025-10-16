@@ -188,3 +188,11 @@ export const getIeltsScore = (correctAnswers = 0, module = "listening") => {
 export const appendDotZero = (value) => {
   return String(value)?.padEnd(3, ".0");
 };
+
+export const getRemainingSeconds = (createdAt, duration = 60) => {
+  const now = Date.now();
+  const createdTime = new Date(createdAt).getTime();
+  const elapsedSeconds = Math.floor((now - createdTime) / 1000);
+  const remainingSeconds = Math.max(0, duration - elapsedSeconds);
+  return remainingSeconds;
+};
