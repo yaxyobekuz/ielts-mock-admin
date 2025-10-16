@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 // Initial state
 const initialState = {
+  link: {},
   test: {},
   stats: {},
   coords: {},
@@ -10,9 +11,10 @@ const initialState = {
   pdfFile: {},
   template: {},
   submission: {},
-  link: { hasError: false, isLoading: true },
+  testLinks: { hasError: false, isLoading: true },
   user: { data: {}, hasError: false, isLoading: true },
   tests: { data: [], hasError: false, isLoading: true },
+  links: { data: [], hasError: false, isLoading: true },
   results: { data: [], hasError: false, isLoading: true },
   teachers: { data: [], hasError: false, isLoading: true },
   templates: { data: [], hasError: false, isLoading: true },
