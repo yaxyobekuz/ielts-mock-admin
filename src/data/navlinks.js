@@ -27,7 +27,7 @@ const navlinks = [
   {
     label: "Havolalar",
     link: "links",
-    allowed: ["", ""],
+    allowed: ["supervisor", "teacher"],
   },
   {
     label: "Ta'riflar",
