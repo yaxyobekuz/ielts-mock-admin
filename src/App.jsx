@@ -14,6 +14,8 @@ import { Toaster } from "react-hot-toast";
 // Others Pages
 import Test from "./pages/Test";
 import Home from "./pages/Home";
+import Link from "./pages/Link";
+import Links from "./pages/Links";
 import Tests from "./pages/Tests";
 import Login from "./pages/Login";
 import Tools from "./pages/Tools";
@@ -136,6 +138,12 @@ const App = () => {
           <Route path="tools" element={<Outlet />}>
             <Route index element={<Tools />} />
             <Route path="pdf-viewer" element={<PdfViewer />} />
+          </Route>
+
+          {/* Links */}
+          <Route path="links" element={<Outlet />}>
+            <Route index element={<Links />} />
+            <Route path=":linkId" element={<Link />} />
           </Route>
 
           {/* Stats */}
