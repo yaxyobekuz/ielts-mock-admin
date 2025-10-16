@@ -83,7 +83,7 @@ const CreateLinkModal = () => {
 };
 
 const Body = ({ close, testId }) => {
-  const { getProperty, updateProperty } = useStore("link");
+  const { getProperty, updateProperty } = useStore("testLinks");
   const links = getProperty(testId);
   const { setField, maxUses, title } = useObjectState({
     title: "",
@@ -150,9 +150,9 @@ const Body = ({ close, testId }) => {
       <div className="flex justify-end gap-5 w-full">
         <Button
           type="button"
-          onClick={()=> close()}
           className="w-32"
           variant="neutral"
+          onClick={() => close()}
         >
           Bekor qilish
         </Button>

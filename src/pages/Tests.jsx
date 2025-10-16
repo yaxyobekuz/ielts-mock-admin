@@ -162,7 +162,7 @@ const TestItem = ({
         {/* Title */}
         <h3 className="line-clamp-1 text-xl font-medium capitalize">{title}</h3>
 
-        {/* Pin toogle */}
+        {/* Menu */}
         <Dropdown
           title="Sozlamalar"
           aria-label="Sozlamalar"

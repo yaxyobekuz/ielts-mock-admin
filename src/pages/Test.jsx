@@ -311,7 +311,7 @@ const ErrorContent = () => {
 
 const Links = ({ testId }) => {
   const siteUrl = import.meta.env.VITE_SITE_URL;
-  const { getProperty, updateProperty } = useStore("link");
+  const { getProperty, updateProperty } = useStore("testLinks");
   const links = getProperty(testId);
   const { setField, isLoading, hasError } = useObjectState({
     hasError: false,
@@ -393,7 +393,7 @@ const Links = ({ testId }) => {
                 </div>
 
                 {/* Button */}
-                <button className="block absolute z-0 inset-0 size-full -outline-offset-1 rounded-full" />
+                <Link to={`/links/${id}`} className="block absolute z-0 inset-0 size-full -outline-offset-1 rounded-full" />
               </li>
             ))
           : null}
