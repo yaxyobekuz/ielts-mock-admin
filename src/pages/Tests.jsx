@@ -221,13 +221,18 @@ const TestItem = ({
             <span>Holati: </span>
 
             {/* Is copied */}
+            {!isCopied && !isTemplate && !isTemplated && (
+              <span className="text-gray-500">Odatiy</span>
+            )}
+
+            {/* Is copied */}
             {isCopied && (
-              <span className="text-yellow-600">Nusxa ko'chirilgan </span>
+              <span className="text-yellow-600">Nusxa ko'chirilgan</span>
             )}
 
             {/* Is template */}
             {isTemplate && (
-              <span className="text-blue-600">Shablon sifatida saqlangan </span>
+              <span className="text-blue-600">Shablon sifatida saqlangan</span>
             )}
 
             {/* Is templated */}

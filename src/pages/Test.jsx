@@ -227,7 +227,10 @@ const Content = ({
         {/* Modules */}
         <ul className="grid grid-cols-3 gap-5 col-span-3">
           {modules.map(({ image, title, link }, index) => {
+            const updatedAt =
+              rest[title?.toLowerCase()]?.updatedAt || createdAt;
             const partsCount = rest[title?.toLowerCase()]?.partsCount || 0;
+
             return (
               <li
                 key={index}
@@ -261,7 +264,8 @@ const Content = ({
                       className="flex items-center gap-1.5 text-gray-200"
                     >
                       <RefreshCcw strokeWidth={1.5} size={18} />
-                      <span>{formatDate(new Date())}</span>
+                      <span>{formatDate(updatedAt)}</span>
+                      <span>{formatTime(updatedAt)}</span>
                     </div>
                   </div>
                 </div>
