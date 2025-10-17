@@ -13,6 +13,11 @@ import { useNavigate } from "react-router-dom";
 // Components
 import ResponsiveModal from "../ResponsiveModal";
 
+// Hooks
+import useArrayStore from "@/hooks/useArrayStore";
+import useObjectStore from "@/hooks/useObjectStore";
+import usePathSegments from "@/hooks/usePathSegments";
+
 const DeleteLinkModal = () => (
   <ResponsiveModal
     name="deleteLink"
@@ -25,6 +30,10 @@ const DeleteLinkModal = () => (
 
 const Content = ({ close, isLoading, setIsLoading, linkId }) => {
   const navigate = useNavigate();
+  const { pathSegments } = usePathSegments();
+  const { deleteEntity } = useObjectStore("links");
+  const { invalidateCache } = useArrayStore("links");
+  const { deleteItemFromEntityArray } = useObjectStore("testLinks");
 
   const handleDelete = (e) => {
     e.preventDefault();
@@ -35,12 +44,19 @@ const Content = ({ close, isLoading, setIsLoading, linkId }) => {
 
     linksApi
       .delete(linkId)
-      .then(({ code, message }) => {
+      .then(({ code, message, link }) => {
         if (code !== "linkDeleted") throw new Error();
 
         success = true;
-        navigate(`/links`);
+        invalidateCache();
+        deleteEntity(linkId);
         toast.success(message || "Havola o'chirildi");
+        deleteItemFromEntityArray(link.testId, linkId);
+
+        // Navigate to links page if on link page
+        if (pathSegments[0] === "links" && pathSegments[1]) {
+          navigate(`/links`);
+        }
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {
@@ -61,7 +77,6 @@ const Content = ({ close, isLoading, setIsLoading, linkId }) => {
       </Button>
 
       <Button
-        type="submit"
         variant="danger"
         className="w-32"
         disabled={isLoading}

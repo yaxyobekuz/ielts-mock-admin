@@ -1,3 +1,6 @@
+// UI components
+import { Switch } from "../ui/switch";
+
 // Api
 import { linksApi } from "@/api/links.api";
 
@@ -10,12 +13,12 @@ import { extractNumbers } from "@/lib/helpers";
 // Components
 import Input from "../form/Input";
 import Button from "../form/Button";
-import { Switch } from "../ui/switch";
 import ResponsiveModal from "../ResponsiveModal";
 
 // Hooks
-import useStore from "@/hooks/useStore";
+import useArrayStore from "@/hooks/useArrayStore";
 import useObjectState from "@/hooks/useObjectState";
+import useObjectStore from "@/hooks/useObjectStore";
 
 const CreateLinkModal = () => (
   <ResponsiveModal
@@ -28,8 +31,9 @@ const CreateLinkModal = () => (
 );
 
 const Content = ({ close, testId, isLoading, setIsLoading }) => {
-  const { getProperty, updateProperty } = useStore("testLinks");
-  const links = getProperty(testId);
+  const { invalidateCache } = useArrayStore("links");
+  const { addItemToEntityArray } = useObjectStore("testLinks");
+
   const { setField, maxUses, title, requireComment } = useObjectState({
     title: "",
     maxUses: 10,
@@ -61,8 +65,9 @@ const Content = ({ close, testId, isLoading, setIsLoading }) => {
         if (code !== "linkCreated") throw new Error();
 
         success = true;
+        invalidateCache();
+        addItemToEntityArray(testId, link);
         toast.success(message || "Havola yaratildi");
-        updateProperty(testId, [link, ...(links || [])]);
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {

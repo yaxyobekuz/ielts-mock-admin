@@ -16,7 +16,9 @@ import Button from "../form/Button";
 import ResponsiveModal from "../ResponsiveModal";
 
 // Hooks
+import useArrayStore from "@/hooks/useArrayStore";
 import useObjectState from "@/hooks/useObjectState";
+import useObjectStore from "@/hooks/useObjectStore";
 
 const EditLinkModal = () => (
   <ResponsiveModal
@@ -36,6 +38,9 @@ const Content = ({
   setIsLoading,
   ...rest
 }) => {
+  const { updateEntity } = useObjectStore("links");
+  const { updateItemById } = useArrayStore("links");
+  const { updateItemInEntityArray } = useObjectStore("testLinks");
   const { setField, maxUses, title, requireComment } = useObjectState(rest);
 
   const handleUpdateLink = (e) => {
@@ -57,13 +62,22 @@ const Content = ({
     let success = false;
     setIsLoading(true);
 
+    const updateData = {
+      maxUses,
+      requireComment,
+      title: title.trim(),
+    };
+
     linksApi
-      .update(linkId, { title: title.trim(), maxUses, testId, requireComment })
+      .update(linkId, { ...updateData, testId })
       .then(({ code, link, message }) => {
         if (code !== "linkUpdated") throw new Error();
 
         success = true;
+        updateEntity(linkId, updateData);
+        updateItemById(linkId, updateData);
         toast.success(message || "Havola yangilandi");
+        updateItemInEntityArray(link.testId, linkId, link);
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {
@@ -122,7 +136,7 @@ const Content = ({
           Bekor qilish
         </Button>
 
-        <Button disabled={isLoading} type="submit" className="w-32">
+        <Button disabled={isLoading} className="w-32">
           Yangilash
         </Button>
       </div>
