@@ -25,7 +25,7 @@ const ResponsiveModal = ({
   const { closeModal, isOpen, data } = useModal(name);
   const [isLoading, setIsLoading] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 640px)");
-  const hanldeCloseModal = () => !isLoading && closeModal();
+  const hanldeCloseModal = (data) => !isLoading && closeModal(data);
 
   const body = cloneElement(children, {
     isLoading,

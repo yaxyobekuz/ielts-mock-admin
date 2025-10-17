@@ -4,78 +4,33 @@ import { useMemo } from "react";
 // Api
 import { usersApi } from "@/api/users.api";
 
+// Toast
+import { toast } from "@/notification/toast";
+
 // Components
 import Input from "../form/Input";
 import Button from "../form/Button";
 import ProfilePhoto from "../ProfilePhoto";
-
-// Toast
-import { toast } from "@/notification/toast";
+import ResponsiveModal from "../ResponsiveModal";
 
 // Hooks
 import useModal from "@/hooks/useModal";
 import useStore from "@/hooks/useStore";
-import useMediaQuery from "@/hooks/useMediaQuery";
 import useObjectState from "@/hooks/useObjectState";
 
 // Icons
 import { Camera, ChevronLeft, Info, LogOut } from "lucide-react";
 
-// Ui components
-import {
-  Dialog,
-  DialogTitle,
-  DialogHeader,
-  DialogContent,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
-
 // Helpers
 import { formatDate, formatTime, formatUzPhone } from "@/lib/helpers";
 
-const ProfileModal = () => {
-  const { closeModal, isOpen, data } = useModal("profile");
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+const ProfileModal = () => (
+  <ResponsiveModal name="profile" title="Mening profilim">
+    <Content />
+  </ResponsiveModal>
+);
 
-  const content = {
-    title: "Mening profilim",
-    body: <Body close={closeModal} defaultOpenEditor={!!data?.openEditor} />,
-  };
-
-  if (isDesktop) {
-    return (
-      <Dialog open={!!isOpen} onOpenChange={closeModal}>
-        <DialogContent className="sm:max-w-[425px]">
-          {/* Header */}
-          <DialogHeader>
-            <DialogTitle>{content.title}</DialogTitle>
-          </DialogHeader>
-
-          {/* Body */}
-          {content.body}
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  return (
-    <Drawer open={!!isOpen} onOpenChange={closeModal}>
-      <DrawerContent className="px-5 pb-5">
-        {/* Header */}
-        <DialogHeader className="max-sm:pt-3.5">
-          <DialogTitle>{content.title}</DialogTitle>
-          <DialogDescription>{content.description}</DialogDescription>
-        </DialogHeader>
-
-        {/* Body */}
-        {content.body}
-      </DrawerContent>
-    </Drawer>
-  );
-};
-
-const Body = ({ close, defaultOpenEditor }) => {
+const Content = ({ close, defaultOpenEditor, isLoading, setIsLoading }) => {
   const { openModal } = useModal("updateAvatar");
   const { getProperty, updateProperty } = useStore("user");
   const {
@@ -87,11 +42,10 @@ const Body = ({ close, defaultOpenEditor }) => {
     firstName: initialFirstName,
   } = getProperty("data") || {};
 
-  const { setField, setFields, lastName, firstName, isLoading, isOpen, bio } =
+  const { setField, setFields, lastName, firstName, isOpen, bio } =
     useObjectState({
       phone,
       bio: initialBio,
-      isLoading: false,
       isOpen: defaultOpenEditor,
       lastName: initialLastName,
       firstName: initialFirstName,
@@ -108,7 +62,7 @@ const Body = ({ close, defaultOpenEditor }) => {
   const handleEditProfile = (e) => {
     e.preventDefault();
     if (isLoading || !isChanged) return;
-    setField("isLoading", true);
+    setIsLoading(true);
 
     const formData = {
       bio: bio?.trim(),
@@ -127,7 +81,7 @@ const Body = ({ close, defaultOpenEditor }) => {
         toast.success("Profil ma'lumotlari yangilandi");
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
-      .finally(() => setField("isLoading", false));
+      .finally(() => setIsLoading(false));
   };
 
   const handleOpenUpdateAvatarModal = () => {
@@ -190,7 +144,7 @@ const Body = ({ close, defaultOpenEditor }) => {
             name="bio"
             value={bio}
             label="Bio"
-            maxLength={32}
+            maxLength={144}
             type="textarea"
             placeholder="Biografiyangizni kiriting"
             onChange={(val) => setField("bio", val)}
@@ -200,18 +154,14 @@ const Body = ({ close, defaultOpenEditor }) => {
           <div className="flex justify-end gap-5 w-full">
             <Button
               type="button"
-              onClick={() => close()}
               className="w-32"
               variant="neutral"
+              onClick={() => close()}
             >
               Bekor qilish
             </Button>
 
-            <Button
-              type="submit"
-              className="w-32"
-              disabled={isLoading || !isChanged}
-            >
+            <Button className="w-32" disabled={isLoading || !isChanged}>
               Yangilash
             </Button>
           </div>
@@ -265,7 +215,7 @@ const Body = ({ close, defaultOpenEditor }) => {
           {bio && (
             <div className="space-y-0.5">
               <p className="break-words">{bio}</p>
-              <p className="text-sm text-gray-500">Bio</p>
+              <p className="text-sm text-gray-500">Biografiya</p>
             </div>
           )}
 
