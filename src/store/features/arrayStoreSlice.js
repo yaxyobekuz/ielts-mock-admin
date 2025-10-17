@@ -5,16 +5,26 @@ import { createSlice } from "@reduxjs/toolkit";
   {
     links: {
       pagination: true,
+      metadata: {
+        total: 100,
+        totalPages: 10,
+        currentPage: 1,
+        limit: 10,
+      },
       pages: {
         1: {
           data: [...items],
           error: null,
           isLoading: false,
+          hasNextPage: true,
+          hasPrevPage: false,
         },
         2: {
           data: [...items],
           error: null,
           isLoading: false,
+          hasNextPage: true,
+          hasPrevPage: true,
         }
       }
     },
@@ -49,6 +59,12 @@ export const arrayStoreSlice = createSlice({
       if (pagination) {
         state[collectionName] = {
           pagination: true,
+          metadata: {
+            total: 0,
+            totalPages: 0,
+            currentPage: 1,
+            limit: 10,
+          },
           pages: {},
         };
       } else {
@@ -117,7 +133,13 @@ export const arrayStoreSlice = createSlice({
 
     // Set page data for paginated collection
     setPageData: (state, action) => {
-      const { collectionName, page, data, error = null } = action.payload;
+      const {
+        collectionName,
+        page,
+        data,
+        error = null,
+        metadata = null,
+      } = action.payload;
 
       const collection = state[collectionName];
 
@@ -135,10 +157,22 @@ export const arrayStoreSlice = createSlice({
         return;
       }
 
+      // Update metadata if provided
+      if (metadata) {
+        collection.metadata = {
+          total: metadata.total || 0,
+          totalPages: metadata.totalPages || 0,
+          currentPage: metadata.page || page,
+          limit: metadata.limit || 10,
+        };
+      }
+
       collection.pages[page] = {
         data: Array.isArray(data) ? data : [],
         error,
         isLoading: false,
+        hasNextPage: metadata?.hasNextPage ?? true,
+        hasPrevPage: metadata?.hasPrevPage ?? page > 1,
       };
     },
 
@@ -277,9 +311,14 @@ export const arrayStoreSlice = createSlice({
       collection.pages[page].data.push(item);
     },
 
-    // Update item in non-paginated collection by index
+    // Update item in non-paginated collection by ID
     updateItemInCollection: (state, action) => {
-      const { collectionName, index, item } = action.payload;
+      const {
+        collectionName,
+        itemId,
+        itemData,
+        idField = "_id",
+      } = action.payload;
 
       const collection = state[collectionName];
 
@@ -292,24 +331,38 @@ export const arrayStoreSlice = createSlice({
 
       if (collection.pagination) {
         console.error(
-          `[ArrayStore] Collection "${collectionName}" is paginated`
+          `[ArrayStore] Collection "${collectionName}" is paginated, use updateItemInPage instead`
         );
         return;
       }
 
-      if (index < 0 || index >= collection.data.length) {
+      const itemIndex = collection.data.findIndex(
+        (item) => item[idField] === itemId
+      );
+
+      if (itemIndex === -1) {
         console.error(
-          `[ArrayStore] Index ${index} out of bounds in collection "${collectionName}"`
+          `[ArrayStore] Item with ${idField}="${itemId}" not found in collection "${collectionName}"`
         );
         return;
       }
 
-      collection.data[index] = item;
+      // Merge existing item with new data
+      collection.data[itemIndex] = {
+        ...collection.data[itemIndex],
+        ...itemData,
+      };
     },
 
-    // Update item in page by index
+    // Update item in page by ID
     updateItemInPage: (state, action) => {
-      const { collectionName, page, index, item } = action.payload;
+      const {
+        collectionName,
+        page,
+        itemId,
+        itemData,
+        idField = "_id",
+      } = action.payload;
 
       const collection = state[collectionName];
 
@@ -336,19 +389,83 @@ export const arrayStoreSlice = createSlice({
         return;
       }
 
-      if (index < 0 || index >= pageData.data.length) {
+      const itemIndex = pageData.data.findIndex(
+        (item) => item[idField] === itemId
+      );
+
+      if (itemIndex === -1) {
         console.error(
-          `[ArrayStore] Index ${index} out of bounds in page ${page} of collection "${collectionName}"`
+          `[ArrayStore] Item with ${idField}="${itemId}" not found in page ${page} of collection "${collectionName}"`
         );
         return;
       }
 
-      pageData.data[index] = item;
+      // Merge existing item with new data
+      pageData.data[itemIndex] = {
+        ...pageData.data[itemIndex],
+        ...itemData,
+      };
     },
 
-    // Remove item from non-paginated collection by index
+    // Update item by ID from all pages (searches through all pages)
+    updateItemByIdInPages: (state, action) => {
+      const {
+        collectionName,
+        itemId,
+        itemData,
+        idField = "_id",
+      } = action.payload;
+
+      const collection = state[collectionName];
+
+      if (!collection) {
+        console.error(
+          `[ArrayStore] Collection "${collectionName}" does not exist`
+        );
+        return;
+      }
+
+      if (!collection.pagination) {
+        console.error(
+          `[ArrayStore] Collection "${collectionName}" is not paginated`
+        );
+        return;
+      }
+
+      let itemFound = false;
+      const pages = collection.pages;
+
+      // Search through all pages
+      for (const pageNum in pages) {
+        const pageData = pages[pageNum];
+        const itemIndex = pageData.data.findIndex(
+          (item) => item[idField] === itemId
+        );
+
+        if (itemIndex !== -1) {
+          // Merge existing item with new data
+          pageData.data[itemIndex] = {
+            ...pageData.data[itemIndex],
+            ...itemData,
+          };
+          itemFound = true;
+          console.log(
+            `[ArrayStore] Item with ${idField}="${itemId}" updated in page ${pageNum} of collection "${collectionName}"`
+          );
+          break; // Stop after finding and updating the item
+        }
+      }
+
+      if (!itemFound) {
+        console.warn(
+          `[ArrayStore] Item with ${idField}="${itemId}" not found in any page of collection "${collectionName}"`
+        );
+      }
+    },
+
+    // Remove item from non-paginated collection by ID
     removeItemFromCollection: (state, action) => {
-      const { collectionName, index } = action.payload;
+      const { collectionName, itemId, idField = "_id" } = action.payload;
 
       const collection = state[collectionName];
 
@@ -361,24 +478,28 @@ export const arrayStoreSlice = createSlice({
 
       if (collection.pagination) {
         console.error(
-          `[ArrayStore] Collection "${collectionName}" is paginated`
+          `[ArrayStore] Collection "${collectionName}" is paginated, use removeItemFromPage instead`
         );
         return;
       }
 
-      if (index < 0 || index >= collection.data.length) {
+      const itemIndex = collection.data.findIndex(
+        (item) => item[idField] === itemId
+      );
+
+      if (itemIndex === -1) {
         console.error(
-          `[ArrayStore] Index ${index} out of bounds in collection "${collectionName}"`
+          `[ArrayStore] Item with ${idField}="${itemId}" not found in collection "${collectionName}"`
         );
         return;
       }
 
-      collection.data.splice(index, 1);
+      collection.data.splice(itemIndex, 1);
     },
 
-    // Remove item from page by index
+    // Remove item from page by ID
     removeItemFromPage: (state, action) => {
-      const { collectionName, page, index } = action.payload;
+      const { collectionName, page, itemId, idField = "_id" } = action.payload;
 
       const collection = state[collectionName];
 
@@ -405,14 +526,65 @@ export const arrayStoreSlice = createSlice({
         return;
       }
 
-      if (index < 0 || index >= pageData.data.length) {
+      const itemIndex = pageData.data.findIndex(
+        (item) => item[idField] === itemId
+      );
+
+      if (itemIndex === -1) {
         console.error(
-          `[ArrayStore] Index ${index} out of bounds in page ${page} of collection "${collectionName}"`
+          `[ArrayStore] Item with ${idField}="${itemId}" not found in page ${page} of collection "${collectionName}"`
         );
         return;
       }
 
-      pageData.data.splice(index, 1);
+      pageData.data.splice(itemIndex, 1);
+    },
+
+    // Remove item by ID from all pages (searches through all pages)
+    removeItemByIdFromPages: (state, action) => {
+      const { collectionName, itemId, idField = "_id" } = action.payload;
+
+      const collection = state[collectionName];
+
+      if (!collection) {
+        console.error(
+          `[ArrayStore] Collection "${collectionName}" does not exist`
+        );
+        return;
+      }
+
+      if (!collection.pagination) {
+        console.error(
+          `[ArrayStore] Collection "${collectionName}" is not paginated`
+        );
+        return;
+      }
+
+      let itemFound = false;
+      const pages = collection.pages;
+
+      // Search through all pages
+      for (const pageNum in pages) {
+        const pageData = pages[pageNum];
+        const itemIndex = pageData.data.findIndex(
+          (item) => item[idField] === itemId
+        );
+
+        if (itemIndex !== -1) {
+          pageData.data.splice(itemIndex, 1);
+          itemFound = true;
+          console.log(
+            `[ArrayStore] Item with ${idField}="${itemId}" removed from page ${pageNum} in collection "${collectionName}"`
+          );
+          break; // Stop after finding and removing the item
+        }
+      }
+
+      if (!itemFound) {
+        console.warn(
+          `[ArrayStore] Item with ${idField}="${itemId}" not found in any page of collection "${collectionName}"`
+        );
+      }
     },
 
     // Clear page data
@@ -459,6 +631,38 @@ export const arrayStoreSlice = createSlice({
       }
 
       collection.pages = {};
+      console.log(
+        `[ArrayStore] All pages cleared in collection "${collectionName}"`
+      );
+    },
+
+    // Invalidate cache and clear all pages (useful after add/delete operations)
+    invalidateCollection: (state, action) => {
+      const { collectionName } = action.payload;
+
+      const collection = state[collectionName];
+
+      if (!collection) {
+        console.error(
+          `[ArrayStore] Collection "${collectionName}" does not exist`
+        );
+        return;
+      }
+
+      if (collection.pagination) {
+        // Clear all cached pages
+        collection.pages = {};
+        console.log(
+          `[ArrayStore] Collection "${collectionName}" cache invalidated - all pages cleared`
+        );
+      } else {
+        // Clear non-paginated collection data
+        collection.data = [];
+        collection.error = null;
+        console.log(
+          `[ArrayStore] Collection "${collectionName}" cache invalidated - data cleared`
+        );
+      }
     },
 
     // Clear collection data
@@ -516,9 +720,12 @@ export const {
   addItemToCollection,
   removeItemFromPage,
   clearCollectionData,
+  invalidateCollection,
   setCollectionLoading,
   initializeCollection,
+  updateItemByIdInPages,
   updateItemInCollection,
+  removeItemByIdFromPages,
   removeItemFromCollection,
 } = arrayStoreSlice.actions;
 
