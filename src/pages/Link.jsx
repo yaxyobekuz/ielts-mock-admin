@@ -9,6 +9,7 @@ import {
   Trash,
   ArrowUpRight,
   MousePointerClick,
+  MessageCircle,
 } from "lucide-react";
 
 // Helpers
@@ -87,10 +88,10 @@ const LinkPage = () => {
   // Content
   if (isLoading) return <LoadingContent />;
   if (hasError) return <ErrorContent />;
-  return <Main {...link} />;
+  return <MainContent {...link} />;
 };
 
-const Main = ({
+const MainContent = ({
   title,
   testId,
   usages,
@@ -101,6 +102,7 @@ const Main = ({
   createdBy,
   usedCount,
   visitsCount,
+  requireComment,
 }) => {
   const { openModal } = useModal("editLink");
   const { checkPermission } = usePermission();
@@ -112,8 +114,8 @@ const Main = ({
 
   const openEditLinkModal = useCallback(() => {
     if (!canEditLink) return;
-    openModal({ linkId: id });
-  }, [id]);
+    openModal({ linkId: id, title, maxUses, requireComment });
+  }, [id, title, maxUses, requireComment]);
 
   const openDeleteLinkModal = useCallback(() => {
     if (!canDeleteLink) return;
@@ -205,6 +207,19 @@ const Main = ({
               <div className="flex items-center justify-between w-full">
                 <span>Qolgan foydalanishlar </span>
                 <span className="text-gray-600">{maxUses - usedCount} ta</span>
+              </div>
+            </div>
+
+            {/* Require comment */}
+            <div className="flex items-center gap-1.5">
+              <MessageCircle size={20} strokeWidth={1.5} className="shrink-0" />
+              <div className="flex items-center justify-between w-full">
+                <span>Sharh qoldirishni so'rash </span>
+                <span
+                  className={requireComment ? "text-green-500" : "text-red-500"}
+                >
+                  {requireComment ? "Ha" : "Yo'q"}
+                </span>
               </div>
             </div>
 

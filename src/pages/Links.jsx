@@ -102,6 +102,7 @@ const LinkItem = ({
   createdBy,
   createdAt,
   visitsCount,
+  requireComment,
 }) => {
   const { openModal } = useModal("editLink");
   const { checkPermission } = usePermission();
@@ -121,8 +122,8 @@ const LinkItem = ({
 
   const openEditLinkModal = useCallback(() => {
     if (!canEditLink) return;
-    openModal({ linkId: id });
-  }, [id]);
+    openModal({ linkId: id, title, maxUses, requireComment });
+  }, [id, title, maxUses, requireComment]);
 
   const openDeleteLinkModal = useCallback(() => {
     if (!canDeleteLink) return;
