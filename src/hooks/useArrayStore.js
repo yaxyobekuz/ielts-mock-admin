@@ -13,9 +13,12 @@ import {
   addItemToCollection,
   removeItemFromPage,
   clearCollectionData,
+  invalidateCollection,
   setCollectionLoading,
   initializeCollection,
+  updateItemByIdInPages,
   updateItemInCollection,
+  removeItemByIdFromPages,
   removeItemFromCollection,
 } from "../store/features/arrayStoreSlice";
 
@@ -91,6 +94,16 @@ const useArrayStore = (defaultCollectionName = "") => {
       const collection = arrayStore[collectionName];
       if (!collection?.pagination) return null;
       return collection.pages || {};
+    },
+    [arrayStore, defaultCollectionName]
+  );
+
+  // Get pagination metadata (for paginated collections)
+  const getMetadata = useCallback(
+    (collectionName = defaultCollectionName) => {
+      const collection = arrayStore[collectionName];
+      if (!collection?.pagination) return null;
+      return collection.metadata || null;
     },
     [arrayStore, defaultCollectionName]
   );
@@ -188,13 +201,20 @@ const useArrayStore = (defaultCollectionName = "") => {
 
   // Set page data
   const setPage = useCallback(
-    (page, data, error = null, collectionName = defaultCollectionName) => {
+    (
+      page,
+      data,
+      error = null,
+      metadata = null,
+      collectionName = defaultCollectionName
+    ) => {
       dispatch(
         setPageData({
           collectionName,
           page,
           data,
           error,
+          metadata,
         })
       );
     },
@@ -269,56 +289,105 @@ const useArrayStore = (defaultCollectionName = "") => {
     [dispatch, defaultCollectionName]
   );
 
-  // Update item in collection
+  // Update item in collection by ID
   const updateItem = useCallback(
-    (index, item, collectionName = defaultCollectionName) => {
+    (
+      itemId,
+      itemData,
+      idField = "_id",
+      collectionName = defaultCollectionName
+    ) => {
       dispatch(
         updateItemInCollection({
           collectionName,
-          index,
-          item,
+          itemId,
+          itemData,
+          idField,
         })
       );
     },
     [dispatch, defaultCollectionName]
   );
 
-  // Update item in page
+  // Update item in page by ID
   const updateItemInPageData = useCallback(
-    (page, index, item, collectionName = defaultCollectionName) => {
+    (
+      page,
+      itemId,
+      itemData,
+      idField = "_id",
+      collectionName = defaultCollectionName
+    ) => {
       dispatch(
         updateItemInPage({
           collectionName,
           page,
-          index,
-          item,
+          itemId,
+          itemData,
+          idField,
         })
       );
     },
     [dispatch, defaultCollectionName]
   );
 
-  // Remove item from collection
+  // Update item by ID (searches all pages)
+  const updateItemById = useCallback(
+    (
+      itemId,
+      itemData,
+      idField = "_id",
+      collectionName = defaultCollectionName
+    ) => {
+      dispatch(
+        updateItemByIdInPages({
+          collectionName,
+          itemId,
+          itemData,
+          idField,
+        })
+      );
+    },
+    [dispatch, defaultCollectionName]
+  );
+
+  // Remove item from collection by ID
   const removeItem = useCallback(
-    (index, collectionName = defaultCollectionName) => {
+    (itemId, idField = "_id", collectionName = defaultCollectionName) => {
       dispatch(
         removeItemFromCollection({
           collectionName,
-          index,
+          itemId,
+          idField,
         })
       );
     },
     [dispatch, defaultCollectionName]
   );
 
-  // Remove item from page
+  // Remove item from page by ID
   const removeItemFromPageData = useCallback(
-    (page, index, collectionName = defaultCollectionName) => {
+    (page, itemId, idField = "_id", collectionName = defaultCollectionName) => {
       dispatch(
         removeItemFromPage({
           collectionName,
           page,
-          index,
+          itemId,
+          idField,
+        })
+      );
+    },
+    [dispatch, defaultCollectionName]
+  );
+
+  // Remove item by ID from all pages
+  const removeItemById = useCallback(
+    (itemId, idField = "_id", collectionName = defaultCollectionName) => {
+      dispatch(
+        removeItemByIdFromPages({
+          itemId,
+          idField,
+          collectionName,
         })
       );
     },
@@ -367,6 +436,18 @@ const useArrayStore = (defaultCollectionName = "") => {
     (collectionName = defaultCollectionName) => {
       dispatch(
         deleteCollection({
+          collectionName,
+        })
+      );
+    },
+    [dispatch, defaultCollectionName]
+  );
+
+  // Invalidate collection cache (clear all pages/data)
+  const invalidateCache = useCallback(
+    (collectionName = defaultCollectionName) => {
+      dispatch(
+        invalidateCollection({
           collectionName,
         })
       );
@@ -456,10 +537,16 @@ const useArrayStore = (defaultCollectionName = "") => {
     [getPageCount, defaultCollectionName]
   );
 
+  const metadata = useMemo(
+    () => getMetadata(defaultCollectionName),
+    [getMetadata, defaultCollectionName]
+  );
+
   return {
     // State
     data,
     error,
+    metadata,
     isLoading,
     paginated,
     pageCount,
@@ -471,15 +558,19 @@ const useArrayStore = (defaultCollectionName = "") => {
     initialize,
     isPaginated,
     hasCollection,
+    invalidateCache,
     deleteCollectionData,
 
     // Page Operations (for paginated collections)
     setPage,
+    getMetadata,
     getPageData,
     getAllPages,
     getPageError,
     isPageLoading,
     clearPageData,
+    removeItemById,
+    updateItemById,
     setPageErrorState,
     addItemToPageData,
     clearAllPagesData,
