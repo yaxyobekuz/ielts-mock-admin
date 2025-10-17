@@ -1,22 +1,3 @@
-// Ui components
-import {
-  Dialog,
-  DialogTitle,
-  DialogHeader,
-  DialogContent,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerFooter,
-  DrawerContent,
-} from "@/components/ui/drawer";
-
-// Components
-import Input from "../form/Input";
-import Button from "../form/Button";
-
 // Api
 import { linksApi } from "@/api/links.api";
 
@@ -26,78 +7,44 @@ import { toast } from "@/notification/toast";
 // Helpers
 import { extractNumbers } from "@/lib/helpers";
 
+// Components
+import Input from "../form/Input";
+import Button from "../form/Button";
+import { Switch } from "../ui/switch";
+import ResponsiveModal from "../ResponsiveModal";
+
 // Hooks
-import useModal from "@/hooks/useModal";
 import useStore from "@/hooks/useStore";
-import useMediaQuery from "@/hooks/useMediaQuery";
 import useObjectState from "@/hooks/useObjectState";
 
-const CreateLinkModal = () => {
-  const isDesktop = useMediaQuery("(min-width: 768px)");
-  const { closeModal, isOpen, data } = useModal("createLink");
+const CreateLinkModal = () => (
+  <ResponsiveModal
+    name="createLink"
+    title="Taklif havolasini yaratish"
+    description="Yangi taklif havolasini yaratish uchun sarlavhani kiriting. Taklif havolasi o'quvchilarga testga kirishi uchun kerak bo'ladi."
+  >
+    <Content />
+  </ResponsiveModal>
+);
 
-  const content = {
-    title: "Taklif havolasini yaratish",
-    body: <Body close={closeModal} testId={data?.testId} />,
-    description: `Yangi taklif havolasini yaratish uchun sarlavhani kiriting. Taklif havolasi o'quvchilarga testga kirishi uchun kerak bo'ladi`,
-  };
-
-  if (isDesktop) {
-    return (
-      <Dialog open={isOpen} onOpenChange={closeModal}>
-        <DialogContent className="sm:max-w-[425px]">
-          {/* Header */}
-          <DialogHeader>
-            <DialogTitle>{content.title}</DialogTitle>
-            <DialogDescription>{content.description}</DialogDescription>
-          </DialogHeader>
-
-          {/* Body */}
-          {content.body}
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  return (
-    <Drawer open={isOpen} onOpenChange={closeModal}>
-      <DrawerContent>
-        {/* Header */}
-        <DialogHeader>
-          <DialogTitle>{content.title}</DialogTitle>
-          <DialogDescription>{content.description}</DialogDescription>
-        </DialogHeader>
-
-        {/* Body */}
-        {content.body}
-
-        {/* Footer */}
-        <DrawerFooter className="pt-2">
-          <DrawerClose asChild>
-            <button variant="outline">Bekor qilish</button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
-  );
-};
-
-const Body = ({ close, testId }) => {
+const Content = ({ close, testId, isLoading, setIsLoading }) => {
   const { getProperty, updateProperty } = useStore("testLinks");
   const links = getProperty(testId);
-  const { setField, maxUses, title } = useObjectState({
+  const { setField, maxUses, title, requireComment } = useObjectState({
     title: "",
     maxUses: 10,
+    requireComment: true,
   });
 
   const handleCreateLink = (e) => {
     e.preventDefault();
+    if (isLoading) return;
 
     if (!testId) {
       return toast.error("Test ID raqami mavjud emas");
     }
 
-    if (!title || title.trim().length === 0) {
+    if (!title?.trim()?.length) {
       return toast.error("Sarlavha kiritilmadi");
     }
 
@@ -105,25 +52,29 @@ const Body = ({ close, testId }) => {
       return toast.error("Maksimal foydalanishlar soni kiritilmadi");
     }
 
-    toast.promise(
-      linksApi
-        .create({ title, maxUses, testId })
-        .then(({ code, link }) => {
-          if (code !== "linkCreated") throw new Error();
-          updateProperty(testId, [link, ...(links || [])]);
-        })
-        .finally(close),
-      {
-        error: "Havola qo'shilmadi!",
-        success: "Havola qo'shildi!",
-        loading: "Havola qo'shilmoqda...",
-      }
-    );
+    let success = false;
+    setIsLoading(true);
+
+    linksApi
+      .create({ title: title.trim(), maxUses, testId, requireComment })
+      .then(({ code, link, message }) => {
+        if (code !== "linkCreated") throw new Error();
+
+        success = true;
+        toast.success(message || "Havola yaratildi");
+        updateProperty(testId, [link, ...(links || [])]);
+      })
+      .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
+      .finally(() => {
+        success && close();
+        setIsLoading(false);
+      });
   };
 
   return (
     <form onSubmit={handleCreateLink} className="space-y-5">
       <Input
+        required
         size="lg"
         border={true}
         variant="gray"
@@ -135,7 +86,9 @@ const Body = ({ close, testId }) => {
       />
 
       <Input
+        required
         size="lg"
+        max={200}
         border={true}
         type="number"
         variant="gray"
@@ -145,6 +98,16 @@ const Body = ({ close, testId }) => {
         label="Maksimal foydalanishlar soni"
         onChange={(value) => setField("maxUses", extractNumbers(value))}
       />
+
+      {/* Require Comment */}
+      <div className="flex items-center justify-between">
+        <label htmlFor="require-comment">Sharh qoldirishni so'rash</label>
+        <Switch
+          id="require-comment"
+          checked={requireComment}
+          onCheckedChange={(value) => setField("requireComment", value)}
+        />
+      </div>
 
       {/* Buttons */}
       <div className="flex justify-end gap-5 w-full">
