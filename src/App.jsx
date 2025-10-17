@@ -25,6 +25,7 @@ import Reading from "./pages/Reading";
 import Writing from "./pages/Writing";
 import Results from "./pages/Results";
 import Teacher from "./pages/Teacher";
+import Page404 from "./pages/Page404";
 import Register from "./pages/Register";
 import Teachers from "./pages/Teachers";
 import Template from "./pages/Template";
@@ -156,6 +157,9 @@ const App = () => {
           <Route path="register" element={<Register />} />
           <Route index element={<Navigate to="login" />} />
         </Route>
+
+        {/* 404 */}
+        <Route path="*" element={<Page404 />} />
       </>
     ),
     { future: { v7_relativeSplatPath: true } }
