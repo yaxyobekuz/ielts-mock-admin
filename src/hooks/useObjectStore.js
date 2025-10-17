@@ -3,6 +3,11 @@ import {
   addEntityToObjectStore,
   updateEntityFromObjectStore,
   deleteEntityFromObjectStore,
+  addItemToEntity,
+  updateItemInEntity,
+  deleteItemFromEntity,
+  replaceEntityArray,
+  clearEntityArray,
 } from "../store/features/objectStoreSlice";
 
 // React
@@ -108,6 +113,83 @@ const useObjectStore = (defaultCollectionName = "") => {
     [dispatch, defaultCollectionName]
   );
 
+  // Add item to entity array (for id: [{...}] structure)
+  const addItemToEntityArray = useCallback(
+    (entityId, item, collectionName = defaultCollectionName) => {
+      dispatch(addItemToEntity({ collectionName, entityId, item }));
+    },
+    [dispatch, defaultCollectionName]
+  );
+
+  // Update item in entity array
+  const updateItemInEntityArray = useCallback(
+    (
+      entityId,
+      itemId,
+      itemData,
+      idField = "_id",
+      collectionName = defaultCollectionName
+    ) => {
+      dispatch(
+        updateItemInEntity({
+          itemId,
+          idField,
+          itemData,
+          entityId,
+          collectionName,
+        })
+      );
+    },
+    [dispatch, defaultCollectionName]
+  );
+
+  // Delete item from entity array
+  const deleteItemFromEntityArray = useCallback(
+    (
+      entityId,
+      itemId,
+      idField = "_id",
+      collectionName = defaultCollectionName
+    ) => {
+      dispatch(
+        deleteItemFromEntity({
+          collectionName,
+          entityId,
+          itemId,
+          idField,
+        })
+      );
+    },
+    [dispatch, defaultCollectionName]
+  );
+
+  // Replace entire entity array
+  const replaceEntityArrayData = useCallback(
+    (entityId, newArray, collectionName = defaultCollectionName) => {
+      dispatch(
+        replaceEntityArray({
+          collectionName,
+          entityId,
+          newArray,
+        })
+      );
+    },
+    [dispatch, defaultCollectionName]
+  );
+
+  // Clear entity array
+  const clearEntityArrayData = useCallback(
+    (entityId, collectionName = defaultCollectionName) => {
+      dispatch(
+        clearEntityArray({
+          collectionName,
+          entityId,
+        })
+      );
+    },
+    [dispatch, defaultCollectionName]
+  );
+
   // Get collection count
   const getCollectionCount = useCallback(
     (collectionName = defaultCollectionName) => {
@@ -164,6 +246,13 @@ const useObjectStore = (defaultCollectionName = "") => {
     addEntity,
     updateEntity,
     deleteEntity,
+
+    // Array operations (for id: [{...}] structure)
+    addItemToEntityArray,
+    clearEntityArrayData,
+    replaceEntityArrayData,
+    updateItemInEntityArray,
+    deleteItemFromEntityArray,
 
     // Getters
     hasEntity,
