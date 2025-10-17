@@ -29,10 +29,10 @@ import { Link, useParams } from "react-router-dom";
 
 // Hooks
 import useModal from "@/hooks/useModal";
-import useStore from "@/hooks/useStore";
 import useModule from "@/hooks/useModule";
 import usePermission from "@/hooks/usePermission";
 import useObjectState from "@/hooks/useObjectState";
+import useObjectStore from "@/hooks/useObjectStore";
 
 // Helpers
 import { formatDate, formatTime } from "@/lib/helpers";
@@ -45,8 +45,8 @@ import listeningBg from "@/assets/backgrounds/listening.webp";
 const Test = () => {
   const { testId } = useParams();
   const { setModule } = useModule();
-  const { getProperty, updateProperty } = useStore("test");
-  const test = getProperty(testId);
+  const { addEntity, getEntity } = useObjectStore("tests");
+  const test = getEntity(testId);
 
   const { setField, isLoading, hasError } = useObjectState({
     hasError: false,
@@ -62,7 +62,7 @@ const Test = () => {
       .then(({ code, test }) => {
         if (code !== "testFetched") throw new Error();
 
-        updateProperty(testId, test);
+        addEntity(test._id, test);
         setModule(test.reading, test._id, "reading");
         setModule(test.writing, test._id, "writing");
         setModule(test.listening, test._id, "listening");
@@ -311,8 +311,9 @@ const ErrorContent = () => {
 
 const Links = ({ testId }) => {
   const siteUrl = import.meta.env.VITE_SITE_URL;
-  const { getProperty, updateProperty } = useStore("testLinks");
-  const links = getProperty(testId);
+  const { addEntity, getEntity } = useObjectStore("testLinks");
+  const links = getEntity(testId);
+
   const { setField, isLoading, hasError } = useObjectState({
     hasError: false,
     isLoading: !links,
@@ -323,10 +324,10 @@ const Links = ({ testId }) => {
     setField("isLoading", true);
 
     linksApi
-      .get(testId)
+      .get({ testId })
       .then(({ code, links }) => {
         if (code !== "linksFetched") throw new Error();
-        updateProperty(testId, links);
+        addEntity(testId, links);
       })
       .catch(() => setField("hasError", true))
       .finally(() => setField("isLoading"));
@@ -393,7 +394,10 @@ const Links = ({ testId }) => {
                 </div>
 
                 {/* Button */}
-                <Link to={`/links/${id}`} className="block absolute z-0 inset-0 size-full -outline-offset-1 rounded-full" />
+                <Link
+                  to={`/links/${id}`}
+                  className="block absolute z-0 inset-0 size-full -outline-offset-1 rounded-full"
+                />
               </li>
             ))
           : null}

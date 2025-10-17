@@ -8,8 +8,8 @@ import {
   Clock,
   Trash,
   ArrowUpRight,
-  MousePointerClick,
   MessageCircle,
+  MousePointerClick,
 } from "lucide-react";
 
 // Helpers
@@ -33,9 +33,9 @@ import { useCallback, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 
 // Hooks
-import useStore from "@/hooks/useStore";
 import useModal from "@/hooks/useModal";
 import usePermission from "@/hooks/usePermission";
+import useObjectStore from "@/hooks/useObjectStore";
 import useObjectState from "@/hooks/useObjectState";
 
 // Components
@@ -56,8 +56,8 @@ assessmentCriteria.forEach(({ criteria }) => {
 
 const LinkPage = () => {
   const { linkId } = useParams();
-  const { getProperty, updateProperty } = useStore("link");
-  const link = getProperty(linkId);
+  const { addEntity, getEntity } = useObjectStore("links");
+  const link = getEntity(linkId);
 
   const { setField, isLoading, hasError } = useObjectState({
     hasError: false,
@@ -72,7 +72,7 @@ const LinkPage = () => {
       .getById(linkId)
       .then(({ code, link }) => {
         if (code !== "linkFetched") throw new Error();
-        updateProperty(linkId, link);
+        addEntity(linkId, link);
       })
       .catch(({ message }) => {
         setField("hasError", true);
