@@ -1,18 +1,3 @@
-// Ui components
-import {
-  Dialog,
-  DialogTitle,
-  DialogHeader,
-  DialogContent,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerFooter,
-  DrawerContent,
-} from "@/components/ui/drawer";
-
 // Components
 import Input from "../form/Input";
 import Button from "../form/Button";
@@ -23,67 +8,28 @@ import { toast } from "@/notification/toast";
 // Api
 import { resultsApi } from "@/api/results.api";
 
+// Components
+import ResponsiveModal from "../ResponsiveModal";
+
 // Hooks
-import useModal from "@/hooks/useModal";
 import useStore from "@/hooks/useStore";
-import useMediaQuery from "@/hooks/useMediaQuery";
 import useObjectState from "@/hooks/useObjectState";
 import useLocalStorage from "@/hooks/useLocalStorage";
 
 // Data
 import assessmentCriteria from "@/data/assessmentCriteria";
 
-const CreateResultModal = () => {
-  const isDesktop = useMediaQuery("(min-width: 768px)");
-  const { closeModal, isOpen, data } = useModal("createResult");
+const CreateResultModal = () => (
+  <ResponsiveModal
+    name="createResult"
+    title="Javoblarni baholash"
+    description="Javoblarni baholash uchun barcha ballarni kiriting. Har bir mezon uchun ballarni 0 dan 9 gacha bo'lgan oraliqda belgilang."
+  >
+    <Content />
+  </ResponsiveModal>
+);
 
-  const content = {
-    title: "Javoblarni baholash",
-    description: `Javoblarni baholash uchun barcha ballarni kiriting`,
-    body: <Body close={closeModal} submissionId={data?.submissionId} />,
-  };
-
-  if (isDesktop) {
-    return (
-      <Dialog open={isOpen} onOpenChange={closeModal}>
-        <DialogContent className="sm:max-w-[425px]">
-          {/* Header */}
-          <DialogHeader>
-            <DialogTitle>{content.title}</DialogTitle>
-            <DialogDescription>{content.description}</DialogDescription>
-          </DialogHeader>
-
-          {/* Body */}
-          {content.body}
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  return (
-    <Drawer open={isOpen} onOpenChange={closeModal}>
-      <DrawerContent>
-        {/* Header */}
-        <DialogHeader>
-          <DialogTitle>{content.title}</DialogTitle>
-          <DialogDescription>{content.description}</DialogDescription>
-        </DialogHeader>
-
-        {/* Body */}
-        {content.body}
-
-        {/* Footer */}
-        <DrawerFooter className="pt-2">
-          <DrawerClose asChild>
-            <button variant="outline">Bekor qilish</button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
-  );
-};
-
-const Body = ({ close, submissionId }) => {
+const Content = ({ close, submissionId, isLoading, setIsLoading }) => {
   // Local storage
   const { updateProperty, getProperty } = useLocalStorage("scores");
   const formDataFromStorage = getProperty(submissionId) || {};
@@ -101,8 +47,7 @@ const Body = ({ close, submissionId }) => {
     useStore("submission");
   const submission = getSubmission(submissionId);
 
-  const { setField, formData, isLoading } = useObjectState({
-    isLoading: false,
+  const { setField, formData } = useObjectState({
     formData: formDataFromStorage,
   });
 
@@ -131,32 +76,30 @@ const Body = ({ close, submissionId }) => {
       return toast.error("Javoblar ID raqami mavjud emas");
     }
 
-    setField("isLoading", true);
+    setIsLoading(true);
+    let success = false;
 
-    toast.promise(
-      resultsApi
-        .create({ ...formData, submissionId })
-        .then(({ code, result }) => {
-          if (code !== "resultCreated") throw new Error();
+    resultsApi
+      .create({ ...formData, submissionId })
+      .then(({ code, result }) => {
+        if (code !== "resultCreated") throw new Error();
 
-          close();
-          updateProperty(submissionId, {});
-          updateSubmission(submissionId, {
-            ...submission,
-            isScored: true,
-            result: result._id,
-          });
+        success = true;
+        updateProperty(submissionId, {});
+        updateSubmission(submissionId, {
+          ...submission,
+          isScored: true,
+          result: result._id,
+        });
 
-          if (isResultsLoading) return;
-          updateResultsProperty("data", [result, ...resultsData]);
-        })
-        .finally(() => setField("isLoading", false)),
-      {
-        error: "Yuborilmadi!",
-        success: "Yuborildi!",
-        loading: "Yuborilmoqda...",
-      }
-    );
+        if (isResultsLoading) return;
+        updateResultsProperty("data", [result, ...resultsData]);
+      })
+      .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
+      .finally(() => {
+        success && close();
+        setIsLoading(false);
+      });
   };
 
   return (
@@ -214,9 +157,9 @@ const Body = ({ close, submissionId }) => {
       <div className="flex justify-end gap-5 w-full">
         <Button
           type="button"
-          onClick={()=> close()}
           className="w-32"
           variant="neutral"
+          onClick={() => close()}
         >
           Bekor qilish
         </Button>
