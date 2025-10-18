@@ -1,14 +1,29 @@
+// Router
+import { useParams } from "react-router-dom";
+
+// Components
 import RichTextPreviewer from "../RichTextPreviewer";
 
-const TextDraggable = ({ text, initialNumber, options, coords }) => {
+const TextDraggable = ({
+  text,
+  coords,
+  options,
+  splitAnswers,
+  initialNumber,
+}) => {
+  const { module } = useParams();
+  const isReadingPage = module === "reading";
+
   return (
     <div className="flex gap-5 w-full">
-      <RichTextPreviewer
-        text={text}
-        allowDropzone
-        coords={coords}
-        initialNumber={initialNumber}
-      />
+      {!splitAnswers && isReadingPage ? (
+        <RichTextPreviewer
+          text={text}
+          allowDropzone
+          coords={coords}
+          initialNumber={initialNumber}
+        />
+      ) : null}
 
       <div className="min-w-max space-y-2 pr-5">
         <b className="inline-block">{options.title}</b>

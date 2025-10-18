@@ -7,6 +7,9 @@ import { isNumber } from "../../lib/helpers";
 // Toast
 import { toast } from "@/notification/toast";
 
+// UI components
+import { Switch } from "@/components/ui/switch";
+
 // Api
 import { sectionsApi } from "@/api/sections.api";
 
@@ -56,6 +59,10 @@ const TextDraggableEditor = () => {
   const [content, setContent] = useDebouncedState(section?.text, setIsSaving);
   const coordsKey = `${pathSegments[1]}-${pathSegments[3]}-${pathSegments[4]}-${pathSegments[5]}-${pathSegments[6]}`;
   const allCoords = getProperty(coordsKey) || section?.coords || {};
+  const [splitAnswers, setSplitAnswers] = useDebouncedState(
+    !!section?.splitAnswers,
+    setIsSaving
+  );
   const [title, setTitle] = useDebouncedState(
     section?.options?.title,
     setIsSaving
@@ -71,6 +78,7 @@ const TextDraggableEditor = () => {
 
   // Original
   const [original, setOriginal] = useState({
+    splitAnswers,
     coords: allCoords,
     content: section?.text,
     title: section?.options?.title,
@@ -83,6 +91,7 @@ const TextDraggableEditor = () => {
     title !== original.title ||
     content !== original.content ||
     description !== original.description ||
+    splitAnswers !== original.splitAnswers ||
     JSON.stringify(answers) !== JSON.stringify(original.answers) ||
     JSON.stringify(allCoords) !== JSON.stringify(original.coords);
 
@@ -104,6 +113,7 @@ const TextDraggableEditor = () => {
     const sectionData = {
       coords,
       description,
+      splitAnswers,
       text: content,
       options: { title, data: answers.map((a) => ({ option: a })) },
     };
@@ -150,10 +160,13 @@ const TextDraggableEditor = () => {
             className="shrink-0 w-2/3 h-full"
           />
           <Answers
+            module={module}
             initialTitle={title}
             onChange={setAnswers}
             onTitleChange={setTitle}
             initialAnwsers={answers}
+            splitAnswers={splitAnswers}
+            setSplitAnswers={setSplitAnswers}
           />
         </div>
       </div>
@@ -161,7 +174,15 @@ const TextDraggableEditor = () => {
   );
 };
 
-const Answers = ({ onChange, initialAnwsers, onTitleChange, initialTitle }) => {
+const Answers = ({
+  module,
+  onChange,
+  splitAnswers,
+  initialTitle,
+  onTitleChange,
+  initialAnwsers,
+  setSplitAnswers,
+}) => {
   const [title, setTitle] = useState(initialTitle);
   const [inputs, setInputs] = useState(initialAnwsers);
 
@@ -192,7 +213,26 @@ const Answers = ({ onChange, initialAnwsers, onTitleChange, initialTitle }) => {
 
   return (
     <div className="sticky top-0 overflow-y-auto w-full max-h-[calc(100vh-20px)] bg-gray-50 p-2.5 rounded-b-xl">
-      <h2 className="mb-3 text-lg font-bold">Variantlar</h2>
+      <h2 className="mb-3 text-lg font-bold">Javoblar</h2>
+
+      {/* Split answers */}
+      {module === "reading" && (
+        <>
+          <div className="flex items-center justify-between">
+            <label htmlFor="split-answers" className="text-base">
+              Javoblarni ajratish
+            </label>
+
+            <Switch
+              id="split-answers"
+              defaultChecked={splitAnswers}
+              onCheckedChange={setSplitAnswers}
+            />
+          </div>
+
+          <hr className="my-3" />
+        </>
+      )}
 
       {/* Title */}
       <div className="mb-5">
@@ -217,7 +257,7 @@ const Answers = ({ onChange, initialAnwsers, onTitleChange, initialTitle }) => {
           <div key={index}>
             <div className="flex items-center justify-between">
               <label htmlFor={`answer-${index}`} className="inline-block mb-1">
-                Variant {index + 1}
+                Javob {index + 1}
               </label>
 
               {/* Delete btn */}
@@ -233,7 +273,7 @@ const Answers = ({ onChange, initialAnwsers, onTitleChange, initialTitle }) => {
               type="text"
               value={value}
               id={`answer-${index}`}
-              placeholder={`Variant ${index + 1}`}
+              placeholder={`Javob ${index + 1}`}
               className="w-full h-9 border rounded-md px-2"
               onChange={(e) => handleInputChange(e, index)}
             />
@@ -246,7 +286,7 @@ const Answers = ({ onChange, initialAnwsers, onTitleChange, initialTitle }) => {
         onClick={handleAddInput}
         className="flex items-center justify-center w-full h-9 bg-blue-100 text-blue-500 rounded-md"
       >
-        Variant qo'shish +
+        Javob qo'shish +
       </button>
     </div>
   );

@@ -83,16 +83,44 @@ const Reading = () => {
 
       {/* Main */}
       <div className="grid grid-cols-2 gap-3.5 pb-5">
-        {/* Part text */}
-        <div className="w-full bg-gray-50 p-5 rounded-xl border">
-          {/* Edit button */}
-          <EditButton
-            disabled={!canEditTest}
-            className="max-w-max ml-auto"
-            to={`/tests/${testId}/edit/${module}/${partNumber}/part-text`}
-          />
+        <div className="space-y-5">
+          {/* Splitted sections text */}
+          {module === "reading" &&
+            sections?.map((section, index) => {
+              const initialNumber =
+                sections
+                  .slice(0, index)
+                  .reduce((acc, sec) => acc + sec.questionsCount, 0) +
+                cumulativeQuestions +
+                1;
 
-          <TextComponent text={text} initialNumber={0} />
+              if (section.type === "text-draggable" && section.splitAnswers) {
+                return (
+                  <div className="w-full bg-gray-50 p-5 rounded-xl border">
+                    <RichTextPreviewer
+                      allowDropzone
+                      key={section._id}
+                      text={section.text}
+                      coords={section.coords}
+                      initialNumber={initialNumber}
+                    />
+                  </div>
+                );
+              }
+
+              return null;
+            })}
+
+          {/* Part text */}
+          <div className="w-full bg-gray-50 p-5 rounded-xl border">
+            <EditButton
+              disabled={!canEditTest}
+              className="max-w-max ml-auto"
+              to={`/tests/${testId}/edit/${module}/${partNumber}/part-text`}
+            />
+
+            <TextComponent text={text} initialNumber={0} />
+          </div>
         </div>
 
         {/* Sections content */}
