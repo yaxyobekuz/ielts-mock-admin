@@ -232,7 +232,6 @@ const processAnswersData = (module, answers, correctAnswers) => {
   const correctAnswersMap = sortArray(
     Object.keys(correctAnswers[module] || {})
   );
-  console.log(correctAnswersMap);
 
   let trueAnswers = 0;
   let wrongAnswers = 0;

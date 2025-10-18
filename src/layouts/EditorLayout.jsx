@@ -37,8 +37,6 @@ const EditorLayout = () => {
     setField("error", null);
     setField("isLoading", true);
 
-    console.log(1);
-
     testsApi
       .getById(testId)
       .then(({ code, test }) => {

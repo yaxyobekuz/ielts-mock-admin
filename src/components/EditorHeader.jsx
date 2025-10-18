@@ -1,5 +1,5 @@
 // React
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Components
 import RichTextEditor from "./RichTextEditor";
@@ -38,6 +38,12 @@ const EditorHeader = ({
       document.body.classList.add("overflow-y-hidden");
     }
   };
+
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove("overflow-y-hidden");
+    };
+  }, []);
 
   return (
     <>
