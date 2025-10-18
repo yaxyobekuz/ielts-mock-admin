@@ -1,22 +1,20 @@
 // React
 import { useMemo } from "react";
 
-// Components
-import { EditButton } from "./Reading";
-
-// Icons
-import { Settings } from "lucide-react";
+// Router
+import { useParams } from "react-router-dom";
 
 // Data
 import questionsType from "@/data/questionsType";
-
-// Router
-import { Link, useParams } from "react-router-dom";
 
 // Hooks
 import useModule from "@/hooks/useModule";
 import usePermission from "@/hooks/usePermission";
 import usePathSegments from "@/hooks/usePathSegments";
+
+// Components
+import { EditButton } from "./Reading";
+import ModulePartHeader from "@/components/ModulePartHeader";
 
 const questionsMap = {};
 questionsType.forEach((q) => (questionsMap[q.value] = q.component));
@@ -59,33 +57,14 @@ const Writing = () => {
 
   return (
     <div className="container pt-5">
-      <div className="flex gap-5 mb-5">
-        {/* Part header */}
-        <div className="w-full h-20 bg-gray-100 py-3 px-4 rounded-xl border border-gray-200">
-          <h1 className="mb-1 text-base font-bold">Part {partNumber}</h1>
-          <div className="flex items-center justify-between">
-            <p>
-              You should spend about 20 minutes on this task. Write at least 150
-              words
-            </p>
-            <p className="text-gray-500">{duration} minutes</p>
-          </div>
-        </div>
-
-        {/* Edit module */}
-        {canEditTest && (
-          <Link
-            to={`/tests/${testId}/edit/${module}`}
-            className="group btn size-20 aspect-square bg-gray-100 rounded-xl border border-gray-200 hover:bg-gray-200 hover:text-blue-500"
-          >
-            <Settings
-              size={24}
-              strokeWidth={1.5}
-              className="transition-all duration-200 group-hover:rotate-[360deg]"
-            />
-          </Link>
-        )}
-      </div>
+      <ModulePartHeader
+        module={module}
+        testId={testId}
+        part={currentPart}
+        duration={duration}
+        partNumber={partNumber}
+        canEditTest={canEditTest}
+      />
 
       {/* Main */}
       <div className="w-full bg-gray-50 p-5 mb-5 rounded-xl border">

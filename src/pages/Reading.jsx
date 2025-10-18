@@ -5,10 +5,8 @@ import { useMemo } from "react";
 import Icon from "@/components/Icon";
 
 // Icons
+import { Trash } from "lucide-react";
 import penIcon from "@/assets/icons/pen.svg";
-
-// Icons
-import { Settings, Trash } from "lucide-react";
 
 // Data
 import questionsType from "@/data/questionsType";
@@ -24,6 +22,7 @@ import usePathSegments from "@/hooks/usePathSegments";
 
 // Components
 import Button from "@/components/form/Button";
+import ModulePartHeader from "@/components/ModulePartHeader";
 import RichTextPreviewer from "@/components/RichTextPreviewer";
 
 const questionsMap = {};
@@ -33,7 +32,6 @@ const TextComponent = questionsMap["text"];
 const Reading = () => {
   const { partNumber, testId } = useParams();
   const { pathSegments } = usePathSegments();
-  const { openModal } = useModal("deletePart");
   const module = pathSegments[3];
 
   const { getModuleData } = useModule(module, testId);
@@ -59,12 +57,6 @@ const Reading = () => {
 
   const { sections, text } = currentPart || {};
 
-  // Delete part modal handler
-  const handleOpenModal = () => {
-    if (!canEditTest) return;
-    openModal({ testId, module, partNumber, partId: currentPart._id });
-  };
-
   // Return error if part not found
   if (!currentPart) {
     return (
@@ -79,84 +71,52 @@ const Reading = () => {
   }
 
   return (
-    <div className="container">
-      <div className="pt-5">
-        <div className="flex gap-5 mb-5">
-          {/* Part header */}
-          <div className="flex items-center justify-between w-full h-20 bg-gray-100 py-3 px-4 rounded-xl border border-gray-200">
-            <div>
-              <h1 className="mb-1 text-base font-bold">Part {partNumber}</h1>
-              <p>Listen and answer questions</p>
-            </div>
+    <div className="container pt-5">
+      <ModulePartHeader
+        module={module}
+        testId={testId}
+        part={currentPart}
+        duration={duration}
+        partNumber={partNumber}
+        canEditTest={canEditTest}
+      />
 
-            <div className="flex items-center gap-3.5">
-              <p className="text-gray-500">{duration} minutes</p>
+      {/* Main */}
+      <div className="grid grid-cols-2 gap-3.5 pb-5">
+        {/* Part text */}
+        <div className="w-full bg-gray-50 p-5 rounded-xl border">
+          {/* Edit button */}
+          <EditButton
+            disabled={!canEditTest}
+            className="max-w-max ml-auto"
+            to={`/tests/${testId}/edit/${module}/${partNumber}/part-text`}
+          />
 
-              <Button
-                variant="danger"
-                className="size-9 !p-0"
-                disabled={!canEditTest}
-                onClick={handleOpenModal}
-                title={`Part ${partNumber}ni o'chirish`}
-                aria-label={`Part ${partNumber}ni o'chirish`}
-              >
-                <Trash size={20} />
-              </Button>
-            </div>
-          </div>
-
-          {/* Edit module */}
-          {canEditTest && (
-            <Link
-              to={`/tests/${testId}/edit/${module}`}
-              className="group btn size-20 aspect-square bg-gray-100 rounded-xl border border-gray-200 hover:bg-gray-200 hover:text-blue-500"
-            >
-              <Settings
-                size={24}
-                strokeWidth={1.5}
-                className="transition-all duration-200 group-hover:rotate-[360deg]"
-              />
-            </Link>
-          )}
+          <TextComponent text={text} initialNumber={0} />
         </div>
 
-        {/* Main */}
-        <div className="grid grid-cols-2 gap-3.5 pb-5">
-          {/* Part text */}
-          <div className="w-full bg-gray-50 p-5 rounded-xl border">
-            {/* Edit button */}
-            <EditButton
-              disabled={!canEditTest}
-              className="max-w-max ml-auto"
-              to={`/tests/${testId}/edit/${module}/${partNumber}/part-text`}
-            />
+        {/* Sections content */}
+        <div className="w-full">
+          {sections?.map((section, index) => {
+            const prevSectionsTotalQuestions = sections
+              .slice(0, index)
+              .reduce((acc, sec) => acc + sec.questionsCount, 0);
 
-            <TextComponent text={text} initialNumber={0} />
-          </div>
-
-          {/* Sections content */}
-          <div className="w-full">
-            {sections?.map((section, index) => {
-              const prevSectionsTotalQuestions = sections
-                .slice(0, index)
-                .reduce((acc, sec) => acc + sec.questionsCount, 0);
-
-              return (
-                <Section
-                  index={index}
-                  module={module}
-                  testId={testId}
-                  section={section}
-                  canEdit={canEditTest}
-                  partNumber={partNumber}
-                  key={`${section.questionType}-${index}`}
-                  initialQuestionNumber={
-                    prevSectionsTotalQuestions + cumulativeQuestions + 1
-                  }
-                />
-              );
-            })}
-          </div>
+            return (
+              <Section
+                index={index}
+                module={module}
+                testId={testId}
+                section={section}
+                canEdit={canEditTest}
+                partNumber={partNumber}
+                key={`${section.questionType}-${index}`}
+                initialQuestionNumber={
+                  prevSectionsTotalQuestions + cumulativeQuestions + 1
+                }
+              />
+            );
+          })}
         </div>
       </div>
     </div>
