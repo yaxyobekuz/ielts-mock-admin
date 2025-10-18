@@ -80,7 +80,7 @@ const Content = ({ close, templateId, isLoading, setIsLoading }) => {
         maxLength={32}
         label="Sarlavha"
         name="test-template-title"
-        placeholder="Sarlavhani kiriitng"
+        placeholder="Sarlavhani kiriting"
         onChange={(value) => setField("title", value)}
       />
 

@@ -119,7 +119,7 @@ const Content = ({
         maxLength={32}
         label="Sarlavha"
         name="test-title"
-        placeholder="Sarlavhani kiriitng"
+        placeholder="Sarlavhani kiriting"
         onChange={(value) => setField("title", value)}
       />
 
