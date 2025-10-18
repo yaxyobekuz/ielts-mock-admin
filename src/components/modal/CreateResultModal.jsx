@@ -29,7 +29,14 @@ const CreateResultModal = () => (
   </ResponsiveModal>
 );
 
-const Content = ({ close, submissionId, isLoading, setIsLoading }) => {
+const Content = ({
+  close,
+  isLoading,
+  submissionId,
+  setIsLoading,
+  reading: initialReading,
+  listening: initialListening,
+}) => {
   // Local storage
   const { updateProperty, getProperty } = useLocalStorage("scores");
   const formDataFromStorage = getProperty(submissionId) || {};
@@ -47,8 +54,10 @@ const Content = ({ close, submissionId, isLoading, setIsLoading }) => {
     useStore("submission");
   const submission = getSubmission(submissionId);
 
-  const { setField, formData } = useObjectState({
+  const { setField, formData, listening, reading } = useObjectState({
     formData: formDataFromStorage,
+    reading: initialReading ?? "",
+    listening: initialListening ?? "",
   });
 
   const handleChange = (module, partIndex, key, value) => {
@@ -80,7 +89,7 @@ const Content = ({ close, submissionId, isLoading, setIsLoading }) => {
     let success = false;
 
     resultsApi
-      .create({ ...formData, submissionId })
+      .create({ ...formData, submissionId, listening, reading })
       .then(({ code, result }) => {
         if (code !== "resultCreated") throw new Error();
 
@@ -91,6 +100,8 @@ const Content = ({ close, submissionId, isLoading, setIsLoading }) => {
           isScored: true,
           result: result._id,
         });
+
+        toast.success("Javoblar baholandi");
 
         if (isResultsLoading) return;
         updateResultsProperty("data", [result, ...resultsData]);
@@ -104,7 +115,72 @@ const Content = ({ close, submissionId, isLoading, setIsLoading }) => {
 
   return (
     <form onSubmit={handleCreateResult} className="space-y-5">
-      <div className="max-h-96 overflow-y-auto scroll-y-primary space-y-5 pr-1.5 scroll-smooth">
+      <div className="max-h-[512px] overflow-y-auto scroll-y-primary space-y-5 pr-1.5 scroll-smooth">
+        {/* Listening */}
+        <div className="space-y-3.5">
+          <div className="w-full bg-white">
+            <strong className="capitalize font-semibold">Listening</strong>
+          </div>
+
+          <div className="flex gap-3.5">
+            <label
+              htmlFor="listening"
+              children="Umumiy baho"
+              className="flex items-center w-full h-10 bg-gray-50 px-3.5 border border-gray-300 rounded-lg text-sm cursor-pointer hover:bg-gray-100"
+            />
+
+            <Input
+              min={0}
+              max={9}
+              required
+              size="lg"
+              step={0.5}
+              border={true}
+              type="number"
+              variant="gray"
+              name="listening"
+              value={listening}
+              autoComplete="off"
+              placeholder="0 - 9"
+              className="w-24 shrink-0"
+              onChange={(value) => setField("listening", value)}
+            />
+          </div>
+        </div>
+
+        {/* Reading */}
+        <div className="space-y-3.5">
+          <div className="w-full bg-white">
+            <strong className="capitalize font-semibold">Reading</strong>
+          </div>
+
+          <div className="flex gap-3.5">
+            <label
+              htmlFor="reading"
+              children="Umumiy baho"
+              className="flex items-center w-full h-10 bg-gray-50 px-3.5 border border-gray-300 rounded-lg text-sm cursor-pointer hover:bg-gray-100"
+            />
+
+            <Input
+              min={0}
+              max={9}
+              required
+              size="lg"
+              step={0.5}
+              border={true}
+              type="number"
+              variant="gray"
+              name="reading"
+              value={reading}
+              autoComplete="off"
+              placeholder="0 - 9"
+              className="w-24 shrink-0"
+              onChange={(value) => setField("reading", value)}
+            />
+          </div>
+        </div>
+
+        {/* Writing & Speaking */}
         {assessmentCriteria.map(({ name: module, criteria }, index) => (
           <div key={index} className="space-y-3.5">
             {/* Module */}
@@ -165,7 +241,7 @@ const Content = ({ close, submissionId, isLoading, setIsLoading }) => {
         </Button>
 
         <Button disabled={isLoading} className="w-32">
-          Yuborish
+          Baholash
         </Button>
       </div>
     </form>
