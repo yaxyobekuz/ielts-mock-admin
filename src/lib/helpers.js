@@ -220,7 +220,7 @@ export const getDeviceInfo = (ua) => {
 };
 
 export const isEqualStringArray = (arr1, arr2) => {
-  if (arr1.length !== arr2.length) return false;
+  if (arr1?.length !== arr2?.length) return false;
 
   const normalize = (str) =>
     str

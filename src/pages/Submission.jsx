@@ -41,6 +41,7 @@ import useObjectState from "@/hooks/useObjectState";
 // Api
 import { submissionsApi } from "@/api/submissions.api";
 
+// Parent contents
 const Submission = () => {
   const { submissionId } = useParams();
   const { getProperty, updateProperty } = useStore("submission");
@@ -98,6 +99,10 @@ const MainContent = ({
   const { module = "listening" } = useParams();
   const { openModal } = useModal("createResult");
   const { firstName = "Foydalanuvchi", lastName = "" } = student || {};
+  const { setFields, listening, reading } = useObjectState({
+    reading: "",
+    listening: "",
+  });
 
   const formattedAnswers = useMemo(() => {
     return { listening: {}, reading: {}, writing: {}, ...answers };
@@ -179,7 +184,9 @@ const MainContent = ({
           {!isScored && !result && (
             <button
               disabled={!canCreateResult}
-              onClick={() => openModal({ submissionId: id })}
+              onClick={() =>
+                openModal({ submissionId: id, listening, reading })
+              }
               className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
             >
               <Star size={20} strokeWidth={1.5} />
@@ -204,6 +211,7 @@ const MainContent = ({
       ) : (
         <TableContent
           module={module}
+          onCalcScore={setFields}
           answers={formattedAnswers}
           correctAnswers={correctAnswers}
         />
@@ -212,10 +220,20 @@ const MainContent = ({
   );
 };
 
-const TableContent = ({ module, answers, correctAnswers }) => {
-  const correctAnswersMap = Object.keys(correctAnswers[module] || {});
+// Table content
+const sortArray = (arr) => {
+  return arr.sort((a, b) => {
+    const getFirstNum = (str) => Number(str.split("-")[0]);
+    return getFirstNum(a) - getFirstNum(b);
+  });
+};
 
-  // Count correct and wrong answers
+const processAnswersData = (module, answers, correctAnswers) => {
+  const correctAnswersMap = sortArray(
+    Object.keys(correctAnswers[module] || {})
+  );
+  console.log(correctAnswersMap);
+
   let trueAnswers = 0;
   let wrongAnswers = 0;
 
@@ -243,7 +261,7 @@ const TableContent = ({ module, answers, correctAnswers }) => {
     const isCorrect = (() => {
       if (userAnswer === "-" && correctAnswer === "-") return false;
 
-      if (typeof answers[module][key] === "object") {
+      if (typeof correctAnswers[module][key] === "object") {
         return isEqualStringArray(
           answers[module][key],
           correctAnswers[module][key]
@@ -253,7 +271,7 @@ const TableContent = ({ module, answers, correctAnswers }) => {
       return userAnswer === correctAnswer;
     })();
 
-    if (typeof answers[module][key] === "object") {
+    if (typeof correctAnswers[module][key] === "object") {
       const totalAnswers = correctAnswers[module][key]?.length || 1;
       isCorrect
         ? (trueAnswers = totalAnswers + trueAnswers)
@@ -269,6 +287,26 @@ const TableContent = ({ module, answers, correctAnswers }) => {
       correctAnswer,
     };
   });
+
+  return { rows, trueAnswers, wrongAnswers };
+};
+
+const TableContent = ({ module, answers, correctAnswers, onCalcScore }) => {
+  const { rows, trueAnswers, wrongAnswers } = processAnswersData(
+    module,
+    answers,
+    correctAnswers
+  );
+
+  useEffect(() => {
+    const score = {};
+    ["listening", "reading"].forEach((mod) => {
+      const { trueAnswers } = processAnswersData(mod, answers, correctAnswers);
+      score[mod] = getIeltsScore(trueAnswers, mod);
+    });
+
+    onCalcScore(score);
+  }, []);
 
   return (
     <>
@@ -325,6 +363,7 @@ const TableContent = ({ module, answers, correctAnswers }) => {
   );
 };
 
+// Writing content
 const WritingContent = ({ answers }) => {
   const answersMap = Object.keys(answers?.writing || {});
 
@@ -353,6 +392,7 @@ const WritingContent = ({ answers }) => {
   );
 };
 
+// Loading & error content
 const LoadingContent = () => {
   const { module = "listening" } = useParams();
 
