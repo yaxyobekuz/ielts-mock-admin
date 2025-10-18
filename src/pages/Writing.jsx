@@ -28,7 +28,7 @@ const Writing = () => {
   const module = pathSegments[3];
 
   const { getModuleData } = useModule(module, testId);
-  const { parts, duration } = getModuleData();
+  const { parts, duration } = getModuleData() || {};
 
   // Permissions
   const { checkPermission } = usePermission();

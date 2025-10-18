@@ -2,25 +2,25 @@
 import { useMemo } from "react";
 
 // Components
-import Icon from "../components/Icon";
+import Icon from "@/components/Icon";
 
 // Icons
-import penIcon from "../assets/icons/pen.svg";
+import penIcon from "@/assets/icons/pen.svg";
 
 // Icons
 import { Settings, Trash } from "lucide-react";
 
-// Hooks
-import useModal from "@/hooks/useModal";
-import useModule from "../hooks/useModule";
-import usePermission from "@/hooks/usePermission";
+// Data
+import questionsType from "@/data/questionsType";
 
 // Router
 import { Link, useParams } from "react-router-dom";
 
-// Data
-import questionsType from "../data/questionsType";
-import usePathSegments from "../hooks/usePathSegments";
+// Hooks
+import useModal from "@/hooks/useModal";
+import useModule from "@/hooks/useModule";
+import usePermission from "@/hooks/usePermission";
+import usePathSegments from "@/hooks/usePathSegments";
 
 // Components
 import Button from "@/components/form/Button";
@@ -37,7 +37,7 @@ const Reading = () => {
   const module = pathSegments[3];
 
   const { getModuleData } = useModule(module, testId);
-  const { parts, duration } = getModuleData();
+  const { parts, duration } = getModuleData() || {};
 
   // Permissions
   const { checkPermission } = usePermission();
