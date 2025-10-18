@@ -12,11 +12,19 @@ import {
   FileCheck,
 } from "lucide-react";
 
-// React
-import { useEffect } from "react";
+// Helpers
+import {
+  formatDate,
+  formatTime,
+  getIeltsScore,
+  isEqualStringArray,
+} from "@/lib/helpers";
 
 // Components
 import Nav from "@/components/Nav";
+
+// React
+import { useEffect, useMemo } from "react";
 
 // Toast
 import { toast } from "@/notification/toast";
@@ -27,14 +35,11 @@ import { Link, useParams } from "react-router-dom";
 // Hooks
 import useModal from "@/hooks/useModal";
 import useStore from "@/hooks/useStore";
+import usePermission from "@/hooks/usePermission";
 import useObjectState from "@/hooks/useObjectState";
 
 // Api
 import { submissionsApi } from "@/api/submissions.api";
-
-// Helpers
-import { formatDate, formatTime, getIeltsScore } from "@/lib/helpers";
-import usePermission from "@/hooks/usePermission";
 
 const Submission = () => {
   const { submissionId } = useParams();
@@ -93,6 +98,10 @@ const MainContent = ({
   const { module = "listening" } = useParams();
   const { openModal } = useModal("createResult");
   const { firstName = "Foydalanuvchi", lastName = "" } = student || {};
+
+  const formattedAnswers = useMemo(() => {
+    return { listening: {}, reading: {}, writing: {}, ...answers };
+  }, [id]);
 
   return (
     <div className="container py-8 space-y-6">
@@ -166,15 +175,6 @@ const MainContent = ({
             </Link>
           )}
 
-          {/* Invite link */}
-          <Link
-            to={`/links/${link}`}
-            className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
-          >
-            <LinkIcon size={20} strokeWidth={1.5} />
-            <span>Taklif havolasi</span>
-          </Link>
-
           {/* Evaluate */}
           {!isScored && !result && (
             <button
@@ -186,16 +186,25 @@ const MainContent = ({
               <span>Baholash</span>
             </button>
           )}
+
+          {/* Invite link */}
+          <Link
+            to={`/links/${link}`}
+            className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
+          >
+            <LinkIcon size={20} strokeWidth={1.5} />
+            <span>Taklif havolasi</span>
+          </Link>
         </div>
       </div>
 
       {/* Answers */}
       {module === "writing" ? (
-        <WritingContent answers={answers} />
+        <WritingContent answers={formattedAnswers} />
       ) : (
         <TableContent
           module={module}
-          answers={answers}
+          answers={formattedAnswers}
           correctAnswers={correctAnswers}
         />
       )}
@@ -233,10 +242,25 @@ const TableContent = ({ module, answers, correctAnswers }) => {
 
     const isCorrect = (() => {
       if (userAnswer === "-" && correctAnswer === "-") return false;
+
+      if (typeof answers[module][key] === "object") {
+        return isEqualStringArray(
+          answers[module][key],
+          correctAnswers[module][key]
+        );
+      }
+
       return userAnswer === correctAnswer;
     })();
 
-    isCorrect ? trueAnswers++ : wrongAnswers++;
+    if (typeof answers[module][key] === "object") {
+      const totalAnswers = correctAnswers[module][key]?.length || 1;
+      isCorrect
+        ? (trueAnswers = totalAnswers + trueAnswers)
+        : (wrongAnswers = totalAnswers + wrongAnswers);
+    } else {
+      isCorrect ? trueAnswers++ : wrongAnswers++;
+    }
 
     return {
       key,

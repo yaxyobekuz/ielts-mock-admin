@@ -218,3 +218,17 @@ export const getDeviceInfo = (ua) => {
 
   return [os, browser].join(", ");
 };
+
+export const isEqualStringArray = (arr1, arr2) => {
+  if (arr1.length !== arr2.length) return false;
+
+  const normalize = (str) =>
+    str
+      .trim()
+      .toLowerCase()
+      .replace(/[.,!?;:]$/g, "");
+  const sorted1 = arr1.map(normalize).sort();
+  const sorted2 = arr2.map(normalize).sort();
+
+  return sorted1.every((val, idx) => val === sorted2[idx]);
+};
