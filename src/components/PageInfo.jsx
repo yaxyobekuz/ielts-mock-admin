@@ -11,12 +11,15 @@ const PageInfo = ({
   description = "",
   title = "Sarlavha",
   className = "w-full",
+  allowFullScreen = false,
   animation = duckShrugging,
   links = { primary: null, secondary: null },
 }) => {
   return (
     <div
-      className={`flex flex-col items-center justify-center text-center ${className}`}
+      className={`flex flex-col items-center justify-center text-center ${
+        allowFullScreen ? "w-full h-screen" : ""
+      } ${className}`}
     >
       {/* Icon */}
       <Lottie animationData={animation} className="size-36 mb-5" />

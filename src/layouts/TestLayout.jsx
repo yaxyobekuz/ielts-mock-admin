@@ -26,7 +26,11 @@ import { Link, Outlet, useParams } from "react-router-dom";
 
 // Components
 import Nav from "@/components/Nav";
+import PageInfo from "@/components/PageInfo";
 import MainBgLoader from "@/components/loaders/MainBgLoader";
+
+// Animations
+import sadDuckAnimation from "@/assets/animated/duck-sad-out.json";
 
 // Modals
 import DeletePartModal from "@/components/modal/DeletePartModal";
@@ -49,26 +53,26 @@ const TestLayout = () => {
   const { parts } = getModuleData() || {};
   const part = parts?.find((p) => p.number === Number(partNumber));
 
-  const { setField, isLoading, hasError } = useObjectState({
-    hasError: false,
+  const { setField, isLoading, error } = useObjectState({
+    error: null,
     isLoading: !parts,
   });
 
   const loadTest = () => {
-    setField("hasError");
+    setField("error", null);
     setField("isLoading", true);
 
     testsApi
       .getById(testId)
       .then(({ code, test }) => {
         if (code !== "testFetched") throw new Error();
+
         setModule(test.reading, test._id, "reading");
         setModule(test.writing, test._id, "writing");
         setModule(test.listening, test._id, "listening");
       })
       .catch(({ message }) => {
-        setField("hasError", true);
-        toast.error(message || "Nimadir xato ketdi");
+        setField("error", message || "Nimadir xato ketdi");
       })
       .finally(() => setField("isLoading"));
   };
@@ -77,10 +81,24 @@ const TestLayout = () => {
     !parts && loadTest();
   }, [testId]);
 
-  if (isLoading) {
-    return <MainBgLoader hasError={hasError} onButtonClick={loadTest} />;
+  // Loader
+  if (isLoading) return <MainBgLoader />;
+
+  // Error content
+  if (error) {
+    return (
+      <PageInfo
+        title={error}
+        allowFullScreen
+        animation={sadDuckAnimation}
+        links={{
+          primary: { to: "/tests", body: "Testlar sahifasiga qaytish" },
+        }}
+      />
+    );
   }
 
+  // Main content
   return (
     <>
       <ModulesNavbar testId={testId} />

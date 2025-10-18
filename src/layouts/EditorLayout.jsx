@@ -4,9 +4,6 @@ import { useEffect } from "react";
 // Api
 import { testsApi } from "@/api/tests.api";
 
-// Toast
-import { toast } from "@/notification/toast";
-
 // Router
 import { Outlet, useParams } from "react-router-dom";
 
@@ -16,8 +13,12 @@ import useObjectState from "@/hooks/useObjectState";
 import usePathSegments from "@/hooks/usePathSegments";
 
 // Components
+import PageInfo from "@/components/PageInfo";
 import MainBgLoader from "@/components/loaders/MainBgLoader";
 import UploadImageModal from "@/components/modal/UploadImageModal";
+
+// Animations
+import sadDuckAnimation from "@/assets/animated/duck-sad-out.json";
 
 const EditorLayout = () => {
   const { testId } = useParams();
@@ -27,14 +28,16 @@ const EditorLayout = () => {
   const { getModuleData, setModule } = useModule(module, testId);
   const { parts } = getModuleData() || {};
 
-  const { setField, isLoading, hasError } = useObjectState({
-    hasError: false,
+  const { setField, isLoading, error } = useObjectState({
+    error: null,
     isLoading: !parts,
   });
 
   const loadTest = () => {
-    setField("hasError");
+    setField("error", null);
     setField("isLoading", true);
+
+    console.log(1);
 
     testsApi
       .getById(testId)
@@ -47,8 +50,7 @@ const EditorLayout = () => {
         setModule(test.listening, test._id, "listening");
       })
       .catch(({ message }) => {
-        setField("hasError", true);
-        toast.error(message || "Nimadir xato ketdi");
+        setField("error", message || "Nimadir xato ketdi");
       })
       .finally(() => setField("isLoading"));
   };
@@ -57,14 +59,26 @@ const EditorLayout = () => {
     !parts && loadTest();
   }, [testId]);
 
-  if (isLoading) {
-    return <MainBgLoader hasError={hasError} onButtonClick={loadTest} />;
+  // Loading content
+  if (isLoading) return <MainBgLoader />;
+
+  // Error content
+  if (error) {
+    return (
+      <PageInfo
+        title={error}
+        allowFullScreen
+        animation={sadDuckAnimation}
+        links={{
+          primary: { to: "/tests", body: "Testlar sahifasiga qaytish" },
+        }}
+      />
+    );
   }
 
   return (
     <>
       <Outlet />
-
       <UploadImageModal />
     </>
   );
