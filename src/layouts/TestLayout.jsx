@@ -34,6 +34,7 @@ import sadDuckAnimation from "@/assets/animated/duck-sad-out.json";
 
 // Modals
 import DeletePartModal from "@/components/modal/DeletePartModal";
+import UpdatePartModal from "@/components/modal/UpdatePartModal";
 import DeleteSectionModal from "@/components/modal/DeleteSectionModal";
 
 const TestLayout = () => {
@@ -116,6 +117,7 @@ const TestLayout = () => {
       </main>
 
       <DeletePartModal />
+      <UpdatePartModal />
       <DeleteSectionModal />
 
       <PartsNavbar
