@@ -33,6 +33,7 @@ import UseTemplateModal from "@/components/modal/UseTemplateModal";
 import UpdateAvatarModal from "@/components/modal/UpdateAvatarModal";
 import CreateResultModal from "@/components/modal/CreateResultModal";
 import CreateTeacherModal from "@/components/modal/CreateTeacherModal";
+import DeleteTeacherModal from "@/components/modal/DeleteTeacherModal";
 import CreateTemplateModal from "@/components/modal/CreateTemplateModal";
 
 // Router
@@ -146,6 +147,7 @@ const AuthenticatedContent = () => {
       <UseTemplateModal />
       <CreateResultModal />
       <UpdateAvatarModal />
+      <DeleteTeacherModal />
       <CreateTeacherModal />
       <CreateTemplateModal />
     </div>

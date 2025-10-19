@@ -18,6 +18,7 @@ const initialState = {
   updateAvatar: initialModal,
   createResult: initialModal,
   createTeacher: initialModal,
+  deleteTeacher: initialModal,
   deleteSection: initialModal,
   createTemplate: initialModal,
 };
