@@ -8,72 +8,178 @@ import {
   SquareArrowOutUpRight,
 } from "lucide-react";
 
+// Toast
+import { toast } from "@/notification/toast";
+
 // React
-import { useEffect } from "react";
-
-// Router
-import { Link } from "react-router-dom";
-
-// Hooks
-import useStore from "@/hooks/useStore";
+import { useCallback, useEffect } from "react";
 
 // Results api
 import { resultsApi } from "@/api/results.api";
 
+// Hooks
+import useArrayStore from "@/hooks/useArrayStore";
+
 // Components
+import PageInfo from "@/components/PageInfo";
+import Pagination from "@/components/Pagination";
 import ProfilePhoto from "@/components/ProfilePhoto";
+
+// Router
+import { Link, useSearchParams } from "react-router-dom";
 
 // Helpers
 import { appendDotZero, formatDate, formatTime } from "@/lib/helpers";
 
 const Results = () => {
-  const { getData, updateProperty } = useStore("results");
-  const { isLoading, hasError, data: results } = getData();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
-  const loadResults = () => {
-    updateProperty("isLoading", true);
-    updateProperty("hasError", false);
+  const {
+    setPage,
+    initialize,
+    getMetadata,
+    getPageData,
+    hasCollection,
+    setPageErrorState,
+    setPageLoadingState,
+  } = useArrayStore("results");
 
-    resultsApi
-      .get()
-      .then(({ results, code }) => {
-        if (code !== "resultsFetched") throw new Error();
-        updateProperty("data", results);
-      })
-      .catch(() => updateProperty("hasError", true))
-      .finally(() => updateProperty("isLoading", false));
-  };
-
-  // Load results
+  // Initialize collection on mount
   useEffect(() => {
-    isLoading && loadResults();
-  }, []);
+    if (!hasCollection()) initialize(true); // pagination = true
+  }, [hasCollection, initialize]);
+
+  const metadata = getMetadata();
+  const pageData = getPageData(currentPage);
+
+  const results = pageData?.data || [];
+  const hasError = pageData?.error || null;
+  const isLoading = pageData?.isLoading || false;
+  const hasNextPage = pageData?.hasNextPage ?? false;
+  const hasPrevPage = pageData?.hasPrevPage ?? false;
+
+  // Load results for current page
+  const loadResults = useCallback(
+    (page) => {
+      setPageLoadingState(page, true);
+
+      resultsApi
+        .get({ page, limit: 12 })
+        .then(({ results, code, pagination }) => {
+          if (code !== "resultsFetched") throw new Error();
+          setPage(page, results, null, pagination);
+        })
+        .catch(({ message }) => {
+          toast.error(message || "Nimadir xato ketdi");
+          setPageErrorState(page, message || "Nimadir xato ketdi");
+        });
+    },
+    [setPageLoadingState, setPage, setPageErrorState]
+  );
+
+  // Navigate to page
+  const goToPage = useCallback(
+    (page) => {
+      if (page < 1) return;
+      setSearchParams({ page: page.toString() });
+    },
+    [setSearchParams]
+  );
+
+  // Load results when page changes
+  useEffect(() => {
+    const pageDataExists = getPageData(currentPage);
+    if (!pageDataExists) loadResults(currentPage);
+  }, [currentPage, loadResults, getPageData]);
 
   return (
     <div className="container py-8 space-y-6">
       {/* Title */}
-      <h1>Natijalar</h1>
+      <div className="flex items-center justify-between">
+        <h1>Natijalar</h1>
+
+        {/* Pagination Info */}
+        {!isLoading && !hasError && results.length > 0 && metadata && (
+          <div className="flex items-center gap-3 text-gray-500">
+            <span>
+              Hozirgi sahifa:{" "}
+              <strong className="font-medium text-black">{currentPage}</strong>{" "}
+              / {metadata.totalPages}
+            </span>
+
+            <span className="size-1 bg-gray-400 rounded-full" />
+
+            <span>
+              Jami natijalar:{" "}
+              <strong className="font-medium text-black">
+                {metadata.total}
+              </strong>{" "}
+              ta
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* Main */}
-      <main className="grid grid-cols-4 gap-5">
-        <Content hasError={hasError} isLoading={isLoading} results={results} />
+      <main>
+        {/* Skeleton loader */}
+        {isLoading && !hasError ? (
+          <ul className="grid grid-cols-4 gap-5 animate-pulse">
+            {Array.from({ length: 12 }, (_, index) => (
+              <ResultItemSkeleton key={index} />
+            ))}
+          </ul>
+        ) : null}
+
+        {/* Error content */}
+        {!isLoading && hasError ? (
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <p className="text-red-500 text-lg">{hasError}</p>
+            <button
+              onClick={() => loadResults(currentPage)}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              Qayta urinib ko'rish
+            </button>
+          </div>
+        ) : null}
+
+        {/* No results */}
+        {!isLoading && !hasError && results.length === 0 ? (
+          <PageInfo
+            className="pt-12"
+            title="Hech qanday natija topilmadi"
+            links={{ primary: { to: "/results", body: "1-sahifaga qaytish" } }}
+            description={`Ushbu ${currentPage}-sahifada hech qanday natija topilmadi.`}
+          />
+        ) : null}
+
+        {/* Results */}
+        {!isLoading && !hasError && results.length > 0 ? (
+          <div className="grid grid-cols-4 gap-5">
+            {results.map((result) => (
+              <ResultItem key={result?._id} {...result} />
+            ))}
+          </div>
+        ) : null}
       </main>
+
+      {/* Pagination Controls */}
+      {!isLoading && !hasError && results.length > 0 && (
+        <Pagination
+          className="pt-4"
+          maxPageButtons={5}
+          showPageNumbers={true}
+          onPageChange={goToPage}
+          currentPage={currentPage}
+          hasNextPage={hasNextPage}
+          hasPrevPage={hasPrevPage}
+          totalPages={metadata?.totalPages || 1}
+        />
+      )}
     </div>
   );
-};
-
-const Content = ({ isLoading, hasError, results = [] }) => {
-  if (isLoading) {
-    return Array.from({ length: 8 }, (_, index) => {
-      return <ResultItemSkeleton key={index} />;
-    });
-  }
-
-  if (hasError) {
-    return <div className="">Error</div>;
-  }
-
-  return results.map((result) => <ResultItem key={result?._id} {...result} />);
 };
 
 const ResultItem = ({
@@ -196,7 +302,7 @@ const ResultItem = ({
 };
 
 const ResultItemSkeleton = () => (
-  <div className="w-full min-h-52 bg-gray-100 rounded-3xl p-5 space-y-5 animate-pulse" />
+  <div className="w-full min-h-52 bg-gray-100 rounded-3xl p-5 space-y-5" />
 );
 
 export default Results;
