@@ -137,7 +137,7 @@ const Links = () => {
         {/* Skeleton Loader */}
         {isLoading && !hasError ? (
           <ul className="grid grid-cols-4 gap-5 animate-pulse">
-            {Array.from({ length: 8 }, (_, index) => (
+            {Array.from({ length: 12 }, (_, index) => (
               <div
                 key={index}
                 className="w-full min-h-52 bg-gray-100 rounded-3xl p-5 space-y-5"
