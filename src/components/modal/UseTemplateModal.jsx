@@ -15,7 +15,7 @@ import ResponsiveModal from "../ResponsiveModal";
 import { templatesApi } from "@/api/templates.api";
 
 // Hooks
-import useStore from "@/hooks/useStore";
+import useArrayStore from "@/hooks/useArrayStore";
 import useObjectState from "@/hooks/useObjectState";
 
 const UseTemplateModal = () => (
@@ -30,8 +30,7 @@ const UseTemplateModal = () => (
 
 const Content = ({ close, templateId, isLoading, setIsLoading }) => {
   const navigate = useNavigate();
-  const { getData, updateProperty } = useStore("tests");
-  const { isLoading: isTestsLoading, data: tests } = getData();
+  const { invalidateCache } = useArrayStore("tests");
 
   const { title, description, setField } = useObjectState({
     title: "",
@@ -54,16 +53,15 @@ const Content = ({ close, templateId, isLoading, setIsLoading }) => {
         title: title.trim(),
         description: description?.trim() || "",
       })
-      .then(({ test, code }) => {
+      .then(({ test, code, message }) => {
         if (code !== "templateUsed") throw new Error();
 
         success = true;
+        invalidateCache();
+        toast.success(message);
         navigate(`/tests/${test._id}`);
-        if (!isTestsLoading) updateProperty("data", [test, ...tests]);
       })
-      .catch(({ message }) =>
-        toast.error(message || "Nimadir xato ketdi")
-      )
+      .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {
         success && close();
         setIsLoading(false);
@@ -107,7 +105,7 @@ const Content = ({ close, templateId, isLoading, setIsLoading }) => {
           Bekor qilish
         </Button>
 
-        <Button disabled={isLoading} type="submit" className="w-32">
+        <Button disabled={isLoading} className="w-32">
           Qo'shish
         </Button>
       </div>

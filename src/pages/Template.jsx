@@ -15,9 +15,9 @@ import { templatesApi } from "@/api/templates.api";
 
 // Hooks
 import useModal from "@/hooks/useModal";
-import useStore from "@/hooks/useStore";
 import usePermission from "@/hooks/usePermission";
 import useObjectState from "@/hooks/useObjectState";
+import useObjectStore from "@/hooks/useObjectStore";
 
 // Components
 import TemplateItem from "@/components/TemplateItem";
@@ -27,8 +27,8 @@ import { formatDate, formatTime } from "@/lib/helpers";
 
 const Template = () => {
   const { templateId } = useParams();
-  const { getProperty, updateProperty } = useStore("template");
-  const template = getProperty(templateId);
+  const { addEntity, getEntity } = useObjectStore("templates");
+  const template = getEntity(templateId);
 
   // Permissions
   const { checkPermission } = usePermission();
@@ -47,7 +47,7 @@ const Template = () => {
       .getById(templateId)
       .then(({ code, template, extraTemplates }) => {
         if (code !== "templateFetched") throw new Error();
-        updateProperty(templateId, { ...template, extraTemplates });
+        addEntity(templateId, { ...template, extraTemplates });
       })
       .catch(({ message }) => {
         setField("hasError", true);

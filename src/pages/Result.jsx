@@ -32,7 +32,7 @@ import { resultsApi } from "@/api/results.api";
 import { Link, useParams } from "react-router-dom";
 
 // Hooks
-import useStore from "@/hooks/useStore";
+import useObjectStore from "@/hooks/useObjectStore";
 import useObjectState from "@/hooks/useObjectState";
 
 // Components
@@ -52,8 +52,8 @@ assessmentCriteria.forEach(({ criteria }) => {
 
 const Result = () => {
   const { resultId } = useParams();
-  const { getProperty, updateProperty } = useStore("result");
-  const result = getProperty(resultId);
+  const { addEntity, getEntity } = useObjectStore("results");
+  const result = getEntity(resultId);
 
   const { setField, isLoading, hasError } = useObjectState({
     hasError: false,
@@ -68,7 +68,7 @@ const Result = () => {
       .getById(resultId)
       .then(({ code, result }) => {
         if (code !== "resultFetched") throw new Error();
-        updateProperty(resultId, result);
+        addEntity(resultId, result);
       })
       .catch(({ message }) => {
         setField("hasError", true);
