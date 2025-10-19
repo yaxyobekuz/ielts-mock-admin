@@ -1,20 +1,25 @@
+// Toast
+import { toast } from "@/notification/toast";
+
 // React
-import { useEffect } from "react";
-
-// Router
-import { Link } from "react-router-dom";
-
-// Hooks
-import useStore from "@/hooks/useStore";
-import useModal from "@/hooks/useModal";
+import { useCallback, useEffect } from "react";
 
 // Teachers api
 import { teachersApi } from "@/api/teachers.api";
 
+// Hooks
+import useModal from "@/hooks/useModal";
+import useArrayStore from "@/hooks/useArrayStore";
+
 // Components
+import PageInfo from "@/components/PageInfo";
 import Button from "@/components/form/Button";
 import CopyButton from "@/components/CopyButton";
+import Pagination from "@/components/Pagination";
 import ProfilePhoto from "@/components/ProfilePhoto";
+
+// Router
+import { Link, useSearchParams } from "react-router-dom";
 
 // Icons
 import { Clock, IdCardIcon, Plus, Signature } from "lucide-react";
@@ -23,60 +28,154 @@ import { Clock, IdCardIcon, Plus, Signature } from "lucide-react";
 import { formatDate, formatTime, formatUzPhone } from "@/lib/helpers";
 
 const Teachers = () => {
-  const { getData, updateProperty } = useStore("teachers");
-  const { isLoading, hasError, data: teachers } = getData();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
-  const loadTeachers = () => {
-    updateProperty("isLoading", true);
-    updateProperty("hasError", false);
+  const {
+    setPage,
+    initialize,
+    getMetadata,
+    getPageData,
+    hasCollection,
+    setPageErrorState,
+    setPageLoadingState,
+  } = useArrayStore("teachers");
 
-    teachersApi
-      .get()
-      .then(({ teachers, code }) => {
-        if (code !== "teachersFetched") throw new Error();
-        updateProperty("data", teachers);
-      })
-      .catch(() => updateProperty("hasError", true))
-      .finally(() => updateProperty("isLoading", false));
-  };
-
-  // Load user profile
+  // Initialize collection on mount
   useEffect(() => {
-    isLoading && loadTeachers();
-  }, []);
+    if (!hasCollection()) initialize(true); // pagination = true
+  }, [hasCollection, initialize]);
+
+  const metadata = getMetadata();
+  const pageData = getPageData(currentPage);
+
+  const teachers = pageData?.data || [];
+  const hasError = pageData?.error || null;
+  const isLoading = pageData?.isLoading || false;
+  const hasNextPage = pageData?.hasNextPage ?? false;
+  const hasPrevPage = pageData?.hasPrevPage ?? false;
+
+  // Load teachers for current page
+  const loadTeachers = useCallback(
+    (page) => {
+      setPageLoadingState(page, true);
+
+      teachersApi
+        .get({ page, limit: 11 })
+        .then(({ teachers, code, pagination }) => {
+          if (code !== "teachersFetched") throw new Error();
+          setPage(page, teachers, null, pagination);
+        })
+        .catch(({ message }) => {
+          toast.error(message || "Nimadir xato ketdi");
+          setPageErrorState(page, message || "Nimadir xato ketdi");
+        });
+    },
+    [setPageLoadingState, setPage, setPageErrorState]
+  );
+
+  // Navigate to page
+  const goToPage = useCallback(
+    (page) => {
+      if (page < 1) return;
+      setSearchParams({ page: page.toString() });
+    },
+    [setSearchParams]
+  );
+
+  // Load teachers when page changes
+  useEffect(() => {
+    const pageDataExists = getPageData(currentPage);
+    if (!pageDataExists) loadTeachers(currentPage);
+  }, [currentPage, loadTeachers, getPageData]);
 
   return (
     <div className="container py-8 space-y-6">
       {/* Title */}
-      <h1>Ustozlar</h1>
+      <div className="flex items-center justify-between">
+        <h1>Ustozlar</h1>
+
+        {/* Pagination Info */}
+        {!isLoading && !hasError && teachers.length > 0 && metadata && (
+          <div className="flex items-center gap-3 text-gray-500">
+            <span>
+              Hozirgi sahifa:{" "}
+              <strong className="font-medium text-black">{currentPage}</strong>{" "}
+              / {metadata.totalPages}
+            </span>
+
+            <span className="size-1 bg-gray-400 rounded-full" />
+
+            <span>
+              Jami ustozlar:{" "}
+              <strong className="font-medium text-black">
+                {metadata.total}
+              </strong>{" "}
+              ta
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* Main */}
-      <main className="grid grid-cols-4 gap-5">
-        <Main isLoading={isLoading} hasError={hasError} teachers={teachers} />
+      <main>
+        {/* Skeleton loader */}
+        {isLoading && !hasError ? (
+          <ul className="grid grid-cols-4 gap-5 animate-pulse">
+            {Array.from({ length: 12 }, (_, index) => (
+              <TeacherItemSkeleton key={index} />
+            ))}
+          </ul>
+        ) : null}
+
+        {/* Error content */}
+        {!isLoading && hasError ? (
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <p className="text-red-500 text-lg">{hasError}</p>
+            <button
+              onClick={() => loadTeachers(currentPage)}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              Qayta urinib ko'rish
+            </button>
+          </div>
+        ) : null}
+
+        {/* No teachers */}
+        {!isLoading && !hasError && teachers.length === 0 ? (
+          <PageInfo
+            className="pt-12"
+            title="Hech qanday ustoz topilmadi"
+            links={{ primary: { to: "/teachers", body: "1-sahifaga qaytish" } }}
+            description={`Ushbu ${currentPage}-sahifada hech qanday ustoz topilmadi.`}
+          />
+        ) : null}
+
+        {/* Teachers */}
+        {!isLoading && !hasError && teachers.length > 0 ? (
+          <div className="grid grid-cols-4 gap-5">
+            <AddNew />
+            {teachers.map((teacher) => (
+              <TeacherItem key={teacher?._id} {...teacher} />
+            ))}
+          </div>
+        ) : null}
       </main>
+
+      {/* Pagination Controls */}
+      {!isLoading && !hasError && teachers.length > 0 && (
+        <Pagination
+          className="pt-4"
+          maxPageButtons={5}
+          showPageNumbers={true}
+          onPageChange={goToPage}
+          currentPage={currentPage}
+          hasNextPage={hasNextPage}
+          hasPrevPage={hasPrevPage}
+          totalPages={metadata?.totalPages || 1}
+        />
+      )}
     </div>
-  );
-};
-
-const Main = ({ isLoading, hasError, teachers = [] }) => {
-  if (isLoading) {
-    return Array.from({ length: 8 }, (_, index) => {
-      return <TeacherItemSkeleton key={index} />;
-    });
-  }
-
-  if (hasError) {
-    return <div className="">Error</div>;
-  }
-
-  return (
-    <>
-      <AddNew />
-
-      {teachers.map((teacher) => (
-        <TeacherItem key={teacher?._id} {...teacher} />
-      ))}
-    </>
   );
 };
 
@@ -176,7 +275,7 @@ const TeacherItem = ({
 };
 
 const TeacherItemSkeleton = () => (
-  <div className="w-full min-h-52 bg-gray-100 rounded-3xl p-5 space-y-5 animate-pulse" />
+  <div className="w-full min-h-52 bg-gray-100 rounded-3xl p-5" />
 );
 
 export default Teachers;
