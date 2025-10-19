@@ -42,11 +42,43 @@ import readingBg from "@/assets/backgrounds/reading.webp";
 import writingBg from "@/assets/backgrounds/writing.webp";
 import listeningBg from "@/assets/backgrounds/listening.webp";
 
+const modules = [
+  {
+    title: "Listening",
+    image: listeningBg,
+    link(testId) {
+      return `/tests/${testId}/preview/listening/1`;
+    },
+  },
+  {
+    title: "Reading",
+    image: readingBg,
+    link(testId) {
+      return `/tests/${testId}/preview/reading/1`;
+    },
+  },
+  {
+    title: "Writing",
+    image: writingBg,
+    link(testId) {
+      return `/tests/${testId}/preview/writing/1`;
+    },
+  },
+];
+
 const Test = () => {
   const { testId } = useParams();
   const { setModule } = useModule();
+  const { openModal } = useModal("createLink");
   const { addEntity, getEntity } = useObjectStore("tests");
   const test = getEntity(testId);
+
+  // Permissions
+  const { checkPermission } = usePermission();
+  const canEditTest = checkPermission("canEditTest");
+  const canDeleteTest = checkPermission("canDeleteTest");
+  const canCreateLink = checkPermission("canCreateLink");
+  const canCreateTemplate = checkPermission("canCreateTemplate");
 
   const { setField, isLoading, hasError } = useObjectState({
     hasError: false,
@@ -78,57 +110,16 @@ const Test = () => {
     isLoading && loadTest();
   }, []);
 
-  return (
-    <div className="container py-8 space-y-6">
-      <Content isLoading={isLoading} hasError={hasError} {...test} />
-    </div>
-  );
-};
-
-const modules = [
-  {
-    title: "Listening",
-    image: listeningBg,
-    link(testId) {
-      return `/tests/${testId}/preview/listening/1`;
-    },
-  },
-  {
-    title: "Reading",
-    image: readingBg,
-    link(testId) {
-      return `/tests/${testId}/preview/reading/1`;
-    },
-  },
-  {
-    title: "Writing",
-    image: writingBg,
-    link(testId) {
-      return `/tests/${testId}/preview/writing/1`;
-    },
-  },
-];
-
-const Content = ({
-  title,
-  hasError,
-  template,
-  createdAt,
-  isLoading,
-  totalParts,
-  isTemplate,
-  description,
-  ...rest
-}) => {
-  const { testId } = useParams();
-  const { checkPermission } = usePermission();
-  const { openModal } = useModal("createLink");
-
-  // Permissions
-  const canEditTest = checkPermission("canEditTest");
-  const canDeleteTest = checkPermission("canDeleteTest");
-  const canCreateLink = checkPermission("canCreateLink");
-  const canCreateTemplate = checkPermission("canCreateTemplate");
+  // Test details
+  const {
+    title,
+    template,
+    createdAt,
+    totalParts,
+    isTemplate,
+    description,
+    ...rest
+  } = test || {};
 
   const openCreateTemplateModal = useCallback(() => {
     if (!canCreateTemplate) return;
@@ -140,11 +131,12 @@ const Content = ({
     openModal({ testId, description, title }, "editTest");
   }, [testId, description, title]);
 
+  // Content
   if (isLoading) return <LoadingContent />;
   if (hasError) return <ErrorContent />;
 
   return (
-    <>
+    <div className="container py-8 space-y-6">
       <div className="flex items-center justify-between">
         {/* Title */}
         <h1>{title}</h1>
@@ -283,18 +275,28 @@ const Content = ({
         {/* Invite links */}
         <Links testId={testId} />
       </div>
-    </>
+    </div>
   );
 };
 
 const LoadingContent = () => {
   return (
-    <>
-      <h1>Test</h1>
+    <div className="container py-8 space-y-6">
+      {/* Top */}
+      <div className="flex items-center justify-between">
+        <h1>Yuklanmoqda...</h1>
+        <div className="flex items-center gap-3.5 animate-pulse">
+          <div className="w-20 h-6 bg-gray-100 p-0 rounded-full" />
+          <div className="w-48 h-6 bg-gray-100 p-0 rounded-full" />
+        </div>
+      </div>
 
       {/* Action buttons */}
-      <div className="flex items-center justify-end gap-5">
-        <div className="btn w-56 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200" />{" "}
+      <div className="flex items-center justify-end gap-5 animate-pulse">
+        <div className="w-32 h-11 bg-gray-100 py-0 rounded-full" />
+        <div className="w-44 h-11 bg-gray-100 py-0 rounded-full" />
+        <div className="w-60 h-11 bg-gray-100 py-0 rounded-full" />
+        <div className="size-11 bg-red-50 py-0 rounded-full" />
       </div>
 
       <ul className="grid grid-cols-4 gap-5 animate-pulse">
@@ -305,7 +307,7 @@ const LoadingContent = () => {
           />
         ))}
       </ul>
-    </>
+    </div>
   );
 };
 
