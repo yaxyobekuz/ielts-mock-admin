@@ -10,6 +10,7 @@ import { testsApi } from "@/api/tests.api";
 // Hooks
 import useStore from "@/hooks/useStore";
 import useModal from "@/hooks/useModal";
+import useArrayStore from "@/hooks/useArrayStore";
 import usePermission from "@/hooks/usePermission";
 
 // Components
@@ -146,26 +147,36 @@ const Profile = ({ user }) => {
 };
 
 const Tests = ({ user }) => {
+  const {
+    setCollection,
+    getCollectionData,
+    getCollectionError,
+    isCollectionLoading,
+    setCollectionErrorState,
+    setCollectionLoadingState,
+  } = useArrayStore("latestTests");
+  const tests = getCollectionData();
+  const error = getCollectionError();
+  const isLoading = isCollectionLoading();
+
   const isTeacher = user.role === "teacher";
   const { openModal } = useModal("createTest");
   const { checkPermission } = usePermission("teacher", user);
-  const { getData, updateProperty } = useStore("latestTests");
-
-  const { isLoading, hasError, data: tests } = getData();
   const canCreateTest = checkPermission("canCreateTest") && isTeacher;
 
   const loadTests = () => {
-    updateProperty("hasError");
-    updateProperty("isLoading", true);
+    setCollectionErrorState(null);
+    setCollectionLoadingState(true);
 
     testsApi
       .getLatest()
       .then(({ code, tests }) => {
         if (code !== "latestTestsFetched") throw new Error();
-        updateProperty("data", tests);
+        setCollection(tests);
       })
-      .catch(() => updateProperty("hasError", true))
-      .finally(() => updateProperty("isLoading"));
+      .catch(({ message }) =>
+        setCollectionErrorState(message || "Nimadir xato ketdi")
+      );
   };
 
   useEffect(() => {
@@ -191,10 +202,11 @@ const Tests = ({ user }) => {
 
       {/* Main */}
       <div className="flex flex-col gap-3.5 w-full h-[calc(100%-74px)] p-5 pt-0 grow">
-        <ul className="space-y-3 max-h-[calc(100%-50px)] overflow-auto scroll-y-primary scroll-smooth">
-          {/* Skeleton Loader */}
-          {isLoading && !hasError
-            ? Array.from({ length: 5 }, (_, index) => (
+        {!error && (
+          <ul className="space-y-3 max-h-[calc(100%-50px)] overflow-auto scroll-y-primary scroll-smooth">
+            {/* Skeleton Loader */}
+            {isLoading &&
+              Array.from({ length: 5 }, (_, index) => (
                 <li
                   key={index}
                   className="flex items-center justify-between gap-2 pr-1 relative animate-pulse"
@@ -210,12 +222,11 @@ const Tests = ({ user }) => {
                     </div>
                   </div>
                 </li>
-              ))
-            : null}
+              ))}
 
-          {/* Tests */}
-          {!isLoading && !hasError
-            ? tests.map(({ title, updatedAt, _id: id }, index) => (
+            {/* Tests */}
+            {!isLoading &&
+              tests.map(({ title, updatedAt, _id: id }, index) => (
                 <li
                   key={id}
                   className="flex items-center justify-between gap-2 pr-1 relative"
@@ -243,14 +254,12 @@ const Tests = ({ user }) => {
                     className="block absolute z-0 inset-0 size-full -outline-offset-1 rounded-full"
                   />
                 </li>
-              ))
-            : null}
-        </ul>
+              ))}
+          </ul>
+        )}
 
         {/* Error */}
-        {!isLoading && hasError ? (
-          <p className="text-gray-500">Nimadir xato ketdi...</p>
-        ) : null}
+        {!isLoading && error ? <p className="text-gray-500">{error}</p> : null}
 
         {/* Create new */}
         <Button
