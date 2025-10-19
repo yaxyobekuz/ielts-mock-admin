@@ -13,6 +13,7 @@ import ResponsiveModal from "../ResponsiveModal";
 
 // Hooks
 import useStore from "@/hooks/useStore";
+import useArrayStore from "@/hooks/useArrayStore";
 import useObjectState from "@/hooks/useObjectState";
 import useLocalStorage from "@/hooks/useLocalStorage";
 
@@ -47,6 +48,7 @@ const Content = ({
     updateProperty: updateResultsProperty,
   } = useStore("results");
   const resultsData = getResultsProperty("data") || [];
+  const { updateItemById } = useArrayStore("submissions");
   const isResultsLoading = getResultsProperty("isLoading");
 
   // Submission
@@ -94,6 +96,9 @@ const Content = ({
         if (code !== "resultCreated") throw new Error();
 
         success = true;
+
+        updateItemById(submission._id, { isScored: true, result: result._id });
+
         updateProperty(submissionId, {});
         updateSubmission(submissionId, {
           ...submission,
