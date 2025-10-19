@@ -1,5 +1,5 @@
 // React
-import { memo } from "react";
+import { memo, useEffect } from "react";
 
 // Components
 import Button from "./form/Button";
@@ -33,6 +33,10 @@ const Pagination = ({
   if (totalPages <= 1 && !showPageNumbers) {
     return null;
   }
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  }, [currentPage]);
 
   const goToPage = (page) => {
     if (page < 1 || page > totalPages || page === currentPage) return;
