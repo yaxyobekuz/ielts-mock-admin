@@ -12,7 +12,7 @@ import ImageUploader from "../ImageUploader";
 import ResponsiveModal from "../ResponsiveModal";
 
 // Hooks
-import useStore from "@/hooks/useStore";
+import useObjectStore from "@/hooks/useObjectStore";
 import useObjectState from "@/hooks/useObjectState";
 
 const UpdateAvatarModal = () => (
@@ -26,7 +26,7 @@ const UpdateAvatarModal = () => (
 );
 
 const Content = ({ close, isLoading, setIsLoading }) => {
-  const { updateProperty } = useStore("user");
+  const { updateEntity } = useObjectStore("users");
   const { setField, file, progress } = useObjectState({
     file: null,
     progress: 0,
@@ -54,7 +54,7 @@ const Content = ({ close, isLoading, setIsLoading }) => {
         if (code !== "avatarUpdated") throw new Error();
 
         success = true;
-        updateProperty("data", user);
+        updateEntity("me", user);
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {

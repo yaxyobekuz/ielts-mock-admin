@@ -4,10 +4,6 @@ import { useMemo } from "react";
 // Router
 import { Link } from "react-router-dom";
 
-// Hooks
-import useModal from "@/hooks/useModal";
-import useStore from "@/hooks/useStore";
-
 // Icons
 import { Settings } from "lucide-react";
 
@@ -18,13 +14,18 @@ import ProfilePhoto from "./ProfilePhoto";
 // Images
 import ieltsLogo from "@/assets/icons/logo.svg";
 
+// Hooks
+import useModal from "@/hooks/useModal";
+import useObjectStore from "@/hooks/useObjectStore";
+
 // Data
 import { getNavlinksByRole } from "@/data/navlinks";
 
 const Header = () => {
-  const { getProperty } = useStore("user");
-  const { role } = getProperty("data");
   const { openModal } = useModal("profile");
+  const { getEntity } = useObjectStore("users");
+
+  const { role } = getEntity("me") || {};
   const handleOpenProfileModal = () => openModal();
   const navlinks = useMemo(() => getNavlinksByRole(role), [role]);
 

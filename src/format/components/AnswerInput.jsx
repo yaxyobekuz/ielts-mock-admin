@@ -5,7 +5,7 @@ import { Move, Trash } from "lucide-react";
 import { NodeViewWrapper } from "@tiptap/react";
 
 // Hooks
-import useStore from "@/hooks/useStore";
+import useObjectStore from "@/hooks/useObjectStore";
 import usePathSegments from "@/hooks/usePathSegments";
 
 // React
@@ -24,11 +24,11 @@ const AnswerInput = ({
   const [isMoved, setIsMoved] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
   const [coords, setCoords] = useState({ x: 0, y: 0 });
-  const { updateProperty, getProperty } = useStore("coords");
+  const { updateEntity, getEntity } = useObjectStore("coords");
   const [inputIndex, setInputIndex] = useState(initialNumber);
 
   const coordsKey = `${pathSegments[1]}-${pathSegments[3]}-${pathSegments[4]}-${pathSegments[5]}-${pathSegments[6]}`;
-  const allCoords = getProperty(coordsKey) || initialCoords || {};
+  const allCoords = getEntity(coordsKey) || initialCoords || {};
 
   const calculateIndex = useCallback(() => {
     try {
@@ -64,7 +64,7 @@ const AnswerInput = ({
   const handleDeleteNode = () => {
     if (!allowActions) return;
     deleteNode();
-    updateProperty(coordsKey, { ...allCoords, [inputIndex]: undefined });
+    updateEntity(coordsKey, { ...allCoords, [inputIndex]: undefined });
   };
 
   const handleMouseDown = () => {
@@ -80,7 +80,7 @@ const AnswerInput = ({
     setIsMoved(false);
     setIsMoving(false);
     setCoords({ x: 0, y: 0 });
-    updateProperty(coordsKey, { ...allCoords, [inputIndex]: undefined });
+    updateEntity(coordsKey, { ...allCoords, [inputIndex]: undefined });
   };
 
   useEffect(() => {
@@ -100,7 +100,7 @@ const AnswerInput = ({
 
     const handleMouseUp = () => {
       setIsMoving(false);
-      updateProperty(coordsKey, { ...allCoords, [inputIndex]: coords });
+      updateEntity(coordsKey, { ...allCoords, [inputIndex]: coords });
     };
 
     window.addEventListener("mouseup", handleMouseUp);

@@ -1,11 +1,11 @@
-// Hooks
-import useStore from "@/hooks/useStore";
-
 // Gradients
 import gradients from "@/data/gradients";
 
 // Helpers
 import { extractNumbers } from "@/lib/helpers";
+
+// Hooks
+import useObjectStore from "@/hooks/useObjectStore";
 
 // Component
 const ProfilePhoto = ({
@@ -14,8 +14,8 @@ const ProfilePhoto = ({
   photoSize = "small",
   className = "size-12 rounded-full",
 }) => {
-  const { getProperty } = useStore("user");
-  const userDataFromStore = getProperty("data");
+  const { getEntity } = useObjectStore("users");
+  const userDataFromStore = getEntity("me");
 
   const {
     lastName,

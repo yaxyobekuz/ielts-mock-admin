@@ -15,7 +15,7 @@ import ResponsiveModal from "../ResponsiveModal";
 
 // Hooks
 import useModal from "@/hooks/useModal";
-import useStore from "@/hooks/useStore";
+import useObjectStore from "@/hooks/useObjectStore";
 import useObjectState from "@/hooks/useObjectState";
 
 // Icons
@@ -32,7 +32,7 @@ const ProfileModal = () => (
 
 const Content = ({ close, defaultOpenEditor, isLoading, setIsLoading }) => {
   const { openModal } = useModal("updateAvatar");
-  const { getProperty, updateProperty } = useStore("user");
+  const { getEntity, updateEntity } = useObjectStore("users");
   const {
     role,
     phone,
@@ -40,7 +40,7 @@ const Content = ({ close, defaultOpenEditor, isLoading, setIsLoading }) => {
     bio: initialBio,
     lastName: initialLastName,
     firstName: initialFirstName,
-  } = getProperty("data") || {};
+  } = getEntity("me") || {};
 
   const { setField, setFields, lastName, firstName, isOpen, bio } =
     useObjectState({
@@ -77,7 +77,7 @@ const Content = ({ close, defaultOpenEditor, isLoading, setIsLoading }) => {
 
         close();
         setFields(updates);
-        updateProperty("data", user);
+        updateEntity("me", user);
         toast.success("Profil ma'lumotlari yangilandi");
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))

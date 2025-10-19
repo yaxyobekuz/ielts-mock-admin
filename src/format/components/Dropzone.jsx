@@ -5,7 +5,7 @@ import { Move, Trash } from "lucide-react";
 import { NodeViewWrapper } from "@tiptap/react";
 
 // Hooks
-import useStore from "@/hooks/useStore";
+import useObjectStore from "@/hooks/useObjectStore";
 import usePathSegments from "@/hooks/usePathSegments";
 
 // React
@@ -24,11 +24,11 @@ const Dropzone = ({
   const [isMoved, setIsMoved] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
   const [coords, setCoords] = useState({ x: 0, y: 0 });
-  const { updateProperty, getProperty } = useStore("coords");
+  const { updateEntity, getEntity } = useObjectStore("coords");
   const [dropzoneIndex, setDropzoneIndex] = useState(initialNumber);
 
   const coordsKey = `${pathSegments[1]}-${pathSegments[3]}-${pathSegments[4]}-${pathSegments[5]}-${pathSegments[6]}`;
-  const allCoords = getProperty(coordsKey) || initialCoords || {};
+  const allCoords = getEntity(coordsKey) || initialCoords || {};
 
   const calculateIndex = useCallback(() => {
     try {
@@ -64,7 +64,7 @@ const Dropzone = ({
   const handleDeleteNode = () => {
     if (!allowActions) return;
     deleteNode();
-    updateProperty(coordsKey, { ...allCoords, [dropzoneIndex]: undefined });
+    updateEntity(coordsKey, { ...allCoords, [dropzoneIndex]: undefined });
   };
 
   const handleMouseDown = () => {
@@ -80,7 +80,7 @@ const Dropzone = ({
     setIsMoved(false);
     setIsMoving(false);
     setCoords({ x: 0, y: 0 });
-    updateProperty(coordsKey, { ...allCoords, [dropzoneIndex]: undefined });
+    updateEntity(coordsKey, { ...allCoords, [dropzoneIndex]: undefined });
   };
 
   useEffect(() => {
@@ -100,7 +100,7 @@ const Dropzone = ({
 
     const handleMouseUp = () => {
       setIsMoving(false);
-      updateProperty(coordsKey, { ...allCoords, [dropzoneIndex]: coords });
+      updateEntity(coordsKey, { ...allCoords, [dropzoneIndex]: coords });
     };
 
     window.addEventListener("mouseup", handleMouseUp);

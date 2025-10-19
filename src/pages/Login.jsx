@@ -5,9 +5,6 @@ import {
   getRemainingSeconds,
 } from "@/lib/helpers";
 
-// Hooks
-import useStore from "@/hooks/useStore";
-
 // Api
 import { authApi } from "@/api/auth.api";
 
@@ -23,6 +20,9 @@ import { toast } from "@/notification/toast";
 // Components
 import Input from "@/components/form/Input";
 import Button from "@/components/form/Button";
+
+// Hooks
+import useObjectStore from "@/hooks/useObjectStore";
 
 // Hooks
 import useObjectState from "@/hooks/useObjectState";
@@ -174,7 +174,7 @@ const LoginContent = ({ next }) => {
 
 const VerifyCodeContent = ({ phone, password, createdAt, onBack }) => {
   const navigate = useNavigate();
-  const { updateProperty } = useStore("user");
+  const { updateEntity } = useObjectStore("users");
 
   const initialCooldownTime = useMemo(() => {
     return getRemainingSeconds(createdAt) || 0;
@@ -218,7 +218,7 @@ const VerifyCodeContent = ({ phone, password, createdAt, onBack }) => {
         navigate("/");
 
         // Save user data to store
-        updateProperty("data", user);
+        updateEntity("me", user);
 
         // Notify user
         toast(message || "Hisobingizga kirdingiz");
@@ -352,7 +352,7 @@ const VerifyCodeContent = ({ phone, password, createdAt, onBack }) => {
 
 const LoginWithCode = ({ onBack }) => {
   const navigate = useNavigate();
-  const { updateProperty } = useStore("user");
+  const { updateEntity } = useObjectStore("users");
 
   const {
     code,
@@ -404,7 +404,7 @@ const LoginWithCode = ({ onBack }) => {
         navigate("/");
 
         // Save user data to store
-        updateProperty("data", user);
+        updateEntity("me", user);
 
         // Notify user
         toast(message || "Hisobingizga kirdingiz");

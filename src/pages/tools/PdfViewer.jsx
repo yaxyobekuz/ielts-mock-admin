@@ -14,7 +14,7 @@ import { Upload, AlertCircle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 // Hooks
-import useStore from "@/hooks/useStore";
+import useObjectStore from "@/hooks/useObjectStore";
 import useDebouncedState from "@/hooks/useDebouncedState";
 
 // Create worker
@@ -24,8 +24,9 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 const PdfViewer = () => {
-  const { getProperty, updateProperty } = useStore("pdfFile");
-  const fileUrl = getProperty("fileUrl");
+  const { getEntity, updateEntity } = useObjectStore("pdfFile");
+  const pdfFile = getEntity("file") || {};
+  const fileUrl = pdfFile.fileUrl;
 
   const handleFileUpload = (file) => {
     if (!file) return;
@@ -34,14 +35,14 @@ const PdfViewer = () => {
       return toast.error("Faqat PDF fayl yuklang");
     }
 
-    updateProperty("fileUrl", URL.createObjectURL(file));
+    updateEntity("file", { fileUrl: URL.createObjectURL(file) });
   };
 
   const handleDeleteFile = () => {
     if (!fileUrl) return;
 
     URL.revokeObjectURL(fileUrl);
-    updateProperty("fileUrl", null);
+    updateEntity("file", { fileUrl: null });
   };
 
   return (
@@ -187,15 +188,16 @@ const Uploader = ({ onUpload }) => {
 };
 
 const Viewer = ({ url, onDeleteFile }) => {
-  const { getProperty, updateProperty } = useStore("pdfFile");
-  const initialNote = getProperty("note");
+  const { getEntity, updateEntity } = useObjectStore("pdfFile");
+  const pdfFile = getEntity("file") || {};
+  const initialNote = pdfFile.note;
 
   const [isLoading, setIsLoading] = useState(false);
   const [_, setNote] = useDebouncedState(
     initialNote || "",
     (loading, value) => {
       setIsLoading(loading);
-      if (!loading) updateProperty("note", value);
+      if (!loading) updateEntity("file", { ...pdfFile, note: value });
     }
   );
 

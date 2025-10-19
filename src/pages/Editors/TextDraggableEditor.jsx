@@ -21,7 +21,7 @@ import EditorHeader from "@/components/EditorHeader";
 import RichTextEditor from "@/components/RichTextEditor";
 
 // Hooks
-import useStore from "@/hooks/useStore";
+import useObjectStore from "@/hooks/useObjectStore";
 import useModule from "@/hooks/useModule";
 import usePathSegments from "@/hooks/usePathSegments";
 import useDebouncedState from "@/hooks/useDebouncedState";
@@ -55,10 +55,10 @@ const TextDraggableEditor = () => {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const { updateProperty, getProperty } = useStore("coords");
+  const { updateEntity, getEntity } = useObjectStore("coords");
   const [content, setContent] = useDebouncedState(section?.text, setIsSaving);
   const coordsKey = `${pathSegments[1]}-${pathSegments[3]}-${pathSegments[4]}-${pathSegments[5]}-${pathSegments[6]}`;
-  const allCoords = getProperty(coordsKey) || section?.coords || {};
+  const allCoords = getEntity(coordsKey) || section?.coords || {};
   const [splitAnswers, setSplitAnswers] = useDebouncedState(
     !!section?.splitAnswers,
     setIsSaving
@@ -125,7 +125,7 @@ const TextDraggableEditor = () => {
 
         handleNavigate();
         setIsSaving(false);
-        updateProperty(coordsKey, null);
+        updateEntity(coordsKey, null);
         updateSection(partNumber, section, sectionIndex);
         setOriginal({ content, title, description, answers });
       })

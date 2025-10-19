@@ -8,10 +8,10 @@ import { Link } from "react-router-dom";
 import { testsApi } from "@/api/tests.api";
 
 // Hooks
-import useStore from "@/hooks/useStore";
 import useModal from "@/hooks/useModal";
 import useArrayStore from "@/hooks/useArrayStore";
 import usePermission from "@/hooks/usePermission";
+import useObjectStore from "@/hooks/useObjectStore";
 
 // Components
 import Button from "@/components/form/Button";
@@ -27,8 +27,8 @@ import educationBg from "@/assets/backgrounds/education-red.jpg";
 import { formatDate, formatTime, formatUzPhone } from "@/lib/helpers";
 
 const Home = () => {
-  const { getData } = useStore("user");
-  const user = getData()?.data || {};
+  const { getEntity } = useObjectStore("users");
+  const user = getEntity("me") || {};
 
   return (
     <div className="container pt-8">
