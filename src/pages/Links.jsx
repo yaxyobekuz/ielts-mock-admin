@@ -114,7 +114,7 @@ const Links = () => {
             <span>
               Hozirgi sahifa:{" "}
               <strong className="font-medium text-black">
-                {metadata.currentPage}
+                {currentPage}
               </strong>{" "}
               / {metadata.totalPages}
             </span>
