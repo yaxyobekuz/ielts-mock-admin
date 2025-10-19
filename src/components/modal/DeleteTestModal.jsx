@@ -1,9 +1,6 @@
 // Components
 import Button from "../form/Button";
 
-// Hooks
-import useStore from "@/hooks/useStore";
-
 // Api
 import { testsApi } from "@/api/tests.api";
 
@@ -15,6 +12,11 @@ import { useNavigate } from "react-router-dom";
 
 // Components
 import ResponsiveModal from "../ResponsiveModal";
+
+// Hooks
+import useArrayStore from "@/hooks/useArrayStore";
+import useObjectStore from "@/hooks/useObjectStore";
+import usePathSegments from "@/hooks/usePathSegments";
 
 const DeleteTestModal = () => (
   <ResponsiveModal
@@ -28,12 +30,9 @@ const DeleteTestModal = () => (
 
 const Content = ({ close, isLoading, setIsLoading, testId }) => {
   const navigate = useNavigate();
-  const { getData, updateProperty } = useStore("tests");
-  const { isLoading: isTestsLoading, data: tests } = getData();
-
-  const { getData: getSingleTests, updateProperty: updateSingleTest } =
-    useStore("test");
-  const singleTests = getSingleTests();
+  const { pathSegments } = usePathSegments();
+  const { deleteEntity } = useObjectStore("tests");
+  const { invalidateCache } = useArrayStore("tests");
 
   const handleDelete = (e) => {
     e.preventDefault();
@@ -48,23 +47,16 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
         if (code !== "testDeleted") throw new Error();
 
         success = true;
-        navigate(`/tests`);
-        toast.success(message || "Test o'chirildi");
+        invalidateCache();
+        deleteEntity(testId);
+        toast.success(message);
 
-        // Delete test from store
-        if (!isTestsLoading) {
-          const filtered = tests.filter(({ _id: id }) => id !== testId);
-          updateProperty("data", filtered);
-        }
-
-        // Delete single test from store
-        if (singleTests[testId]) {
-          updateSingleTest(testId, null);
+        // Navigate to tests page if on test page
+        if (pathSegments[0] === "tests" && pathSegments[1]) {
+          navigate(`/tests`);
         }
       })
-      .catch(({ message }) =>
-        toast.error(message || "Noma'lum xatolik yuz berdi")
-      )
+      .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {
         success && close();
         setIsLoading(false);
@@ -82,12 +74,7 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
         Bekor qilish
       </Button>
 
-      <Button
-        type="submit"
-        variant="danger"
-        className="w-32"
-        onClick={handleDelete}
-      >
+      <Button variant="danger" className="w-32" onClick={handleDelete}>
         O'chirish
       </Button>
     </div>

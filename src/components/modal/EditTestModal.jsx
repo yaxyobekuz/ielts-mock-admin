@@ -15,14 +15,15 @@ import { toast } from "@/notification/toast";
 import ResponsiveModal from "../ResponsiveModal";
 
 // Hooks
-import useStore from "@/hooks/useStore";
+import useArrayStore from "@/hooks/useArrayStore";
+import useObjectStore from "@/hooks/useObjectStore";
 import useObjectState from "@/hooks/useObjectState";
 
 const EditTestModal = () => (
   <ResponsiveModal
     name="editTest"
-    title="Testni tahrirlash"
-    description="Testni tahrirlash uchun sarlavhani kiriting, istasangiz izoh ham qo'shing."
+    title="Testni yangilash"
+    description="Testni yangilash uchun sarlavhani kiriting, istasangiz izoh ham qo'shing."
   >
     <Content />
   </ResponsiveModal>
@@ -36,12 +37,8 @@ const Content = ({
   title: initialTitle,
   description: initialDescription,
 }) => {
-  const { getData, updateProperty } = useStore("tests");
-  const { isLoading: isTestsLoading, data: tests } = getData();
-
-  const { getData: getSingleTests, updateProperty: updateSingleTest } =
-    useStore("test");
-  const singleTests = getSingleTests();
+  const { updateEntity } = useObjectStore("tests");
+  const { updateItemById } = useArrayStore("tests");
 
   const { title, description, setField } = useObjectState({
     title: initialTitle || "",
@@ -67,34 +64,14 @@ const Content = ({
       .then(({ test, code, message }) => {
         if (code !== "testUpdated") throw new Error();
         success = true;
-        toast.success(message || "Test tahrirlandi");
+        toast.success(message);
 
-        // Update test from store
-        if (!isTestsLoading) {
-          const index = tests.findIndex(({ _id: id }) => id === testId);
-          if (index === -1) return;
-
-          const newTests = [...tests];
-          newTests[index] = {
-            ...newTests[index],
-            title: test.title,
-            description: test.description,
-          };
-          updateProperty("data", newTests);
-        }
-
-        // Update single test from store
-        if (singleTests[testId]) {
-          updateSingleTest(testId, {
-            ...singleTests[testId],
-            title: test.title,
-            description: test.description,
-          });
-        }
+        // Update stores
+        const updates = { title: test.title, description: test.description };
+        updateEntity(testId, updates);
+        updateItemById(testId, updates);
       })
-      .catch(({ message }) =>
-        toast.error(message || "Noma'lum xatolik yuz berdi")
-      )
+      .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {
         success && close();
         setIsLoading(false);
@@ -147,12 +124,8 @@ const Content = ({
           Bekor qilish
         </Button>
 
-        <Button
-          type="submit"
-          className="w-32"
-          disabled={isLoading || !hasContentChanged}
-        >
-          Tahrirlash
+        <Button className="w-32" disabled={isLoading || !hasContentChanged}>
+          Yangilash
         </Button>
       </div>
     </form>

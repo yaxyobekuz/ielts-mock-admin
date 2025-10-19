@@ -8,14 +8,11 @@ import { testsApi } from "@/api/tests.api";
 // Toast
 import { toast } from "@/notification/toast";
 
-// Router
-import { useNavigate } from "react-router-dom";
-
 // Components
 import ResponsiveModal from "../ResponsiveModal";
 
 // Hooks
-import useStore from "@/hooks/useStore";
+import useArrayStore from "@/hooks/useArrayStore";
 import useObjectState from "@/hooks/useObjectState";
 
 const CreateTestModal = () => (
@@ -29,16 +26,14 @@ const CreateTestModal = () => (
 );
 
 const Content = ({ close, isLoading, setIsLoading }) => {
-  const navigate = useNavigate();
-  const { getData, updateProperty } = useStore("tests");
-  const { isLoading: isTestsLoading, data: tests } = getData();
+  const { invalidateCache } = useArrayStore("tests");
 
   const { title, description, setField } = useObjectState({
     title: "",
     description: "",
   });
 
-  const handleSubmit = (e) => {
+  const handleCreateTest = (e) => {
     e.preventDefault();
     if (isLoading) return;
 
@@ -51,16 +46,14 @@ const Content = ({ close, isLoading, setIsLoading }) => {
 
     testsApi
       .create({ title: title.trim(), description: description?.trim() || "" })
-      .then(({ test, code }) => {
+      .then(({ code, message }) => {
         if (code !== "testCreated") throw new Error();
 
         success = true;
-        navigate(`/tests/${test._id}`);
-        if (!isTestsLoading) updateProperty("data", [test, ...tests]);
+        invalidateCache();
+        toast.success(message);
       })
-      .catch(({ message }) =>
-        toast.error(message || "Noma'lum xatolik yuz berdi")
-      )
+      .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {
         success && close();
         setIsLoading(false);
@@ -68,11 +61,12 @@ const Content = ({ close, isLoading, setIsLoading }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleCreateTest} className="space-y-5">
       <Input
         required
         size="lg"
         border={true}
+        value={title}
         variant="gray"
         maxLength={32}
         label="Sarlavha"
@@ -88,6 +82,7 @@ const Content = ({ close, isLoading, setIsLoading }) => {
         variant="gray"
         type="textarea"
         maxLength={144}
+        value={description}
         name="test-description"
         placeholder="Izoh (Ixtiyoriy)"
         onChange={(value) => setField("description", value)}
@@ -104,7 +99,7 @@ const Content = ({ close, isLoading, setIsLoading }) => {
           Bekor qilish
         </Button>
 
-        <Button disabled={isLoading} type="submit" className="w-32">
+        <Button disabled={isLoading} className="w-32">
           Qo'shish
         </Button>
       </div>
