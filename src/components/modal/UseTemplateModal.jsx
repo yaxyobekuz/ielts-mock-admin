@@ -62,7 +62,7 @@ const Content = ({ close, templateId, isLoading, setIsLoading }) => {
         if (!isTestsLoading) updateProperty("data", [test, ...tests]);
       })
       .catch(({ message }) =>
-        toast.error(message || "Noma'lum xatolik yuz berdi")
+        toast.error(message || "Nimadir xato ketdi")
       )
       .finally(() => {
         success && close();

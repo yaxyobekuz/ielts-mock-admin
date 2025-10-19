@@ -15,7 +15,9 @@ import ResponsiveModal from "../ResponsiveModal";
 import { templatesApi } from "@/api/templates.api";
 
 // Hooks
+import useArrayStore from "@/hooks/useArrayStore";
 import useObjectState from "@/hooks/useObjectState";
+import useObjectStore from "@/hooks/useObjectStore";
 
 const CreateTemplateModal = () => (
   <ResponsiveModal
@@ -29,6 +31,8 @@ const CreateTemplateModal = () => (
 );
 
 const Content = ({ close, isLoading, setIsLoading, testId }) => {
+  const { updateEntity } = useObjectStore("tests");
+  const { updateItemById } = useArrayStore("tests");
   const { progress, images, setField, title, description, step, banner } =
     useObjectState({
       step: 1,
@@ -39,7 +43,7 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
       description: "",
     });
 
-  const handleCreate = async (e) => {
+  const handleCreateTemplate = async (e) => {
     e.preventDefault();
     if (isLoading) return;
 
@@ -64,10 +68,16 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
 
     templatesApi
       .create(formData, { onUploadProgress })
-      .then(({ code, message }) => {
+      .then(({ code, message, template }) => {
         if (code !== "templateCreated") throw new Error();
+
         success = true;
-        toast.success(message || "Shablon yaratildi");
+        toast.success(message);
+
+        // Update stores
+        const updates = { isTemplate: true, template: template._id };
+        updateEntity(testId, updates);
+        updateItemById(testId, updates);
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {
@@ -79,7 +89,7 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
   const allowNextStep = images.length && title?.trim() && description?.trim();
 
   return (
-    <form onSubmit={handleCreate} className="space-y-5">
+    <form onSubmit={handleCreateTemplate} className="space-y-5">
       {/* Step 1 */}
       {step === 1 && (
         <>
@@ -103,7 +113,7 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
             border={true}
             variant="gray"
             type="textarea"
-            maxLength={144}
+            maxLength={244}
             value={description}
             name="template-description"
             placeholder="Izohni kiritng"
@@ -164,7 +174,7 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
               Oldingi
             </Button>
 
-            <Button type="submit" disabled={isLoading} className="w-32">
+            <Button disabled={isLoading} className="w-32">
               Yaratish
             </Button>
           </div>
