@@ -1,11 +1,11 @@
-import useStore from "./useStore";
+import useObjectStore from "./useObjectStore";
 
 const usePermission = (role = "teacher", userData) => {
   let user = userData;
 
   if (typeof userData !== "object") {
-    const { getProperty } = useStore("user");
-    user = getProperty("data");
+    const { getEntity } = useObjectStore("users");
+    user = getEntity("me");
   }
 
   const checkPermission = (...permissions) => {

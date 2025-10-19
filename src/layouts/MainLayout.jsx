@@ -11,7 +11,8 @@ import { authApi } from "@/api/auth.api";
 import { toast } from "@/notification/toast";
 
 // Hooks
-import useStore from "@/hooks/useStore";
+import useObjectStore from "@/hooks/useObjectStore";
+import useObjectState from "@/hooks/useObjectState";
 import usePathSegments from "@/hooks/usePathSegments";
 
 // Components
@@ -95,13 +96,16 @@ const UnauthenticatedContent = () => (
 const AuthenticatedContent = () => {
   const navigate = useNavigate();
   const { pathSegments } = usePathSegments();
-  const { getData, updateProperty } = useStore("user");
+  const { updateEntity } = useObjectStore("users");
   const isAllowedPage = !["preview", "edit"].includes(pathSegments[2]);
-  const { isLoading, hasError } = getData();
+
+  const { isLoading, hasError, setField } = useObjectState({
+    hasError: false,
+    isLoading: true,
+  });
 
   const loadProfile = () => {
-    updateProperty("isLoading", true);
-    updateProperty("hasError", false);
+    setField("isLoading", true);
 
     authApi
       .profile()
@@ -114,10 +118,10 @@ const AuthenticatedContent = () => {
           return toast.error("Kirish uchun huquqlaringiz yetarli emas");
         }
 
-        updateProperty("data", user);
+        updateEntity("me", user);
       })
-      .catch(() => updateProperty("hasError", true))
-      .finally(() => updateProperty("isLoading", false));
+      .catch(() => setField("hasError", true))
+      .finally(() => setField("isLoading", false));
   };
 
   // Load user profile
@@ -127,7 +131,12 @@ const AuthenticatedContent = () => {
 
   // Eror & Loader content
   if (isLoading || hasError) {
-    return <MainBgLoader hasError={hasError} onButtonClick={loadProfile} />;
+    return (
+      <MainBgLoader
+        hasError={hasError}
+        onButtonClick={() => window.location.reload()}
+      />
+    );
   }
 
   // Content

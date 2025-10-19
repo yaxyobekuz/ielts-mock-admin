@@ -16,6 +16,7 @@ const initialState = {
   templates: {},
   testLinks: {},
   submissions: {},
+  users: { me: {} },
 };
 
 export const objectStoreSlice = createSlice({
