@@ -11,6 +11,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   links: {},
   tests: {},
+  teachers: {},
   testLinks: {},
 };
 

@@ -1,6 +1,9 @@
 // Toast
 import { toast } from "@/notification/toast";
 
+// UI components
+import { Switch } from "@/components/ui/switch";
+
 // Data
 import permissionsData from "@/data/permissions";
 
@@ -12,12 +15,11 @@ import { Link, useParams } from "react-router-dom";
 
 // Hooks
 import useModal from "@/hooks/useModal";
-import useStore from "@/hooks/useStore";
 import useObjectState from "@/hooks/useObjectState";
+import useObjectStore from "@/hooks/useObjectStore";
 
 // Components
 import Button from "@/components/form/Button";
-import { Switch } from "@/components/ui/switch";
 import ProfilePhoto from "@/components/ProfilePhoto";
 
 // React
@@ -32,9 +34,9 @@ import { Clock, Trash, RefreshCcw, ArrowUpRight } from "lucide-react";
 const Teacher = () => {
   const { teacherId } = useParams();
   const { openModal } = useModal("deleteTeacher");
-  const { getProperty, updateProperty } = useStore("teacher");
+  const { addEntity, getEntity, updateEntity } = useObjectStore("teachers");
 
-  const teacher = getProperty(teacherId);
+  const teacher = getEntity(teacherId);
   const { setField, isLoading, hasError, permissions, isUpdating } =
     useObjectState({
       hasError: false,
@@ -51,7 +53,8 @@ const Teacher = () => {
       .getById(teacherId)
       .then(({ code, teacher }) => {
         if (code !== "teacherFetched") throw new Error();
-        updateProperty(teacherId, teacher);
+
+        addEntity(teacherId, teacher);
         setField("permissions", teacher.permissions || {});
       })
       .catch(({ message }) => {
@@ -71,13 +74,11 @@ const Teacher = () => {
       .then(({ code, permissions, message }) => {
         if (code !== "teacherPermissionsUpdated") throw new Error();
 
-        setField("permissions", permissions || {});
-        toast.success(message || "Ruxsatlar yangilandi");
-        updateProperty(teacherId, { ...teacher, permissions });
+        toast.success(message);
+        setField("permissions", permissions);
+        updateEntity(teacherId, { permissions });
       })
-      .catch(({ message }) => {
-        toast.error(message || "Nimadir xato ketdi");
-      })
+      .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => setField("isUpdating"));
   };
 
@@ -143,12 +144,12 @@ const Teacher = () => {
         <Profile teacher={teacher} />
 
         {/* Permissions */}
-        <section className="flex flex-col gap-3.5 col-span-3 w-full h-auto bg-gray-100 rounded-3xl p-5">
+        <section className="flex flex-col col-span-3 w-full h-auto bg-gray-100 rounded-3xl p-5">
           {/* Title */}
-          <h2 className="text-xl font-medium">Ruxsatlar</h2>
+          <h2 className="mb-3.5 text-xl font-medium">Ruxsatlar</h2>
 
           {/* Content */}
-          <ul className="grid grid-cols-4 gap-5">
+          <ul className="grid grid-cols-4 gap-5 mb-5">
             {Object.keys(permissionsData).map((permissionKey) => {
               const { name, methodColor } =
                 permissionsData[permissionKey] || {};
@@ -197,27 +198,26 @@ const Teacher = () => {
   );
 };
 
-const LoadingContent = () => {
-  return (
-    <>
-      <h1>Teacher</h1>
+const LoadingContent = () => (
+  <div className="container py-8 space-y-6">
+    {/* Top */}
+    <div className="flex items-center justify-between">
+      <h1>Yuklanmoqda...</h1>
+      <div className="w-48 h-6 bg-gray-100 p-0 rounded-full animate-pulse" />
+    </div>
 
-      {/* Action buttons */}
-      <div className="flex items-center justify-end gap-5">
-        <div className="btn w-56 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200" />{" "}
-      </div>
+    {/* Action buttons */}
+    <div className="flex items-center justify-end gap-5 animate-pulse">
+      <div className="w-32 h-11 bg-gray-100 py-0 rounded-full" />
+    </div>
 
-      <ul className="grid grid-cols-4 gap-5 animate-pulse">
-        {Array.from({ length: 4 }, (_, index) => (
-          <li
-            key={index}
-            className="h-auto aspect-square bg-gray-100 rounded-3xl"
-          />
-        ))}
-      </ul>
-    </>
-  );
-};
+    {/* Main content */}
+    <div className="grid grid-cols-4 gap-5 animate-pulse">
+      <div className="h-auto aspect-square bg-gray-100 rounded-3xl" />
+      <div className="col-span-3 h-[125%] bg-gray-100 rounded-3xl" />
+    </div>
+  </div>
+);
 
 const ErrorContent = () => {
   return <div className="">Error</div>;
