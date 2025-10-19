@@ -38,7 +38,7 @@ const Content = ({
   description: initialDescription,
 }) => {
   const { updateEntity } = useObjectStore("tests");
-  const { updateItemById } = useArrayStore("tests");
+  const { updateItemById, updateItem } = useArrayStore("tests");
 
   const { title, description, setField } = useObjectState({
     title: initialTitle || "",
@@ -70,6 +70,7 @@ const Content = ({
         const updates = { title: test.title, description: test.description };
         updateEntity(testId, updates);
         updateItemById(testId, updates);
+        updateItem(testId, updates, "_id", "latestTests");
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {

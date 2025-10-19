@@ -50,6 +50,7 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
         invalidateCache();
         deleteEntity(testId);
         toast.success(message);
+        invalidateCache("latestTests", true);
 
         // Navigate to tests page if on test page
         if (pathSegments[0] === "tests" && pathSegments[1]) {

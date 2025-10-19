@@ -52,6 +52,7 @@ const Content = ({ close, isLoading, setIsLoading }) => {
         success = true;
         invalidateCache();
         toast.success(message);
+        invalidateCache("latestTests", true);
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {
