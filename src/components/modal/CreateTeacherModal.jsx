@@ -8,9 +8,6 @@ import { toast } from "@/notification/toast";
 // Helpers
 import { extractNumbers } from "@/lib/helpers";
 
-// Router
-import { useNavigate } from "react-router-dom";
-
 // Api
 import { teachersApi } from "@/api/teachers.api";
 
@@ -18,7 +15,7 @@ import { teachersApi } from "@/api/teachers.api";
 import ResponsiveModal from "../ResponsiveModal";
 
 // Hooks
-import useStore from "@/hooks/useStore";
+import useArrayStore from "@/hooks/useArrayStore";
 import useObjectState from "@/hooks/useObjectState";
 
 const CreateTeacherModal = () => (
@@ -32,9 +29,7 @@ const CreateTeacherModal = () => (
 );
 
 const Content = ({ close, isLoading, setIsLoading }) => {
-  const navigate = useNavigate();
-  const { getData, updateProperty } = useStore("teachers");
-  const { isLoading: isTeachersLoading, data: teachers } = getData();
+  const { invalidateCache } = useArrayStore("teachers");
 
   const { setField, password, phone } = useObjectState({
     title: "",
@@ -63,16 +58,14 @@ const Content = ({ close, isLoading, setIsLoading }) => {
 
     teachersApi
       .create({ password: formattedPassword, phone: formattedPhone })
-      .then(({ teacher, code }) => {
+      .then(({ message, code }) => {
         if (code !== "teacherCreated") throw new Error();
 
         success = true;
-        navigate(`/teachers/${teacher._id}`);
-
-        if (!isTeachersLoading) {
-          updateProperty("data", [teacher, ...teachers]);
-        }
+        invalidateCache();
+        toast.success(message);
       })
+      .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {
         success && close();
         setIsLoading(false);
