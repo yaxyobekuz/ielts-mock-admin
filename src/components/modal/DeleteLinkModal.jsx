@@ -50,7 +50,7 @@ const Content = ({ close, isLoading, setIsLoading, linkId }) => {
         success = true;
         invalidateCache();
         deleteEntity(linkId);
-        toast.success(message || "Havola o'chirildi");
+        toast.success(message);
         deleteItemFromEntityArray(link.testId, linkId);
 
         // Navigate to links page if on link page

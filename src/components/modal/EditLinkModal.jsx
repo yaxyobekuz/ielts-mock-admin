@@ -74,9 +74,9 @@ const Content = ({
         if (code !== "linkUpdated") throw new Error();
 
         success = true;
+        toast.success(message);
         updateEntity(linkId, updateData);
         updateItemById(linkId, updateData);
-        toast.success(message || "Havola yangilandi");
         updateItemInEntityArray(link.testId, linkId, link);
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))

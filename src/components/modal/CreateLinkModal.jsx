@@ -66,8 +66,8 @@ const Content = ({ close, testId, isLoading, setIsLoading }) => {
 
         success = true;
         invalidateCache();
+        toast.success(message);
         addItemToEntityArray(testId, link);
-        toast.success(message || "Havola yaratildi");
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {
@@ -125,7 +125,7 @@ const Content = ({ close, testId, isLoading, setIsLoading }) => {
           Bekor qilish
         </Button>
 
-        <Button type="submit" className="w-32">
+        <Button disabled={isLoading} className="w-32">
           Yaratish
         </Button>
       </div>
