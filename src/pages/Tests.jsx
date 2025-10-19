@@ -15,74 +15,162 @@ import {
 // Tests api
 import { testsApi } from "@/api/tests.api";
 
-// Components
-import Dropdown from "@/components/Dropdown";
-
-// Components
-import Button from "@/components/form/Button";
+// Toast
+import { toast } from "@/notification/toast";
 
 // React
 import { useCallback, useEffect } from "react";
 
-// Hooks
-import useStore from "@/hooks/useStore";
-import useModal from "@/hooks/useModal";
-import usePermission from "@/hooks/usePermission";
+// Components
+import Dropdown from "@/components/Dropdown";
+import PageInfo from "@/components/PageInfo";
+import Button from "@/components/form/Button";
+import Pagination from "@/components/Pagination";
 
-// Router
-import { Link, useNavigate } from "react-router-dom";
+// Hooks
+import useModal from "@/hooks/useModal";
+import useArrayStore from "@/hooks/useArrayStore";
+import usePermission from "@/hooks/usePermission";
 
 // Helpers
 import { formatDate, formatTime } from "@/lib/helpers";
 
+// Router
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+
 const Tests = () => {
-  const { checkPermission, user } = usePermission();
-  const { getData, updateProperty } = useStore("tests");
-  const { isLoading, hasError, data: tests } = getData();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
-  const loadTests = () => {
-    updateProperty("isLoading", true);
-    updateProperty("hasError", false);
+  const {
+    setPage,
+    initialize,
+    getMetadata,
+    getPageData,
+    hasCollection,
+    setPageErrorState,
+    setPageLoadingState,
+  } = useArrayStore("tests");
 
-    testsApi
-      .get()
-      .then(({ tests, code }) => {
-        if (code !== "testsFetched") throw new Error();
-        updateProperty("data", tests);
-      })
-      .catch(() => updateProperty("hasError", true))
-      .finally(() => updateProperty("isLoading", false));
-  };
-
-  // Load user profile
+  // Initialize collection on mount
   useEffect(() => {
-    isLoading && loadTests();
-  }, []);
+    if (!hasCollection()) initialize(true); // pagination = true
+  }, [hasCollection, initialize]);
+
+  const metadata = getMetadata();
+  const pageData = getPageData(currentPage);
+
+  const tests = pageData?.data || [];
+  const hasError = pageData?.error || null;
+  const isLoading = pageData?.isLoading || false;
+  const hasNextPage = pageData?.hasNextPage ?? false;
+  const hasPrevPage = pageData?.hasPrevPage ?? false;
+
+  const { checkPermission, user } = usePermission();
+  const isTeacher = user?.role === "teacher";
+
+  // Load tests for current page
+  const loadTests = useCallback(
+    (page) => {
+      setPageLoadingState(page, true);
+
+      testsApi
+        .get({ page, limit: isTeacher ? 11 : 12 })
+        .then(({ tests, code, pagination }) => {
+          if (code !== "testsFetched") throw new Error();
+          setPage(page, tests, null, pagination);
+        })
+        .catch(({ message }) => {
+          toast.error(message || "Nimadir xato ketdi");
+          setPageErrorState(page, message || "Nimadir xato ketdi");
+        });
+    },
+    [setPageLoadingState, setPage, setPageErrorState]
+  );
+
+  // Navigate to page
+  const goToPage = useCallback(
+    (page) => {
+      if (page < 1) return;
+      setSearchParams({ page: page.toString() });
+    },
+    [setSearchParams]
+  );
+
+  // Load tests when page changes
+  useEffect(() => {
+    const pageDataExists = getPageData(currentPage);
+    if (!pageDataExists) loadTests(currentPage);
+  }, [currentPage, loadTests, getPageData]);
 
   return (
     <div className="container py-8 space-y-6">
       {/* Title */}
-      <h1>Testlar</h1>
+      <div className="flex items-center justify-between">
+        <h1>Testlar</h1>
+
+        {/* Pagination Info */}
+        {!isLoading && !hasError && tests.length > 0 && metadata && (
+          <div className="flex items-center gap-3 text-gray-500">
+            <span>
+              Hozirgi sahifa:{" "}
+              <strong className="font-medium text-black">
+                {metadata.currentPage}
+              </strong>{" "}
+              / {metadata.totalPages}
+            </span>
+
+            <span className="size-1 bg-gray-400 rounded-full" />
+
+            <span>
+              Jami testlar:{" "}
+              <strong className="font-medium text-black">
+                {metadata.total}
+              </strong>{" "}
+              ta
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* Main */}
       <main>
         {/* Skeleton loader */}
-        {isLoading && (
-          <ul className="grid grid-cols-4 gap-5">
-            {Array.from({ length: 8 }, (_, index) => (
+        {isLoading && !hasError ? (
+          <ul className="grid grid-cols-4 gap-5 animate-pulse">
+            {Array.from({ length: 12 }, (_, index) => (
               <TestItemSkeleton key={index} />
             ))}
           </ul>
-        )}
+        ) : null}
 
         {/* Error content */}
-        {!isLoading && hasError ? <div className="">Error</div> : null}
+        {!isLoading && hasError ? (
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <p className="text-red-500 text-lg">{hasError}</p>
+            <button
+              onClick={() => loadTests(currentPage)}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              Qayta urinib ko'rish
+            </button>
+          </div>
+        ) : null}
+
+        {/* No tests */}
+        {!isLoading && !hasError && tests.length === 0 ? (
+          <PageInfo
+            className="pt-12"
+            title="Hech qanday test topilmadi"
+            links={{ primary: { to: "/tests", body: "1-sahifaga qaytish" } }}
+            description={`Ushbu ${currentPage}-sahifada hech qanday test topilmadi.`}
+          />
+        ) : null}
 
         {/* Tests */}
-        {!isLoading && !hasError && tests?.length ? (
+        {!isLoading && !hasError && tests.length > 0 ? (
           <div className="grid grid-cols-4 gap-5">
             <AddNew user={user} checkPermission={checkPermission} />
-
             {tests.map((test) => (
               <TestItem
                 {...test}
@@ -93,6 +181,20 @@ const Tests = () => {
           </div>
         ) : null}
       </main>
+
+      {/* Pagination Controls */}
+      {!isLoading && !hasError && tests.length > 0 && (
+        <Pagination
+          className="pt-4"
+          maxPageButtons={5}
+          showPageNumbers={true}
+          onPageChange={goToPage}
+          currentPage={currentPage}
+          hasNextPage={hasNextPage}
+          hasPrevPage={hasPrevPage}
+          totalPages={metadata?.totalPages || 1}
+        />
+      )}
     </div>
   );
 };
@@ -277,7 +379,7 @@ const TestItem = ({
 };
 
 const TestItemSkeleton = () => (
-  <li className="w-full min-h-52 bg-gray-100 rounded-3xl p-5 space-y-5 animate-pulse" />
+  <div className="w-full min-h-52 bg-gray-100 rounded-3xl p-5 space-y-5" />
 );
 
 export default Tests;
