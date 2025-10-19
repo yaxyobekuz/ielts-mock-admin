@@ -12,9 +12,9 @@ import { resultsApi } from "@/api/results.api";
 import ResponsiveModal from "../ResponsiveModal";
 
 // Hooks
-import useStore from "@/hooks/useStore";
 import useArrayStore from "@/hooks/useArrayStore";
 import useObjectState from "@/hooks/useObjectState";
+import useObjectStore from "@/hooks/useObjectStore";
 import useLocalStorage from "@/hooks/useLocalStorage";
 
 // Data
@@ -38,24 +38,11 @@ const Content = ({
   reading: initialReading,
   listening: initialListening,
 }) => {
-  // Local storage
+  const { updateEntity } = useObjectStore("submissions");
   const { updateProperty, getProperty } = useLocalStorage("scores");
+  const { updateItemById, invalidateCache } = useArrayStore("submissions");
+
   const formDataFromStorage = getProperty(submissionId) || {};
-
-  // Results
-  const {
-    getProperty: getResultsProperty,
-    updateProperty: updateResultsProperty,
-  } = useStore("results");
-  const resultsData = getResultsProperty("data") || [];
-  const { updateItemById } = useArrayStore("submissions");
-  const isResultsLoading = getResultsProperty("isLoading");
-
-  // Submission
-  const { getProperty: getSubmission, updateProperty: updateSubmission } =
-    useStore("submission");
-  const submission = getSubmission(submissionId);
-
   const { setField, formData, listening, reading } = useObjectState({
     formData: formDataFromStorage,
     reading: initialReading ?? "",
@@ -96,20 +83,12 @@ const Content = ({
         if (code !== "resultCreated") throw new Error();
 
         success = true;
-
-        updateItemById(submission._id, { isScored: true, result: result._id });
-
         updateProperty(submissionId, {});
-        updateSubmission(submissionId, {
-          ...submission,
-          isScored: true,
-          result: result._id,
-        });
 
+        invalidateCache("results", true);
         toast.success("Javoblar baholandi");
-
-        if (isResultsLoading) return;
-        updateResultsProperty("data", [result, ...resultsData]);
+        updateEntity(submissionId, { isScored: true, result: result._id });
+        updateItemById(submissionId, { isScored: true, result: result._id });
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {

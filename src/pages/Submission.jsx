@@ -34,8 +34,8 @@ import { Link, useParams } from "react-router-dom";
 
 // Hooks
 import useModal from "@/hooks/useModal";
-import useStore from "@/hooks/useStore";
 import usePermission from "@/hooks/usePermission";
+import useObjectStore from "@/hooks/useObjectStore";
 import useObjectState from "@/hooks/useObjectState";
 
 // Api
@@ -44,8 +44,8 @@ import { submissionsApi } from "@/api/submissions.api";
 // Parent contents
 const Submission = () => {
   const { submissionId } = useParams();
-  const { getProperty, updateProperty } = useStore("submission");
-  const submission = getProperty(submissionId);
+  const { addEntity, getEntity } = useObjectStore("submissions");
+  const submission = getEntity(submissionId);
 
   // Permissions
   const { checkPermission } = usePermission();
@@ -64,7 +64,7 @@ const Submission = () => {
       .getById(submissionId)
       .then(({ code, submission }) => {
         if (code !== "submissionFetched") throw new Error();
-        updateProperty(submissionId, submission);
+        addEntity(submissionId, submission);
       })
       .catch(({ message }) => {
         setField("hasError", true);

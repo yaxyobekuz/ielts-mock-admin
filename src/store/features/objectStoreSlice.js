@@ -13,6 +13,7 @@ const initialState = {
   tests: {},
   teachers: {},
   testLinks: {},
+  submissions: {},
 };
 
 export const objectStoreSlice = createSlice({
