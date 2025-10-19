@@ -39,7 +39,14 @@ import { createSlice } from "@reduxjs/toolkit";
 */
 
 // Initial state - stores different collections of items by category
-const initialState = {};
+const initialState = {
+  latestTests: {
+    data: [],
+    error: null,
+    isLoading: true,
+    pagination: false,
+  },
+};
 
 export const arrayStoreSlice = createSlice({
   initialState,
@@ -638,7 +645,7 @@ export const arrayStoreSlice = createSlice({
 
     // Invalidate cache and clear all pages (useful after add/delete operations)
     invalidateCollection: (state, action) => {
-      const { collectionName } = action.payload;
+      const { collectionName, isLoading } = action.payload;
 
       const collection = state[collectionName];
 
@@ -659,6 +666,7 @@ export const arrayStoreSlice = createSlice({
         // Clear non-paginated collection data
         collection.data = [];
         collection.error = null;
+        collection.isLoading = !!isLoading;
         console.log(
           `[ArrayStore] Collection "${collectionName}" cache invalidated - data cleared`
         );

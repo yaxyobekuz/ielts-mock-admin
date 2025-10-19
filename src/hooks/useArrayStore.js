@@ -298,12 +298,7 @@ const useArrayStore = (defaultCollectionName = "") => {
       collectionName = defaultCollectionName
     ) => {
       dispatch(
-        updateItemInCollection({
-          collectionName,
-          itemId,
-          itemData,
-          idField,
-        })
+        updateItemInCollection({ itemId, itemData, collectionName, idField })
       );
     },
     [dispatch, defaultCollectionName]
@@ -445,12 +440,8 @@ const useArrayStore = (defaultCollectionName = "") => {
 
   // Invalidate collection cache (clear all pages/data)
   const invalidateCache = useCallback(
-    (collectionName = defaultCollectionName) => {
-      dispatch(
-        invalidateCollection({
-          collectionName,
-        })
-      );
+    (collectionName = defaultCollectionName, isLoading = false) => {
+      dispatch(invalidateCollection({ isLoading, collectionName }));
     },
     [dispatch, defaultCollectionName]
   );
