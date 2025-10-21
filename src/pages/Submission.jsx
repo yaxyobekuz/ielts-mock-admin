@@ -369,7 +369,14 @@ const WritingContent = ({ answers }) => {
   return (
     <ul className="space-y-5">
       {answersMap.map((_, index) => {
-        const words = answers.writing[index + 1]?.trim() || "";
+        const words = (() => {
+          if (typeof answers?.writing?.[index + 1] === "object") {
+            return answers?.writing?.[index + 1]?.text?.trim() || "";
+          }
+
+          return answers?.writing?.[index + 1]?.trim() || "";
+        })();
+
         const wordsCount = words.split(" ").length;
 
         return (
