@@ -24,6 +24,7 @@ import usePathSegments from "@/hooks/usePathSegments";
 import Button from "@/components/form/Button";
 import ModulePartHeader from "@/components/ModulePartHeader";
 import RichTextPreviewer from "@/components/RichTextPreviewer";
+import TextDraggable from "@/components/questions/TextDraggable";
 
 const questionsMap = {};
 questionsType.forEach((q) => (questionsMap[q.value] = q.component));
@@ -85,31 +86,31 @@ const Reading = () => {
       <div className="grid grid-cols-2 gap-3.5 pb-5">
         <div className="space-y-5">
           {/* Splitted sections text */}
-          {module === "reading" &&
-            sections?.map((section, index) => {
-              const initialNumber =
-                sections
-                  .slice(0, index)
-                  .reduce((acc, sec) => acc + sec.questionsCount, 0) +
-                cumulativeQuestions +
-                1;
+          {sections?.map((section, index) => {
+            const initialNumber =
+              sections
+                .slice(0, index)
+                .reduce((acc, sec) => acc + sec.questionsCount, 0) +
+              cumulativeQuestions +
+              1;
 
-              if (section.type === "text-draggable" && section.splitAnswers) {
-                return (
-                  <div className="w-full bg-gray-50 p-5 rounded-xl border">
-                    <RichTextPreviewer
-                      allowDropzone
-                      key={section._id}
-                      text={section.text}
-                      coords={section.coords}
-                      initialNumber={initialNumber}
-                    />
-                  </div>
-                );
-              }
+            if (section.type !== "text-draggable" || !section.splitAnswers) {
+              return;
+            }
 
-              return null;
-            })}
+            return (
+              <div className="w-full bg-gray-50 p-5 rounded-xl border">
+                <TextDraggable
+                  onlyShowText
+                  allowDropzone
+                  key={section._id}
+                  text={section.text}
+                  coords={section.coords}
+                  initialNumber={initialNumber}
+                />
+              </div>
+            );
+          })}
 
           {/* Part text */}
           <div className="w-full bg-gray-50 p-5 rounded-xl border">
