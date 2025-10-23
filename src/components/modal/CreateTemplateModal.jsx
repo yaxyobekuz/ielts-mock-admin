@@ -1,14 +1,11 @@
-// Components
-import Input from "../form/Input";
-import Button from "../form/Button";
-
-// Components
-import ImageUploader from "../ImageUploader";
-
 // Toast
 import { toast } from "@/notification/toast";
 
 // Components
+import Input from "../form/Input";
+import Select from "../form/Select";
+import Button from "../form/Button";
+import ImageUploader from "../ImageUploader";
 import ResponsiveModal from "../ResponsiveModal";
 
 // Api
@@ -33,7 +30,7 @@ const CreateTemplateModal = () => (
 const Content = ({ close, isLoading, setIsLoading, testId }) => {
   const { updateEntity } = useObjectStore("tests");
   const { updateItemById } = useArrayStore("tests");
-  const { progress, images, setField, title, description, step, banner } =
+  const { progress, images, setField, title, description, step, banner, type } =
     useObjectState({
       step: 1,
       title: "",
@@ -41,14 +38,12 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
       progress: 0,
       banner: null,
       description: "",
+      type: "cambridge",
     });
 
   const handleCreateTemplate = async (e) => {
     e.preventDefault();
     if (isLoading) return;
-
-    setIsLoading(true);
-    setField("progress", 0);
 
     const onUploadProgress = (event) => {
       if (event.total) {
@@ -57,8 +52,12 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
       }
     };
 
+    setIsLoading(true);
     let success = false;
+    setField("progress", 0);
     const formData = new FormData();
+
+    formData.append("type", type);
     formData.append("testId", testId);
     formData.append("title", title?.trim());
     formData.append("description", description?.trim());
@@ -104,6 +103,31 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
             name="template-name"
             placeholder="Sarlavhani kiritng"
             onChange={(value) => setField("title", value)}
+          />
+
+          <Select
+            required
+            size="lg"
+            value={type}
+            label="Turi"
+            border={true}
+            variant="gray"
+            name="template-type"
+            onChange={(value) => setField("type", value)}
+            options={[
+              {
+                label: "Cambridge",
+                value: "cambridge",
+              },
+              {
+                label: "Prediction",
+                value: "prediction",
+              },
+              {
+                label: "Custom",
+                value: "custom",
+              },
+            ]}
           />
 
           <Input
