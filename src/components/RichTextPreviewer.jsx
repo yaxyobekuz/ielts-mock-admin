@@ -40,6 +40,7 @@ const RichTextPreviewer = ({
   className = "",
   allowImage = true,
   allowInput = false,
+  allowCoords = true,
   allowDropzone = false,
 }) => {
   if (!text) return null;
@@ -55,8 +56,12 @@ const RichTextPreviewer = ({
         TableHeader,
         ...(allowImage ? [CustomImage] : []),
         StarterKit.configure({ heading: false }),
-        ...(allowInput ? [AnswerInputNode(initialNumber, false, coords)] : []),
-        ...(allowDropzone ? [DropzoneNode(initialNumber, false, coords)] : []),
+        ...(allowInput
+          ? [AnswerInputNode(initialNumber, false, coords, allowCoords)]
+          : []),
+        ...(allowDropzone
+          ? [DropzoneNode(initialNumber, false, coords, allowCoords)]
+          : []),
       ],
     },
     [text, initialNumber]

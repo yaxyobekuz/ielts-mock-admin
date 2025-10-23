@@ -5,7 +5,12 @@ import Dropzone from "../components/Dropzone";
 import { Node, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 
-const DropzoneNode = (initialNumber = 1, allowActions = true, coords) => {
+const DropzoneNode = (
+  initialNumber = 1,
+  allowActions = true,
+  coords,
+  allowCoords
+) => {
   return Node.create({
     inline: true,
     group: "inline",
@@ -27,6 +32,7 @@ const DropzoneNode = (initialNumber = 1, allowActions = true, coords) => {
         <Dropzone
           {...props}
           initialCoords={coords}
+          allowCoords={allowCoords}
           allowActions={allowActions}
           initialNumber={initialNumber}
         />

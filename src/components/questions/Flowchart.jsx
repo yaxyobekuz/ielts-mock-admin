@@ -36,6 +36,7 @@ const Flowchart = ({ items, initialNumber, options }) => {
                 <RichTextPreviewer
                   text={text}
                   allowDropzone
+                  allowCoords={false}
                   initialNumber={itemInitialNumber}
                   className="w-full p-2 text-editor border-2 border-[#333]"
                 />

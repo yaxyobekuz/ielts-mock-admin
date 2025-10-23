@@ -16,6 +16,7 @@ const Dropzone = ({
   getPos,
   deleteNode,
   initialNumber = 1,
+  allowCoords = true,
   initialCoords = {},
   allowActions = true,
 }) => {
@@ -54,6 +55,8 @@ const Dropzone = ({
 
       setDropzoneIndex(index);
 
+      if (!allowCoords) return;
+
       if (allCoords && allCoords[index - initialNumber + 1]) {
         setIsMoved(true);
         setCoords(allCoords[index - initialNumber + 1]);
@@ -64,7 +67,7 @@ const Dropzone = ({
     } catch (error) {
       console.warn("Error calculating dropzone index:", error);
     }
-  }, [coordsKey, hasCoords, allowActions ? allCoords : null]);
+  }, [coordsKey, hasCoords, allowActions && allowCoords ? allCoords : null]);
 
   useEffect(() => {
     if (!hasCoords && allowActions) {

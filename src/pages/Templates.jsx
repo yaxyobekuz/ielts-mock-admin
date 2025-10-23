@@ -18,11 +18,29 @@ import { templatesApi } from "@/api/templates.api";
 import PageInfo from "@/components/PageInfo";
 import Pagination from "@/components/Pagination";
 import TemplateItem from "@/components/TemplateItem";
+import Nav from "@/components/Nav";
+
+
+// Helper: get type from query
+function getTypeFromParams(searchParams) {
+  return searchParams.get("type") || "all";
+}
+
+// Helper: Nav active checker by type
+function getActiveTypeNav(type, navLinks) {
+  return navLinks.findIndex((nav) => {
+    const linkType = nav.link.split("type=")[1];
+    return linkType === type;
+  });
+}
 
 const Templates = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
+  const currentType = getTypeFromParams(searchParams);
 
+  // useArrayStore for each type
+  const storeKey = `templates_${currentType}`;
   const {
     setPage,
     initialize,
@@ -31,12 +49,12 @@ const Templates = () => {
     hasCollection,
     setPageErrorState,
     setPageLoadingState,
-  } = useArrayStore("templates");
+  } = useArrayStore(storeKey);
 
-  // Initialize collection on mount
+  // Initialize collection on mount/type change
   useEffect(() => {
     if (!hasCollection()) initialize(true); // pagination = true
-  }, [hasCollection, initialize]);
+  }, [hasCollection, initialize, currentType]);
 
   const metadata = getMetadata();
   const pageData = getPageData(currentPage);
@@ -47,13 +65,12 @@ const Templates = () => {
   const hasNextPage = pageData?.hasNextPage ?? false;
   const hasPrevPage = pageData?.hasPrevPage ?? false;
 
-  // Load templates for current page
+  // Load templates for current page & type
   const loadTemplates = useCallback(
     (page) => {
       setPageLoadingState(page, true);
-
       templatesApi
-        .get({ page, limit: 12 })
+        .get({ page, limit: 12, type: currentType !== "all" ? currentType : undefined })
         .then(({ templates, code, pagination }) => {
           if (code !== "templatesFetched") throw new Error();
           setPage(page, templates, null, pagination);
@@ -63,23 +80,39 @@ const Templates = () => {
           setPageErrorState(page, message || "Nimadir xato ketdi");
         });
     },
-    [setPageLoadingState, setPage, setPageErrorState]
+    [setPageLoadingState, setPage, setPageErrorState, currentType]
   );
 
-  // Navigate to page
+  // Navigate to page/type
   const goToPage = useCallback(
     (page) => {
       if (page < 1) return;
-      setSearchParams({ page: page.toString() });
+      setSearchParams({ page: page.toString(), type: currentType });
     },
-    [setSearchParams]
+    [setSearchParams, currentType]
   );
 
-  // Load templates when page changes
+  // Nav type change handler
+  const handleNavTypeChange = (link) => {
+    const type = link.split("type=")[1] || "all";
+    setSearchParams({ page: "1", type });
+  };
+
+  // Load templates when page/type changes
   useEffect(() => {
     const pageDataExists = getPageData(currentPage);
     if (!pageDataExists) loadTemplates(currentPage);
-  }, [currentPage, loadTemplates, getPageData]);
+  }, [currentPage, loadTemplates, getPageData, currentType]);
+
+  // Nav links
+  const navLinks = [
+    { label: "Listening", link: `submissions?type=cambridge` },
+    { label: "Reading", link: `submissions?type=prediction` },
+    { label: "Writing", link: `submissions?type=custom` },
+  ];
+
+  // Active nav index by type
+  const activeNavIndex = getActiveTypeNav(currentType, navLinks);
 
   return (
     <div className="container py-8 space-y-6">
@@ -107,6 +140,15 @@ const Templates = () => {
             </span>
           </div>
         )}
+      </div>
+
+      {/* Type navigations */}
+      <div className="flex justify-end">
+        <Nav
+          links={navLinks}
+          onChange={handleNavTypeChange}
+          activeIndex={activeNavIndex}
+        />
       </div>
 
       {/* Main */}

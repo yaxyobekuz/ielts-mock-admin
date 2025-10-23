@@ -234,6 +234,7 @@ const Flowchart = ({
             <RichTextEditor
               notSticky
               allowDropzone
+              allowCoords={false}
               initialContent={value}
               onChange={(v) => handleChartChange(v, index)}
             />

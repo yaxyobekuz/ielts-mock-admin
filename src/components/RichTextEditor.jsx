@@ -49,6 +49,7 @@ const RichTextEditor = ({
   className = "",
   allowInput = false,
   allowImage = false,
+  allowCoords = true,
   allowDropzone = false,
   initialContent = "<p>Matn kiriting...</p>",
 }) => {
@@ -61,8 +62,8 @@ const RichTextEditor = ({
       TableHeader,
       ...(allowImage ? [ResizableImageNode] : []),
       StarterKit.configure({ heading: false }),
-      ...(allowInput ? [AnswerInputNode(1, true, coords)] : []),
-      ...(allowDropzone ? [DropzoneNode(1, true, coords)] : []),
+      ...(allowInput ? [AnswerInputNode(1, true, coords, allowCoords)] : []),
+      ...(allowDropzone ? [DropzoneNode(1, true, coords, allowCoords)] : []),
     ],
   });
 
