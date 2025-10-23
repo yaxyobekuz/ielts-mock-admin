@@ -30,16 +30,6 @@ const navlinks = [
     allowed: ["supervisor", "teacher"],
   },
   {
-    label: "Ta'riflar",
-    link: "plans",
-    allowed: ["supervisor"],
-  },
-  {
-    label: "To'lov",
-    link: "payment",
-    allowed: ["supervisor"],
-  },
-  {
     label: "Statistika",
     link: "statistics",
     allowed: ["supervisor", "teacher"],
