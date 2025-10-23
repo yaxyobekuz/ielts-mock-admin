@@ -21,8 +21,8 @@ import RichTextEditor from "@/components/RichTextEditor";
 import { useNavigate, useParams } from "react-router-dom";
 
 // Hooks
-import useObjectStore from "@/hooks/useObjectStore";
 import useModule from "@/hooks/useModule";
+import useObjectStore from "@/hooks/useObjectStore";
 import usePathSegments from "@/hooks/usePathSegments";
 import useDebouncedState from "@/hooks/useDebouncedState";
 
@@ -60,8 +60,14 @@ const TextEditor = () => {
     section?.description || "",
     setIsSaving
   );
-  const [answers, setAnswers] = useDebouncedState(
-    section?.answers || [{ text: "" }],
+  
+  // Initialize textAnswers with backward compatibility
+  const initialTextAnswers = section?.textAnswers || 
+    section?.answers?.map(({ text }) => [text]) || 
+    [[""]];
+  
+  const [textAnswers, setTextAnswers] = useDebouncedState(
+    initialTextAnswers,
     setIsSaving
   );
 
@@ -70,14 +76,14 @@ const TextEditor = () => {
     coords: allCoords,
     content: section?.text,
     description: section?.description || "",
-    answers: JSON.stringify(section?.answers || [""]),
+    textAnswers: JSON.stringify(initialTextAnswers),
   });
 
   // Check if content has changed
   const hasContentChanged =
     content !== original.content ||
     description !== original.description ||
-    JSON.stringify(answers) !== original.answers ||
+    JSON.stringify(textAnswers) !== original.textAnswers ||
     JSON.stringify(allCoords) !== JSON.stringify(original.coords);
 
   const handleNavigate = () => {
@@ -100,7 +106,7 @@ const TextEditor = () => {
       coords,
       description,
       text: content,
-      answers: answers.filter(Boolean),
+      textAnswers: textAnswers.filter(variants => variants.some(v => v)),
     };
 
     sectionsApi
@@ -110,7 +116,7 @@ const TextEditor = () => {
         handleNavigate();
         setIsSaving(false);
         updateEntity(coordsKey, null);
-        setOriginal({ content, description, answers });
+        setOriginal({ content, description, textAnswers: JSON.stringify(textAnswers) });
         updateSection(partNumber, section, sectionIndex);
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
@@ -143,73 +149,115 @@ const TextEditor = () => {
             className="shrink-0 w-2/3 h-full editor-content-wrapper"
           />
 
-          <Answers onChange={setAnswers} initialAnwsers={answers} />
+          <Answers onChange={setTextAnswers} initialTextAnswers={textAnswers} />
         </div>
       </div>
     </div>
   );
 };
 
-const Answers = ({ onChange, initialAnwsers }) => {
-  const [inputs, setInputs] = useState(initialAnwsers?.map(({ text }) => text));
+const Answers = ({ onChange, initialTextAnswers }) => {
+  const [answers, setAnswers] = useState(initialTextAnswers || [[""]]);
 
-  const handleAddInput = useCallback(() => {
-    setInputs((prev) => (prev.length < 50 ? [...prev, ""] : prev));
+  const handleAddAnswer = useCallback(() => {
+    setAnswers((prev) => (prev.length < 50 ? [...prev, [""]] : prev));
   }, []);
 
-  const handleDeleteInput = useCallback((index) => {
-    setInputs((prev) => prev.filter((_, i) => i !== index));
+  const handleDeleteAnswer = useCallback((answerIndex) => {
+    setAnswers((prev) => prev.filter((_, i) => i !== answerIndex));
   }, []);
 
-  const handleInputChange = (e, index) => {
-    setInputs((prev) => {
-      return prev.map((val, i) => {
-        return i === index ? e.target.value : val;
-      });
-    });
+  const handleAddVariant = useCallback((answerIndex) => {
+    setAnswers((prev) =>
+      prev.map((variants, i) =>
+        i === answerIndex && variants.length < 10
+          ? [...variants, ""]
+          : variants
+      )
+    );
+  }, []);
+
+  const handleDeleteVariant = useCallback((answerIndex, variantIndex) => {
+    setAnswers((prev) =>
+      prev.map((variants, i) =>
+        i === answerIndex
+          ? variants.filter((_, j) => j !== variantIndex)
+          : variants
+      )
+    );
+  }, []);
+
+  const handleVariantChange = (e, answerIndex, variantIndex) => {
+    setAnswers((prev) =>
+      prev.map((variants, i) =>
+        i === answerIndex
+          ? variants.map((v, j) => (j === variantIndex ? e.target.value : v))
+          : variants
+      )
+    );
   };
 
   useEffect(() => {
-    onChange?.(inputs?.map((text) => ({ text })));
-  }, [JSON.stringify(inputs)]);
+    onChange?.(answers);
+  }, [JSON.stringify(answers)]);
 
   return (
     <div className="sticky top-0 overflow-y-auto w-full max-h-[calc(100vh-20px)] bg-gray-50 p-2.5 rounded-b-xl">
       <h2 className="mb-3 text-lg font-bold">Javoblar</h2>
 
       {/* Answers */}
-      <div className="space-y-2">
-        {inputs.map((value, index) => (
-          <div key={index}>
-            <div className="flex items-center justify-between">
-              <label htmlFor={`answer-${index}`} className="inline-block mb-1">
-                Javob {index + 1}
-              </label>
-
-              {/* Delete btn */}
+      <div className="space-y-4">
+        {answers.map((variants, answerIndex) => (
+          <div key={answerIndex} className="p-3 bg-white rounded-lg border">
+            <div className="flex items-center justify-between mb-2">
+              <label className="font-semibold">Javob {answerIndex + 1}</label>
               <button
-                onClick={() => handleDeleteInput(index)}
+                onClick={() => handleDeleteAnswer(answerIndex)}
                 className="flex items-center justify-center size-6"
               >
                 <Trash color="red" size={16} />
               </button>
             </div>
 
-            <textarea
-              type="text"
-              value={value}
-              id={`answer-${index}`}
-              style={{ height: "56px" }}
-              placeholder={`Javob ${index + 1}`}
-              onChange={(e) => handleInputChange(e, index)}
-              className="w-full border rounded-md p-2 min-h-12 max-h-40"
-            />
+            {/* Variants */}
+            <div className="space-y-2">
+              {variants.map((variant, variantIndex) => (
+                <div key={variantIndex} className="flex gap-2 items-start">
+                  <textarea
+                    type="text"
+                    value={variant}
+                    style={{ height: "56px" }}
+                    placeholder={`Variant ${variantIndex + 1}`}
+                    onChange={(e) =>
+                      handleVariantChange(e, answerIndex, variantIndex)
+                    }
+                    className="flex-1 border rounded-md p-2 min-h-12 max-h-40"
+                  />
+                  {variants.length > 1 && (
+                    <button
+                      onClick={() => handleDeleteVariant(answerIndex, variantIndex)}
+                      className="flex items-center justify-center size-9 mt-1"
+                    >
+                      <Trash color="gray" size={14} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Add variant button */}
+            <button
+              onClick={() => handleAddVariant(answerIndex)}
+              className="mt-2 w-full h-8 text-sm bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200"
+            >
+              Variant qo'shish +
+            </button>
           </div>
         ))}
 
-        {/* Add new field */}
+        {/* Add new answer */}
         <button
-          onClick={handleAddInput}
+          onClick={handleAddAnswer}
           className="flex items-center justify-center w-full h-9 bg-blue-100 text-blue-500 rounded-md"
         >
           Javob qo'shish +

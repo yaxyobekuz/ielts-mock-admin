@@ -240,18 +240,25 @@ const processAnswersData = (module, answers, correctAnswers) => {
     const correctAnswer = (() => {
       if (!correctAnswers[module]) return "-";
 
+      if (
+        typeof correctAnswers[module][key] === "object" &&
+        isNaN(Number(key))
+      ) {
+        return correctAnswers[module][key].join(" & ").trim().toLowerCase();
+      }
+
       if (typeof correctAnswers[module][key] === "object") {
         return correctAnswers[module][key].join(" | ").trim().toLowerCase();
       }
 
-      return (correctAnswers[module][key] || "").trim().toLowerCase();
+      return (correctAnswers[module][key] || " ")?.trim()?.toLowerCase();
     })();
 
     const userAnswer = (() => {
       if (!answers[module]) return "-";
 
       if (typeof answers[module][key] === "object") {
-        return answers[module][key].join(" | ").trim().toLowerCase();
+        return answers[module][key].join(" & ").trim().toLowerCase();
       }
 
       return (answers[module]?.[key] || "-").trim().toLowerCase();
@@ -260,17 +267,26 @@ const processAnswersData = (module, answers, correctAnswers) => {
     const isCorrect = (() => {
       if (userAnswer === "-" && correctAnswer === "-") return false;
 
-      if (typeof correctAnswers[module][key] === "object") {
+      if (
+        isNaN(Number(key)) &&
+        typeof correctAnswers[module][key] === "object"
+      ) {
         return isEqualStringArray(
           answers[module][key],
           correctAnswers[module][key]
         );
       }
 
+      if (typeof correctAnswers[module][key] === "object") {
+        return !!correctAnswers[module][key]?.find(
+          (answer) => answer?.trim()?.toLowerCase() == userAnswer
+        );
+      }
+
       return userAnswer === correctAnswer;
     })();
 
-    if (typeof correctAnswers[module][key] === "object") {
+    if (typeof correctAnswers[module][key] === "object" && isNaN(Number(key))) {
       const totalAnswers = correctAnswers[module][key]?.length || 1;
       isCorrect
         ? (trueAnswers = totalAnswers + trueAnswers)
