@@ -157,7 +157,7 @@ const TextDraggableEditor = () => {
             coords={allCoords}
             onChange={setContent}
             initialContent={content}
-            className="shrink-0 w-2/3 h-full"
+            className="shrink-0 w-2/3 h-full editor-content-wrapper"
           />
           <Answers
             module={module}

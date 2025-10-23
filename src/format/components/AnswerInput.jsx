@@ -9,7 +9,7 @@ import useObjectStore from "@/hooks/useObjectStore";
 import usePathSegments from "@/hooks/usePathSegments";
 
 // React
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const AnswerInput = ({
   editor,
@@ -24,11 +24,22 @@ const AnswerInput = ({
   const [isMoved, setIsMoved] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
   const [coords, setCoords] = useState({ x: 0, y: 0 });
-  const { updateEntity, getEntity } = useObjectStore("coords");
   const [inputIndex, setInputIndex] = useState(initialNumber);
+  const { updateEntity, getEntity, hasEntity, addEntity } =
+    useObjectStore("coords");
 
   const coordsKey = `${pathSegments[1]}-${pathSegments[3]}-${pathSegments[4]}-${pathSegments[5]}-${pathSegments[6]}`;
-  const allCoords = getEntity(coordsKey) || initialCoords || {};
+
+  const hasCoords = hasEntity(coordsKey);
+  const cachedCoords = getEntity(coordsKey);
+
+  const allCoords = useMemo(() => {
+    if (!Object.keys(cachedCoords || {}).length) {
+      return initialCoords;
+    } else {
+      return cachedCoords;
+    }
+  }, [coordsKey, cachedCoords, initialCoords]);
 
   const calculateIndex = useCallback(() => {
     try {
@@ -46,11 +57,20 @@ const AnswerInput = ({
       if (allCoords && allCoords[index - initialNumber + 1]) {
         setIsMoved(true);
         setCoords(allCoords[index - initialNumber + 1]);
+      } else {
+        setCoords({});
+        setIsMoved(false);
       }
     } catch (error) {
       console.warn("Error calculating input index:", error);
     }
-  }, [editor, getPos, allCoords]);
+  }, [coordsKey, hasCoords, allowActions ? allCoords : null]);
+
+  useEffect(() => {
+    if (!hasCoords && allowActions) {
+      addEntity(coordsKey, initialCoords);
+    }
+  }, [hasCoords, coordsKey, coords, allowActions]);
 
   useEffect(() => {
     calculateIndex();
@@ -88,7 +108,9 @@ const AnswerInput = ({
     let coords = { x: 0, y: 0 };
 
     const handleMouseMove = (e) => {
-      const container = document.querySelector(".tiptap");
+      const container = document.querySelector(
+        ".editor-content-wrapper .tiptap"
+      );
       const rect = container?.getBoundingClientRect();
       if (!rect) return;
       const y = e.clientY - rect.top - 12;
@@ -117,14 +139,16 @@ const AnswerInput = ({
       <NodeViewWrapper
         style={isMoved ? { top: coords.y, left: coords.x } : {}}
         className={`${
-          isMoved ? "absolute z-10 !max-w-32 w-full" : ""
+          isMoved ? "absolute z-10 w-32" : ""
         } inline-block px-1 py-px`}
       >
         <input
           type="text"
           placeholder={inputIndex}
           id={`answer-input-${inputIndex}`}
-          className={`${isMoved ? "w-full" : "w-40"} answer-input pr-5`}
+          className={`${
+            isMoved ? "w-full min-w-0" : "w-40 s"
+          } answer-input pr-5`}
         />
       </NodeViewWrapper>
     );
@@ -135,7 +159,7 @@ const AnswerInput = ({
       ref={elementRef}
       style={isMoved ? { top: coords.y, left: coords.x } : {}}
       className={`${
-        isMoved ? "absolute z-10 max-w-32 !min-w-0" : ""
+        isMoved ? "absolute z-10 !max-w-32 !w-32 !min-w-0" : ""
       } inline-block px-1 py-px select-none`}
     >
       <div className="flex items-center gap-1.5 relative w-full">
@@ -143,7 +167,7 @@ const AnswerInput = ({
           type="text"
           placeholder={inputIndex}
           id={`answer-input-${inputIndex}`}
-          className={`${isMoved ? "min-w-32" : ""} answer-input pr-5`}
+          className={`${isMoved ? "w-32 min-w-0" : "s"} answer-input pr-5`}
         />
 
         <div className="flex items-center gap-px absolute right-0">

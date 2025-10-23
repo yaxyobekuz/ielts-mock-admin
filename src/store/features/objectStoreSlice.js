@@ -11,6 +11,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   links: {},
   tests: {},
+  coords: {},
+  pdfFile: {},
   results: {},
   teachers: {},
   templates: {},
@@ -44,14 +46,14 @@ export const objectStoreSlice = createSlice({
       const collection = state[collectionName];
       const entity = collection?.[entityId];
 
-      if (!entity) {
+      if (entity === undefined) {
         console.error(
           `[ObjectStore] Entity does not exist in collection "${collectionName}" with ID: ${entityId}`
         );
         return;
       }
 
-      collection[entityId] = { ...entity, ...entityData };
+      collection[entityId] = { ...(entity || {}), ...entityData };
     },
 
     deleteEntityFromObjectStore: (state, action) => {
