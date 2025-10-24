@@ -39,7 +39,9 @@ import useObjectStore from "@/hooks/useObjectStore";
 import useObjectState from "@/hooks/useObjectState";
 
 // Components
+import Results from "@/components/Results";
 import CopyButton from "@/components/CopyButton";
+import Submissions from "@/components/Submissions";
 import ProfilePhoto from "@/components/ProfilePhoto";
 
 // Data
@@ -123,211 +125,224 @@ const MainContent = ({
   }, [id]);
 
   return (
-    <div className="container py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        {/* Title */}
-        <h1>
-          {title}
-          <span className="text-gray-500"> havolasi</span>
-        </h1>
+    <>
+      <div className="container py-8 space-y-6">
+        <div className="flex items-center justify-between">
+          {/* Title */}
+          <h1>
+            {title}
+            <span className="text-gray-500"> havolasi</span>
+          </h1>
 
-        {/* Date & time */}
-        <div title="Vaqt" className="flex items-center gap-1.5">
-          <Clock strokeWidth={1.5} size={22} />
-          <span>{formatDate(createdAt)} </span>
-          <span className="text-gray-500">{formatTime(createdAt)}</span>
+          {/* Date & time */}
+          <div title="Vaqt" className="flex items-center gap-1.5">
+            <Clock strokeWidth={1.5} size={22} />
+            <span>{formatDate(createdAt)} </span>
+            <span className="text-gray-500">{formatTime(createdAt)}</span>
+          </div>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center justify-end gap-5 w-full">
+          {/* Copy link */}
+          <CopyButton
+            text={`${siteUrl}/link/${id}`}
+            notificationText="Havoladan nusxa olindi"
+            className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
+          >
+            <Copy size={20} strokeWidth={1.5} />
+            Havoladan nusxa olish
+          </CopyButton>
+
+          {/* Open edit test modal button */}
+          <button
+            disabled={!canEditLink}
+            onClick={openEditLinkModal}
+            className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
+          >
+            <Edit size={20} strokeWidth={1.5} />
+            Tahrirlash
+          </button>
+
+          {/* Test */}
+          <Link
+            to={`/tests/${testId}`}
+            className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
+          >
+            <Book size={20} strokeWidth={1.5} />
+            <span>Test</span>
+          </Link>
+
+          {/* Open delete link modal button */}
+          <button
+            disabled={!canDeleteLink}
+            title="Havolani o'chirish"
+            onClick={openDeleteLinkModal}
+            aria-label="Havolani o'chirish"
+            className="btn size-11 bg-red-50 p-0 rounded-full text-red-500 hover:bg-red-100 disabled:opacity-50 disabled:hover:bg-red-50"
+          >
+            <Trash size={20} strokeWidth={1.5} />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-4 gap-5">
+          {/* Profile */}
+          <Profile createdBy={createdBy || {}} />
+
+          {/* Info */}
+          <section className="h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square rounded-3xl p-5">
+            {/* Title */}
+            <h2 className="mb-5 text-xl font-medium">Ba'tafsil</h2>
+
+            <div className="space-y-3.5">
+              {/* Max uses */}
+              <div className="flex items-center gap-1.5">
+                <Hash strokeWidth={1.5} className="shrink-0" size={20} />
+                <div className="flex items-center justify-between w-full">
+                  <span>Max foydalanishlar </span>
+                  <span className="text-gray-600">{maxUses} ta</span>
+                </div>
+              </div>
+
+              {/* Max uses */}
+              <div className="flex items-center gap-1.5">
+                <Hash strokeWidth={1.5} className="shrink-0" size={20} />
+                <div className="flex items-center justify-between w-full">
+                  <span>Qolgan foydalanishlar </span>
+                  <span className="text-gray-600">
+                    {maxUses - usedCount} ta
+                  </span>
+                </div>
+              </div>
+
+              {/* Require comment */}
+              <div className="flex items-center gap-1.5">
+                <MessageCircle
+                  size={20}
+                  strokeWidth={1.5}
+                  className="shrink-0"
+                />
+                <div className="flex items-center justify-between w-full">
+                  <span>Sharh qoldirishni so'rash </span>
+                  <span
+                    className={
+                      requireComment ? "text-green-500" : "text-red-500"
+                    }
+                  >
+                    {requireComment ? "Ha" : "Yo'q"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Visits */}
+              <div className="flex items-center gap-1.5">
+                <Eye strokeWidth={1.5} className="shrink-0" size={20} />
+                <div className="flex items-center justify-between w-full">
+                  <span>Ta'shriflar </span>
+                  <span className="text-gray-600">{visitsCount} ta</span>
+                </div>
+              </div>
+
+              {/* Uses */}
+              <div className="flex items-center gap-1.5">
+                <MousePointerClick
+                  strokeWidth={1.5}
+                  className="shrink-0"
+                  size={20}
+                />
+                <div className="flex items-center justify-between w-full">
+                  <span>Testni ishlatishlar </span>
+                  <span className="text-gray-600">{usedCount} ta</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Visits */}
+          <section className="h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square rounded-3xl p-5">
+            {/* Top */}
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-medium">Ta'shriflar</h2>
+              <p className="text-lg">{visitsCount} ta</p>
+            </div>
+
+            <ul className="space-y-5 max-h-[calc(100%-48px)] pr-1.5 overflow-y-auto scroll-y-primary">
+              {visits.map(({ _id: id, userAgent, createdAt }, index) => (
+                <li
+                  key={id}
+                  className="flex items-center justify-between gap-2 pr-1 relative"
+                >
+                  <div className="flex items-center gap-2">
+                    {/* Photo */}
+                    <div className="btn size-11 p-0 bg-black/70 rounded-full shrink-0 text-white font-semibold">
+                      {index + 1}
+                    </div>
+
+                    <div className="space-y-1">
+                      {/* Title */}
+                      <h3 className="capitalize line-clamp-1 font-medium">
+                        {getDeviceInfo(userAgent)}
+                      </h3>
+
+                      {/* Created At */}
+                      <p className="line-clamp-1 text-sm">
+                        <span className="">{formatDate(createdAt)} </span>
+                        <span className="text-gray-500">
+                          {formatTime(createdAt)}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* Usages */}
+          <section className="h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square rounded-3xl p-5">
+            {/* Top */}
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-medium">Testni ishlatishlar</h2>
+              <p className="text-lg">{usedCount} ta</p>
+            </div>
+
+            <ul className="space-y-5 max-h-[calc(100%-48px)] pr-1.5 overflow-y-auto scroll-y-primary">
+              {usages.map(({ _id: id, userAgent, createdAt }, index) => (
+                <li
+                  key={id}
+                  className="flex items-center justify-between gap-2 pr-1 relative"
+                >
+                  <div className="flex items-center gap-2">
+                    {/* Photo */}
+                    <div className="btn size-11 p-0 bg-black/70 rounded-full shrink-0 text-white font-semibold">
+                      {index + 1}
+                    </div>
+
+                    <div className="space-y-1">
+                      {/* Title */}
+                      <h3 className="capitalize line-clamp-1 font-medium">
+                        {getDeviceInfo(userAgent)}
+                      </h3>
+
+                      {/* Created At */}
+                      <p className="line-clamp-1 text-sm">
+                        <span className="">{formatDate(createdAt)} </span>
+                        <span className="text-gray-500">
+                          {formatTime(createdAt)}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
         </div>
       </div>
 
-      {/* Action buttons */}
-      <div className="flex items-center justify-end gap-5 w-full">
-        {/* Copy link */}
-        <CopyButton
-          text={`${siteUrl}/link/${id}`}
-          notificationText="Havoladan nusxa olindi"
-          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
-        >
-          <Copy size={20} strokeWidth={1.5} />
-          Havoladan nusxa olish
-        </CopyButton>
-
-        {/* Open edit test modal button */}
-        <button
-          disabled={!canEditLink}
-          onClick={openEditLinkModal}
-          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
-        >
-          <Edit size={20} strokeWidth={1.5} />
-          Tahrirlash
-        </button>
-
-        {/* Test */}
-        <Link
-          to={`/tests/${testId}`}
-          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
-        >
-          <Book size={20} strokeWidth={1.5} />
-          <span>Test</span>
-        </Link>
-
-        {/* Open delete link modal button */}
-        <button
-          disabled={!canDeleteLink}
-          title="Havolani o'chirish"
-          onClick={openDeleteLinkModal}
-          aria-label="Havolani o'chirish"
-          className="btn size-11 bg-red-50 p-0 rounded-full text-red-500 hover:bg-red-100 disabled:opacity-50 disabled:hover:bg-red-50"
-        >
-          <Trash size={20} strokeWidth={1.5} />
-        </button>
-      </div>
-
-      <div className="grid grid-cols-4 gap-5">
-        {/* Profile */}
-        <Profile createdBy={createdBy || {}} />
-
-        {/* Info */}
-        <section className="h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square rounded-3xl p-5">
-          {/* Title */}
-          <h2 className="mb-5 text-xl font-medium">Ba'tafsil</h2>
-
-          <div className="space-y-3.5">
-            {/* Max uses */}
-            <div className="flex items-center gap-1.5">
-              <Hash strokeWidth={1.5} className="shrink-0" size={20} />
-              <div className="flex items-center justify-between w-full">
-                <span>Max foydalanishlar </span>
-                <span className="text-gray-600">{maxUses} ta</span>
-              </div>
-            </div>
-
-            {/* Max uses */}
-            <div className="flex items-center gap-1.5">
-              <Hash strokeWidth={1.5} className="shrink-0" size={20} />
-              <div className="flex items-center justify-between w-full">
-                <span>Qolgan foydalanishlar </span>
-                <span className="text-gray-600">{maxUses - usedCount} ta</span>
-              </div>
-            </div>
-
-            {/* Require comment */}
-            <div className="flex items-center gap-1.5">
-              <MessageCircle size={20} strokeWidth={1.5} className="shrink-0" />
-              <div className="flex items-center justify-between w-full">
-                <span>Sharh qoldirishni so'rash </span>
-                <span
-                  className={requireComment ? "text-green-500" : "text-red-500"}
-                >
-                  {requireComment ? "Ha" : "Yo'q"}
-                </span>
-              </div>
-            </div>
-
-            {/* Visits */}
-            <div className="flex items-center gap-1.5">
-              <Eye strokeWidth={1.5} className="shrink-0" size={20} />
-              <div className="flex items-center justify-between w-full">
-                <span>Ta'shriflar </span>
-                <span className="text-gray-600">{visitsCount} ta</span>
-              </div>
-            </div>
-
-            {/* Uses */}
-            <div className="flex items-center gap-1.5">
-              <MousePointerClick
-                strokeWidth={1.5}
-                className="shrink-0"
-                size={20}
-              />
-              <div className="flex items-center justify-between w-full">
-                <span>Testni ishlatishlar </span>
-                <span className="text-gray-600">{usedCount} ta</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Visits */}
-        <section className="h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square rounded-3xl p-5">
-          {/* Top */}
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-medium">Ta'shriflar</h2>
-            <p className="text-lg">{visitsCount} ta</p>
-          </div>
-
-          <ul className="space-y-5 max-h-[calc(100%-48px)] pr-1.5 overflow-y-auto scroll-y-primary">
-            {visits.map(({ _id: id, userAgent, createdAt }, index) => (
-              <li
-                key={id}
-                className="flex items-center justify-between gap-2 pr-1 relative"
-              >
-                <div className="flex items-center gap-2">
-                  {/* Photo */}
-                  <div className="btn size-11 p-0 bg-black/70 rounded-full shrink-0 text-white font-semibold">
-                    {index + 1}
-                  </div>
-
-                  <div className="space-y-1">
-                    {/* Title */}
-                    <h3 className="capitalize line-clamp-1 font-medium">
-                      {getDeviceInfo(userAgent)}
-                    </h3>
-
-                    {/* Created At */}
-                    <p className="line-clamp-1 text-sm">
-                      <span className="">{formatDate(createdAt)} </span>
-                      <span className="text-gray-500">
-                        {formatTime(createdAt)}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* Usages */}
-        <section className="h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square rounded-3xl p-5">
-          {/* Top */}
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-medium">Testni ishlatishlar</h2>
-            <p className="text-lg">{usedCount} ta</p>
-          </div>
-
-          <ul className="space-y-5 max-h-[calc(100%-48px)] pr-1.5 overflow-y-auto scroll-y-primary">
-            {usages.map(({ _id: id, userAgent, createdAt }, index) => (
-              <li
-                key={id}
-                className="flex items-center justify-between gap-2 pr-1 relative"
-              >
-                <div className="flex items-center gap-2">
-                  {/* Photo */}
-                  <div className="btn size-11 p-0 bg-black/70 rounded-full shrink-0 text-white font-semibold">
-                    {index + 1}
-                  </div>
-
-                  <div className="space-y-1">
-                    {/* Title */}
-                    <h3 className="capitalize line-clamp-1 font-medium">
-                      {getDeviceInfo(userAgent)}
-                    </h3>
-
-                    {/* Created At */}
-                    <p className="line-clamp-1 text-sm">
-                      <span className="">{formatDate(createdAt)} </span>
-                      <span className="text-gray-500">
-                        {formatTime(createdAt)}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
-    </div>
+      <Submissions bySearchQuery={false} isPage={false} linkId={id} />
+      <Results bySearchQuery={false} isPage={false} linkId={id} />
+    </>
   );
 };
 

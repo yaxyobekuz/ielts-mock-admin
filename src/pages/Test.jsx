@@ -22,7 +22,9 @@ import { toast } from "@/notification/toast";
 import { useCallback, useEffect } from "react";
 
 // Components
+import Results from "@/components/Results";
 import CopyButton from "@/components/CopyButton";
+import Submissions from "@/components/Submissions";
 
 // Router
 import { Link, useParams } from "react-router-dom";
@@ -136,146 +138,151 @@ const Test = () => {
   if (hasError) return <ErrorContent />;
 
   return (
-    <div className="container py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        {/* Title */}
-        <h1>{title}</h1>
+    <>
+      <div className="container py-8 space-y-6">
+        <div className="flex items-center justify-between">
+          {/* Title */}
+          <h1>{title}</h1>
 
-        <div className="flex items-center gap-5">
-          {/* Total parts */}
-          <div title="Jami sahifalar" className="flex items-center gap-1.5">
-            <Columns2 strokeWidth={1.5} size={22} />
-            <span>{totalParts}ta</span>
-          </div>
+          <div className="flex items-center gap-5">
+            {/* Total parts */}
+            <div title="Jami sahifalar" className="flex items-center gap-1.5">
+              <Columns2 strokeWidth={1.5} size={22} />
+              <span>{totalParts}ta</span>
+            </div>
 
-          {/* Parts count */}
-          <div title="Vaqt" className="flex items-center gap-1.5">
-            <Clock strokeWidth={1.5} size={22} />
-            <span>
-              {formatDate(createdAt)} {formatTime(createdAt)}
-            </span>
+            {/* Parts count */}
+            <div title="Vaqt" className="flex items-center gap-1.5">
+              <Clock strokeWidth={1.5} size={22} />
+              <span>
+                {formatDate(createdAt)} {formatTime(createdAt)}
+              </span>
+            </div>
           </div>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center justify-end gap-5">
+          {/* Open edit test modal button */}
+          <button
+            disabled={!canEditTest}
+            onClick={openEditTestModal}
+            className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
+          >
+            <Edit size={20} strokeWidth={1.5} />
+            Tahrirlash
+          </button>
+
+          {/* Template link */}
+          {isTemplate && (
+            <Link
+              to={`/templates/${template}`}
+              className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
+            >
+              <Grid2x2 size={20} strokeWidth={1.5} />
+              Shablonni ko'rish
+            </Link>
+          )}
+
+          {/* Open create template modal button */}
+          {!isTemplate && (
+            <button
+              disabled={!canCreateTemplate}
+              onClick={openCreateTemplateModal}
+              className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
+            >
+              <Grid2x2Plus size={20} strokeWidth={1.5} />
+              Shablon yaratish
+            </button>
+          )}
+
+          {/* Open create link modal button */}
+          <button
+            disabled={!canCreateLink}
+            onClick={() => openModal({ testId })}
+            className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
+          >
+            <LinkIcon size={20} strokeWidth={1.5} />
+            Taklif havolasini yaratish
+          </button>
+
+          {/* Open delete test modal button */}
+          <button
+            title="Testni o'chirish"
+            disabled={!canDeleteTest}
+            aria-label="Testni o'chirish"
+            onClick={() => openModal({ testId }, "deleteTest")}
+            className="btn size-11 bg-red-50 p-0 rounded-full text-red-500 hover:bg-red-100 disabled:opacity-50 disabled:hover:bg-red-50"
+          >
+            <Trash size={20} strokeWidth={1.5} />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-4 gap-5">
+          {/* Modules */}
+          <ul className="grid grid-cols-3 gap-5 col-span-3">
+            {modules.map(({ image, title, link }, index) => {
+              const updatedAt =
+                rest[title?.toLowerCase()]?.updatedAt || createdAt;
+              const partsCount = rest[title?.toLowerCase()]?.partsCount || 0;
+
+              return (
+                <li
+                  key={index}
+                  style={{ backgroundImage: `url(${image})` }}
+                  className="flex flex-col relative overflow-hidden w-full h-auto aspect-square bg-cover bg-center bg-no-repeat bg-gray-100 rounded-3xl"
+                >
+                  <div className="flex items-center justify-end p-5">
+                    {/* Link */}
+                    <div className="btn size-10 p-0 rounded-full bg-white backdrop-blur-sm">
+                      <ArrowUpRight size={20} />
+                    </div>
+                  </div>
+
+                  {/* Bottom */}
+                  <div className="w-full bg-gradient-to-b from-transparent to-black/80 mt-auto p-5 space-y-3">
+                    <h2 className="text-xl font-medium text-white">{title}</h2>
+
+                    <div className="flex items-center justify-between gap-4">
+                      {/* Parts count */}
+                      <div
+                        title="Sahifalar"
+                        className="flex items-center gap-1.5 text-gray-200"
+                      >
+                        <Columns2 strokeWidth={1.5} size={18} />
+                        <span>{partsCount}ta</span>
+                      </div>
+
+                      {/* Last update */}
+                      <div
+                        title="Oxirgi yangilanish"
+                        className="flex items-center gap-1.5 text-gray-200"
+                      >
+                        <RefreshCcw strokeWidth={1.5} size={18} />
+                        <span>{formatDate(updatedAt)}</span>
+                        <span>{formatTime(updatedAt)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Link */}
+                  <Link
+                    to={link(testId)}
+                    className="block absolute z-0 -top-5 inset-0 size-full rounded-3xl"
+                  />
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* Invite links */}
+          <Links testId={testId} />
         </div>
       </div>
 
-      {/* Action buttons */}
-      <div className="flex items-center justify-end gap-5">
-        {/* Open edit test modal button */}
-        <button
-          disabled={!canEditTest}
-          onClick={openEditTestModal}
-          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
-        >
-          <Edit size={20} strokeWidth={1.5} />
-          Tahrirlash
-        </button>
-
-        {/* Template link */}
-        {isTemplate && (
-          <Link
-            to={`/templates/${template}`}
-            className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
-          >
-            <Grid2x2 size={20} strokeWidth={1.5} />
-            Shablonni ko'rish
-          </Link>
-        )}
-
-        {/* Open create template modal button */}
-        {!isTemplate && (
-          <button
-            disabled={!canCreateTemplate}
-            onClick={openCreateTemplateModal}
-            className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
-          >
-            <Grid2x2Plus size={20} strokeWidth={1.5} />
-            Shablon yaratish
-          </button>
-        )}
-
-        {/* Open create link modal button */}
-        <button
-          disabled={!canCreateLink}
-          onClick={() => openModal({ testId })}
-          className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-gray-100"
-        >
-          <LinkIcon size={20} strokeWidth={1.5} />
-          Taklif havolasini yaratish
-        </button>
-
-        {/* Open delete test modal button */}
-        <button
-          title="Testni o'chirish"
-          disabled={!canDeleteTest}
-          aria-label="Testni o'chirish"
-          onClick={() => openModal({ testId }, "deleteTest")}
-          className="btn size-11 bg-red-50 p-0 rounded-full text-red-500 hover:bg-red-100 disabled:opacity-50 disabled:hover:bg-red-50"
-        >
-          <Trash size={20} strokeWidth={1.5} />
-        </button>
-      </div>
-
-      <div className="grid grid-cols-4 gap-5">
-        {/* Modules */}
-        <ul className="grid grid-cols-3 gap-5 col-span-3">
-          {modules.map(({ image, title, link }, index) => {
-            const updatedAt =
-              rest[title?.toLowerCase()]?.updatedAt || createdAt;
-            const partsCount = rest[title?.toLowerCase()]?.partsCount || 0;
-
-            return (
-              <li
-                key={index}
-                style={{ backgroundImage: `url(${image})` }}
-                className="flex flex-col relative overflow-hidden w-full h-auto aspect-square bg-cover bg-center bg-no-repeat bg-gray-100 rounded-3xl"
-              >
-                <div className="flex items-center justify-end p-5">
-                  {/* Link */}
-                  <div className="btn size-10 p-0 rounded-full bg-white backdrop-blur-sm">
-                    <ArrowUpRight size={20} />
-                  </div>
-                </div>
-
-                {/* Bottom */}
-                <div className="w-full bg-gradient-to-b from-transparent to-black/80 mt-auto p-5 space-y-3">
-                  <h2 className="text-xl font-medium text-white">{title}</h2>
-
-                  <div className="flex items-center justify-between gap-4">
-                    {/* Parts count */}
-                    <div
-                      title="Sahifalar"
-                      className="flex items-center gap-1.5 text-gray-200"
-                    >
-                      <Columns2 strokeWidth={1.5} size={18} />
-                      <span>{partsCount}ta</span>
-                    </div>
-
-                    {/* Last update */}
-                    <div
-                      title="Oxirgi yangilanish"
-                      className="flex items-center gap-1.5 text-gray-200"
-                    >
-                      <RefreshCcw strokeWidth={1.5} size={18} />
-                      <span>{formatDate(updatedAt)}</span>
-                      <span>{formatTime(updatedAt)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Link */}
-                <Link
-                  to={link(testId)}
-                  className="block absolute z-0 -top-5 inset-0 size-full rounded-3xl"
-                />
-              </li>
-            );
-          })}
-        </ul>
-
-        {/* Invite links */}
-        <Links testId={testId} />
-      </div>
-    </div>
+      <Submissions bySearchQuery={false} isPage={false} testId={testId} />
+      <Results bySearchQuery={false} isPage={false} testId={testId} />
+    </>
   );
 };
 
