@@ -11,6 +11,7 @@ const Nav = ({
   role,
   onChange,
   links = [],
+  activeIndex,
   className = "",
   extraLinks = [],
   pagePathIndex = 0,
@@ -21,6 +22,8 @@ const Nav = ({
   const { pathSegments, location } = usePathSegments();
   const [activeStyle, setActiveStyle] = useState(initialStyle);
 
+  const currentPage = pathSegments[pagePathIndex];
+
   const navLinks = useMemo(() => {
     if (["supervisor", "admin", "owner"].includes(role)) {
       return [...links, ...extraLinks];
@@ -28,10 +31,12 @@ const Nav = ({
     return links;
   }, [role, links, extraLinks]);
 
-  const currentPage = pathSegments[pagePathIndex];
-
   useEffect(() => {
-    const activeIndex = (() => {
+    const activeIdx = (() => {
+      if (typeof activeIndex === "number") {
+        return activeIndex;
+      }
+
       if (!currentPage) return 0;
       return navLinks.findIndex(({ link }) => {
         const pathSegments = link.split("/").filter(Boolean) || [];
@@ -39,8 +44,8 @@ const Nav = ({
       });
     })();
 
-    if (activeIndex !== -1 && linkRefs.current[activeIndex]) {
-      const el = linkRefs.current[activeIndex];
+    if (activeIdx !== -1 && linkRefs.current[activeIdx]) {
+      const el = linkRefs.current[activeIdx];
 
       setActiveStyle({ left: el.offsetLeft - 6, width: el.offsetWidth + 20 });
 
@@ -48,7 +53,7 @@ const Nav = ({
         setActiveStyle({ left: el.offsetLeft + 4, width: el.offsetWidth });
       }, 300);
     }
-  }, [location.pathname, navLinks, currentPage]);
+  }, [location.pathname, navLinks.length, currentPage, activeIndex]);
 
   return (
     <nav className={`bg-gray-100 relative rounded-full p-1 ${className}`}>
