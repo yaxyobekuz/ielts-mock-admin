@@ -5,4 +5,8 @@ export const resultsApi = {
   create: async (data) => await api.post("/api/results/", data),
   update: async (id, data) => await api.put(`/api/results/${id}`, data),
   get: async (params = {}) => await api.get("/api/results", { params }),
+  getByLinkId: async (linkId, params) =>
+    await api.get("/api/results", { params: { ...params, linkId } }),
+  getByTestId: async (testId, params) =>
+    await api.get("/api/results", { params: { ...params, testId } }),
 };
