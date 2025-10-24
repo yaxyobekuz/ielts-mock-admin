@@ -29,7 +29,7 @@ const CreateTemplateModal = () => (
 
 const Content = ({ close, isLoading, setIsLoading, testId }) => {
   const { updateEntity } = useObjectStore("tests");
-  const { updateItemById } = useArrayStore("tests");
+  const { updateItemById, invalidateCache } = useArrayStore("tests");
   const { progress, images, setField, title, description, step, banner, type } =
     useObjectState({
       step: 1,
@@ -77,6 +77,8 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
         const updates = { isTemplate: true, template: template._id };
         updateEntity(testId, updates);
         updateItemById(testId, updates);
+        invalidateCache("templates-all");
+        invalidateCache(`templates-${type}`);
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => {

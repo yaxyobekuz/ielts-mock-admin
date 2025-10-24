@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { SaveAll, Verified } from "lucide-react";
 
 const TemplateItem = ({
+  type,
   title,
   _id: id,
   banner,
@@ -52,6 +53,15 @@ const TemplateItem = ({
           </div>
         )}
 
+        {/* Type badge   */}
+        <div
+          className={`${
+            banner ? "bg-black/20 text-white" : "bg-green-200 text-green-700"
+          } btn gap-1.5 h-6 py-0 px-1.5 rounded-full backdrop-blur-sm`}
+        >
+          <span className="text-[13.5px] capitalize">{type}</span>
+        </div>
+
         {/* Use template */}
         <button
           disabled={!canUseTemplate}
@@ -84,7 +94,11 @@ const TemplateItem = ({
         </h3>
 
         {/* Description */}
-        <p className={banner ? "text-gray-300" : "text-gray-500"}>
+        <p
+          className={`line-clamp-1 ${
+            banner ? "text-gray-300" : "text-gray-500"
+          }`}
+        >
           {description}
         </p>
       </div>

@@ -4,43 +4,42 @@ import { toast } from "@/notification/toast";
 // React
 import { useCallback, useEffect } from "react";
 
-// Router
-import { useSearchParams } from "react-router-dom";
-
 // Hooks
 import useArrayStore from "@/hooks/useArrayStore";
 import usePermission from "@/hooks/usePermission";
+
+// Router
+import { useSearchParams } from "react-router-dom";
 
 // Templates api
 import { templatesApi } from "@/api/templates.api";
 
 // Components
+import Nav from "@/components/Nav";
 import PageInfo from "@/components/PageInfo";
 import Pagination from "@/components/Pagination";
 import TemplateItem from "@/components/TemplateItem";
-import Nav from "@/components/Nav";
 
-
-// Helper: get type from query
-function getTypeFromParams(searchParams) {
+// Get type from query
+const getTypeFromParams = (searchParams) => {
   return searchParams.get("type") || "all";
-}
+};
 
-// Helper: Nav active checker by type
-function getActiveTypeNav(type, navLinks) {
+// Nav active checker by type
+const getActiveTypeNav = (type, navLinks) => {
   return navLinks.findIndex((nav) => {
     const linkType = nav.link.split("type=")[1];
     return linkType === type;
   });
-}
+};
 
 const Templates = () => {
+  // Search params
   const [searchParams, setSearchParams] = useSearchParams();
-  const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const currentType = getTypeFromParams(searchParams);
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
-  // useArrayStore for each type
-  const storeKey = `templates_${currentType}`;
+  // UseArrayStore for each type
   const {
     setPage,
     initialize,
@@ -49,7 +48,7 @@ const Templates = () => {
     hasCollection,
     setPageErrorState,
     setPageLoadingState,
-  } = useArrayStore(storeKey);
+  } = useArrayStore(`templates-${currentType}`);
 
   // Initialize collection on mount/type change
   useEffect(() => {
@@ -70,7 +69,11 @@ const Templates = () => {
     (page) => {
       setPageLoadingState(page, true);
       templatesApi
-        .get({ page, limit: 12, type: currentType !== "all" ? currentType : undefined })
+        .get({
+          page,
+          limit: 12,
+          type: currentType !== "all" ? currentType : undefined,
+        })
         .then(({ templates, code, pagination }) => {
           if (code !== "templatesFetched") throw new Error();
           setPage(page, templates, null, pagination);
@@ -106,9 +109,10 @@ const Templates = () => {
 
   // Nav links
   const navLinks = [
-    { label: "Listening", link: `submissions?type=cambridge` },
-    { label: "Reading", link: `submissions?type=prediction` },
-    { label: "Writing", link: `submissions?type=custom` },
+    { label: "Barchasi", link: `templates?type=all` },
+    { label: "Cambridge", link: `templates?type=cambridge` },
+    { label: "Prediction", link: `templates?type=prediction` },
+    { label: "Custom", link: `templates?type=custom` },
   ];
 
   // Active nav index by type
@@ -146,8 +150,8 @@ const Templates = () => {
       <div className="flex justify-end">
         <Nav
           links={navLinks}
-          onChange={handleNavTypeChange}
           activeIndex={activeNavIndex}
+          onChange={handleNavTypeChange}
         />
       </div>
 
@@ -179,11 +183,9 @@ const Templates = () => {
         {!isLoading && !hasError && templates.length === 0 ? (
           <PageInfo
             className="pt-12"
-            title="Hech qanday shablon topilmadi"
-            links={{
-              primary: { to: "/templates", body: "1-sahifaga qaytish" },
-            }}
-            description={`Ushbu ${currentPage}-sahifada hech qanday shablon topilmadi.`}
+            title="Shablonlar topilmadi"
+            links={{ primary: { to: -1, body: "Ortga qaytish" } }}
+            description="Ushbu sahifada hech qanday shablonlar topilmadi."
           />
         ) : null}
 
