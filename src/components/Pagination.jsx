@@ -1,8 +1,8 @@
-// React
-import { memo, useEffect } from "react";
-
 // Components
 import Button from "./form/Button";
+
+// React
+import { memo, useEffect, useMemo, useState } from "react";
 
 // Icons
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -18,8 +18,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
  * @param {boolean} props.showPageNumbers - Whether to show page number buttons (default: true)
  * @param {number} props.maxPageButtons - Maximum number of page buttons to show (default: 5)
  * @param {string} props.className - Additional CSS classes for the container
+ * @param {number} props.contentTop - The top position of the content to scroll to
  */
 const Pagination = ({
+  contentRef,
   currentPage,
   onPageChange,
   totalPages = 1,
@@ -34,8 +36,19 @@ const Pagination = ({
     return null;
   }
 
+  const [isFirst, setIsFirst] = useState(true);
+  const scrollToTop = useMemo(() => {
+    if (!contentRef || !contentRef.current) return 0;
+    const rect = contentRef.current.getBoundingClientRect();
+    return rect.top + window.scrollY - 44;
+  }, [contentRef]);
+
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    if (isFirst) {
+      setIsFirst(false);
+    } else {
+      window.scrollTo({ top: scrollToTop, left: 0, behavior: "smooth" });
+    }
   }, [currentPage]);
 
   const goToPage = (page) => {
