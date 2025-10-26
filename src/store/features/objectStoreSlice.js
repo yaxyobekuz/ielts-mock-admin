@@ -19,6 +19,7 @@ const initialState = {
   testLinks: {},
   submissions: {},
   users: { me: {} },
+  stats: { weekly: null, monthly: null, dashboard: null },
 };
 
 export const objectStoreSlice = createSlice({

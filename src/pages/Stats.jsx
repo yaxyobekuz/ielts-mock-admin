@@ -1,183 +1,432 @@
 // Icons
 import {
-  UsersIcon,
-  ChartBarIcon,
-  CheckCircleIcon,
-  ClipboardListIcon,
+  Pen,
+  Mic,
+  Eye,
+  Book,
+  File,
+  Clock,
+  Trash,
+  Target,
+  Trophy,
+  Grid2x2,
+  FileText,
+  LinkIcon,
+  FileCheck,
+  FileMinus,
+  Headphones,
+  ClipboardCheck,
+  MousePointerClick,
 } from "lucide-react";
-
-// Hooks
-import useStore from "@/hooks/useStore";
 
 // React
 import { useEffect, useMemo } from "react";
 
-// Stats api
+// API
 import { statsApi } from "@/api/stats.api";
 
-// Helpers
-import { formatDate } from "@/lib/helpers";
+// Toast
+import { toast } from "@/notification/toast";
+
+// Router
+import { useParams } from "react-router-dom";
+
+// Hooks
+import useObjectStore from "@/hooks/useObjectStore";
+import useObjectState from "@/hooks/useObjectState";
 
 // Components
+import Nav from "@/components/Nav";
+import GrayCard from "@/components/GrayCard";
 import LineChart from "@/components/charts/LineChart";
 
-const Stats = () => {
-  const { getProperty, updateProperty } = useStore("stats");
-  const stats = getProperty("week");
+// Helpers
+import { transformLineChartData } from "@/lib/chart.helpers";
+import { appendDotZero, formatDate, roundToNearestHalf } from "@/lib/helpers";
 
-  const loadStats = async () => {
-    updateProperty("isLoading", true);
-    updateProperty("hasError", false);
+const Stats = () => {
+  const { dateRangePeriod } = useParams();
+  const { getEntity, updateEntity } = useObjectStore("stats");
+
+  // Date range (start & end)
+  const dateRange = useMemo(() => {
+    if (dateRangePeriod === "weekly") {
+      return { startDate: getDateDaysAgo(7), endDate: getDefaultEndDate() };
+    } else {
+      return { startDate: getDateDaysAgo(30), endDate: getDefaultEndDate() };
+    }
+  }, [dateRangePeriod]);
+
+  // States
+  const stats = getEntity(dateRangePeriod);
+  const isMonthly = dateRangePeriod === "monthly";
+  const { setField, isLoading, hasError } = useObjectState({
+    hasError: false,
+    isLoading: !stats,
+  });
+
+  // Load detailed stats
+  const loadStats = () => {
+    setField("hasError", false);
+    setField("isLoading", true);
 
     statsApi
-      .get("month")
-      .then(({ submissionsSeries, summary, teacherStats, code }) => {
-        if (code !== "statsFetched") throw new Error();
-        updateProperty("week", { submissionsSeries, summary, teacherStats });
+      .getDetailed({
+        endDate: dateRange.endDate,
+        startDate: dateRange.startDate,
       })
-      .catch((err) => {
-        updateProperty("hasError", true);
+      .then(({ code, data }) => {
+        if (code !== "detailedStatsFetched") throw new Error();
+        updateEntity(dateRangePeriod, data);
       })
-      .finally(() => updateProperty("isLoading", false));
+      .catch(({ message }) => {
+        setField("hasError", true);
+        toast.error(message || "Nimadir xato ketdi");
+      })
+      .finally(() => setField("isLoading", false));
   };
 
-  // Load user profile
   useEffect(() => {
     !stats && loadStats();
-  }, []);
+  }, [dateRangePeriod]);
 
+  // Loading content
+  if (isLoading) return <LoadingContent isMonthly={isMonthly} />;
+
+  // Error content
+  if (hasError) {
+    return <div className="container py-8">Error</div>;
+  }
+
+  // Stats content
   return (
     <div className="container py-8 space-y-6">
-      {/* Title */}
-      <h1>Statistika</h1>
+      {/* Top */}
+      <div className="flex items-center justify-between">
+        <h1>Statistika</h1>
 
-      {/* Main content */}
-      {stats && <Main {...stats} />}
+        {/* Date range */}
+        <div className="flex items-center gap-1.5">
+          <Clock strokeWidth={1.5} size={22} />
+          <span>{formatDate(stats?.dateRange?.start, true)}</span>
+          <span className="text-gray-500">dan</span>
+          <span>{formatDate(stats?.dateRange?.end, true)}</span>
+          <span className="text-gray-500">gacha</span>
+        </div>
+      </div>
+
+      {/* Period Selector */}
+      <div className="flex justify-end">
+        <Nav
+          pagePathIndex={1}
+          links={[
+            { label: "7 kunlik", link: `statistics/weekly` },
+            { label: "30 kunlik", link: `statistics/monthly` },
+          ]}
+        />
+      </div>
+
+      <div className="space-y-5">
+        {/* Summary */}
+        <div className="grid grid-cols-4 gap-5">
+          {/* Tests */}
+          <GrayCard
+            color="blue"
+            title="Testlar"
+            icon={FileText}
+            list={[
+              {
+                title: "Umumiy",
+                icon: { src: Grid2x2, color: "blue" },
+                value: (stats?.summary?.tests?.total || 0) + "ta",
+              },
+              {
+                title: "Hozirda mavjud",
+                icon: { src: File, color: "green" },
+                value: (stats?.summary?.tests?.active || 0) + "ta",
+              },
+              {
+                title: "O'chirilgan",
+                icon: { src: Trash, color: "red" },
+                value: (stats?.summary?.tests?.deleted || 0) + "ta",
+              },
+            ]}
+          />
+
+          {/* Submissions */}
+          <GrayCard
+            color="green"
+            title="Javoblar"
+            icon={ClipboardCheck}
+            list={[
+              {
+                title: "Umumiy",
+                icon: { src: Grid2x2, color: "blue" },
+                value: (stats?.summary?.submissions?.total || 0) + "ta",
+              },
+              {
+                title: "Baholangan",
+                icon: { src: FileCheck, color: "green" },
+                value: (stats?.summary?.submissions?.graded || 0) + "ta",
+              },
+              {
+                title: "Baholanmagan",
+                icon: { src: FileMinus, color: "red" },
+                value: (stats?.summary?.submissions?.ungraded || 0) + "ta",
+              },
+            ]}
+          />
+
+          {/* Results */}
+          <GrayCard
+            icon={Target}
+            color="purple"
+            title="Natijalar"
+            list={[
+              {
+                title: "Umumiy",
+                icon: { src: Grid2x2, color: "blue" },
+                value: (stats?.summary?.results?.total || 0) + "ta",
+              },
+              {
+                title: "O'rtacha baho",
+                icon: { src: Trophy, color: "orange" },
+                value: appendDotZero(
+                  roundToNearestHalf(stats?.summary?.results?.avgOverall) || 0
+                ),
+              },
+              {
+                title: "Listening o'rtacha baho",
+                icon: { src: Headphones, color: "green" },
+                value: appendDotZero(
+                  roundToNearestHalf(stats?.summary?.results?.avgListening) || 0
+                ),
+              },
+              {
+                title: "Reading o'rtacha baho",
+                icon: { src: Book, color: "green" },
+                value: appendDotZero(
+                  roundToNearestHalf(stats?.summary?.results?.avgReading) || 0
+                ),
+              },
+              {
+                title: "Writing o'rtacha baho",
+                icon: { src: Pen, color: "green" },
+                value: appendDotZero(
+                  roundToNearestHalf(stats?.summary?.results?.avgWriting) || 0
+                ),
+              },
+              {
+                title: "Speaking o'rtacha baho",
+                icon: { src: Mic, color: "green" },
+                value: appendDotZero(
+                  roundToNearestHalf(stats?.summary?.results?.avgSpeaking) || 0
+                ),
+              },
+            ]}
+          />
+
+          {/* Links */}
+          <GrayCard
+            color="red"
+            title="Havolalar"
+            icon={LinkIcon}
+            list={[
+              {
+                title: "Umumiy",
+                icon: { src: Grid2x2, color: "blue" },
+                value: (stats?.summary?.links?.total || 0) + "ta",
+              },
+              {
+                title: "Foydalanishlar",
+                icon: { src: MousePointerClick, color: "green" },
+                value: (stats?.summary?.links?.usages || 0) + "ta",
+              },
+              {
+                title: "Ta'shriflar",
+                icon: { src: Eye, color: "green" },
+                value: (stats?.summary?.links?.visits || 0) + "ta",
+              },
+            ]}
+          />
+        </div>
+
+        {/* Charts */}
+        <div
+          className={`${isMonthly ? "grid-cols-1" : "grid-cols-2"} grid gap-5`}
+        >
+          {/* Tests Chart */}
+          <GrayCard title="Testlar" className="pb-5">
+            <LineChart
+              className="h-72"
+              data={[
+                transformLineChartData(
+                  stats?.charts?.tests?.created,
+                  "Yaratilgan"
+                ),
+                transformLineChartData(stats?.charts?.tests?.active, "Mavjud"),
+                transformLineChartData(
+                  stats?.charts?.tests?.deleted,
+                  "O'chirilgan"
+                ),
+              ]}
+            />
+          </GrayCard>
+
+          <GrayCard title="Javoblar" className="pb-5">
+            <LineChart
+              className="h-72"
+              data={[
+                transformLineChartData(
+                  stats?.charts?.submissions?.created,
+                  "Yaratilgan"
+                ),
+                transformLineChartData(
+                  stats?.charts?.submissions?.graded,
+                  "Tekshirilgan"
+                ),
+                transformLineChartData(
+                  stats?.charts?.submissions?.ungraded,
+                  "Tekshirilmagan"
+                ),
+              ]}
+            />
+          </GrayCard>
+
+          {/* Results */}
+          <GrayCard title="Natijalar" className="pb-5">
+            <LineChart
+              className="h-72"
+              data={[
+                transformLineChartData(
+                  stats?.charts?.results?.avgOverall,
+                  "Umumiy",
+                  {
+                    y: roundToNearestHalf,
+                    value: (v) => appendDotZero(roundToNearestHalf(v)),
+                  }
+                ),
+                transformLineChartData(
+                  stats?.charts?.results?.avgReading,
+                  "Reading",
+                  {
+                    y: roundToNearestHalf,
+                    value: (v) => appendDotZero(roundToNearestHalf(v)),
+                  }
+                ),
+                transformLineChartData(
+                  stats?.charts?.results?.avgWriting,
+                  "Writing",
+                  {
+                    y: roundToNearestHalf,
+                    value: (v) => appendDotZero(roundToNearestHalf(v)),
+                  }
+                ),
+                transformLineChartData(
+                  stats?.charts?.results?.avgListening,
+                  "Listening",
+                  {
+                    y: roundToNearestHalf,
+                    value: (v) => appendDotZero(roundToNearestHalf(v)),
+                  }
+                ),
+                transformLineChartData(
+                  stats?.charts?.results?.avgSpeaking,
+                  "Speaking",
+                  {
+                    y: roundToNearestHalf,
+                    value: (v) => appendDotZero(roundToNearestHalf(v)),
+                  }
+                ),
+              ]}
+            />
+          </GrayCard>
+
+          {/* Links */}
+          <GrayCard title="Havolalar" className="pb-5">
+            <LineChart
+              className="h-72"
+              data={[
+                transformLineChartData(
+                  stats?.charts?.links?.visits,
+                  "Tashriflar"
+                ),
+                transformLineChartData(
+                  stats?.charts?.links?.usages,
+                  "Foydalanishlar"
+                ),
+              ]}
+            />
+          </GrayCard>
+        </div>
+
+        {/* Activity chart */}
+        <GrayCard title="Faollik" className="pb-5">
+          <LineChart
+            enableArea
+            className="h-72"
+            data={[transformLineChartData(stats?.charts?.activity, "Ball")]}
+          />
+        </GrayCard>
+      </div>
     </div>
   );
 };
 
-const Card = ({ title, value, icon: Icon, color }) => (
-  <div className="flex flex-col justify-between p-5 aspect-square bg-gray-100 rounded-3xl transition">
+// Helper Components
+const LoadingContent = ({ isMonthly }) => (
+  <div className="container py-8 space-y-6">
+    {/* Top */}
     <div className="flex items-center justify-between">
-      <h3 className="text-lg font-medium">{title}</h3>
-      <div className={`p-2 rounded-xl bg-white shadow-sm text-${color}-500`}>
-        <Icon size={22} />
+      <h1>Yuklanmoqda...</h1>
+      <div className="flex items-center gap-3.5 animate-pulse">
+        <div className="w-32 h-6 bg-gray-100 p-0 rounded-full" />
+        <div className="w-32 h-6 bg-gray-100 p-0 rounded-full" />
       </div>
     </div>
-    <h2 className="text-3xl font-semibold mt-2">{value}</h2>
-  </div>
-);
 
-const TeacherTable = ({ data }) => (
-  <div className="col-span-2 bg-gray-100 rounded-3xl p-5">
-    <div className="flex items-center justify-between mb-4">
-      <h2 className="text-xl font-medium">O'qituvchilar faolligi</h2>
-      <UsersIcon size={22} />
+    {/* Action buttons */}
+    <div className="flex items-center justify-end gap-5 animate-pulse">
+      <div className="w-48 h-11 bg-gray-100 py-0 rounded-full" />
     </div>
 
-    <div className="overflow-auto max-h-72">
-      <table className="w-full border-collapse text-sm">
-        <thead className="">
-          <tr className="!bg-gray-50 text-left">
-            <th className="w-full p-2 rounded-l-lg">O'qituvchi</th>
-            <th className="w-full p-2">Yaratilgan</th>
-            <th className="w-full p-2">O'chirilgan</th>
-            <th className="w-full p-2">Yechishlar</th>
-            <th className="w-full p-2">Tekshirilgan</th>
-            <th className="w-full p-2 rounded-r-lg">O'rtacha ball</th>
-          </tr>
-        </thead>
+    <div className="space-y-5 animate-pulse">
+      {/* Summary */}
+      <div className="grid grid-cols-4 gap-5">
+        {Array.from({ length: 4 }, (_, index) => (
+          <div
+            key={index}
+            className="h-auto aspect-square bg-gray-100 rounded-3xl"
+          />
+        ))}
+      </div>
 
-        <tbody>
-          {data.length > 0 ? (
-            data.map((t) => (
-              <tr
-                key={t.teacherId}
-                className="hover:bg-gray-50 border-b border-gray-200"
-              >
-                <td className="w-full p-2 font-medium">{t.name}</td>
-                <td className="w-full p-2">{t.testsCreated}</td>
-                <td className="w-full p-2">{t.testsDeleted}</td>
-                <td className="w-full p-2">{t.submissionsCount}</td>
-                <td className="w-full p-2">{t.reviewedCount}</td>
-                <td className="w-full p-2">{t.avgScore}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={6} className="p-4 text-center text-gray-500">
-                Ma’lumot topilmadi
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      {/* Charts */}
+      <div
+        className={`${isMonthly ? "grid-cols-1" : "grid-cols-2"} grid gap-5`}
+      >
+        {Array.from({ length: 4 }, (_, index) => (
+          <div
+            key={index}
+            className="w-full h-[376px] bg-gray-100 rounded-3xl"
+          />
+        ))}
+      </div>
+
+      {/* Activity chart */}
+      <div className="w-full h-[376px] bg-gray-100 rounded-3xl" />
     </div>
   </div>
 );
 
-const Main = ({ submissionsSeries = [], summary = {}, teacherStats = [] }) => {
-  const chartData = useMemo(() => {
-    return [
-      {
-        id: "Test yechishlar",
-        data: submissionsSeries.map(({ x, y }) => ({
-          x: formatDate(x, true),
-          y,
-        })),
-      },
-    ];
-  }, [submissionsSeries]);
+const getDefaultEndDate = () => {
+  return new Date().toISOString().split("T")[0];
+};
 
-  return (
-    <div className="grid grid-cols-4 gap-5">
-      {/* Stat Cards */}
-      <Card
-        title="Yaratilgan testlar"
-        value={summary.testsCreatedCount || 0}
-        icon={ClipboardListIcon}
-        color="blue"
-      />
-      <Card
-        title="Yechilgan testlar"
-        value={summary.submissionsCount || 0}
-        icon={CheckCircleIcon}
-        color="green"
-      />
-      <Card
-        title="Tekshirilganlar"
-        value={summary.resultsCount || summary.reviewedCount || 0}
-        icon={ChartBarIcon}
-        color="purple"
-      />
-      <Card
-        title="O'rtacha ball"
-        value={summary.avgScore?.toFixed(2) || "0.00"}
-        icon={ChartBarIcon}
-        color="orange"
-      />
-
-      {/* Chart */}
-      <section className="flex flex-col justify-between col-span-2 bg-gray-100 rounded-3xl pb-2">
-        {/* Top */}
-        <div className="flex items-center justify-between p-5 pb-1.5">
-          <h2 className="text-xl font-medium">Vaqt bo'yicha test yechishlar</h2>
-          <div className="p-2 rounded-full bg-white shadow-sm">
-            <ChartBarIcon size={20} />
-          </div>
-        </div>
-
-        {/* Chart */}
-        <div className="w-full h-64 p-2">
-          <LineChart data={chartData} className="size-full" />
-        </div>
-      </section>
-
-      {/* Teacher table (faqat supervisor uchun) */}
-      <TeacherTable data={teacherStats} />
-    </div>
-  );
+const getDateDaysAgo = (days) => {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return date.toISOString().split("T")[0];
 };
 
 export default Stats;
