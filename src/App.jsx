@@ -148,7 +148,10 @@ const App = () => {
           </Route>
 
           {/* Stats */}
-          <Route path="statistics" element={<Stats />} />
+          <Route path="statistics" element={<Outlet />}>
+            <Route index element={<Navigate to="/statistics/weekly" />} />
+            <Route path=":dateRangePeriod" element={<Stats />} />
+          </Route>
         </Route>
 
         {/* Auth */}

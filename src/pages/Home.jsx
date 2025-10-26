@@ -1,102 +1,169 @@
-// React
-import { useEffect } from "react";
-
 // Router
 import { Link } from "react-router-dom";
 
+// React
+import { useEffect, useMemo } from "react";
+
 // Api
 import { testsApi } from "@/api/tests.api";
+import { statsApi } from "@/api/stats.api";
+
+// Toast
+import { toast } from "@/notification/toast";
 
 // Hooks
 import useModal from "@/hooks/useModal";
 import useArrayStore from "@/hooks/useArrayStore";
 import usePermission from "@/hooks/usePermission";
 import useObjectStore from "@/hooks/useObjectStore";
+import useObjectState from "@/hooks/useObjectState";
 
 // Components
+import GrayCard from "@/components/GrayCard";
 import Button from "@/components/form/Button";
 import LineChart from "@/components/charts/LineChart";
 
 // Icons
 import { ArrowUpRight, Pencil, Plus } from "lucide-react";
 
+// Helpers
+import {
+  formatDate,
+  formatTime,
+  formatWeek,
+  formatUzPhone,
+} from "@/lib/helpers";
+import { transformLineChartData } from "@/lib/chart.helpers";
+
 // Images
 import educationBg from "@/assets/backgrounds/education-red.jpg";
 
-// Helpers
-import { formatDate, formatTime, formatUzPhone } from "@/lib/helpers";
-
 const Home = () => {
-  const { getEntity } = useObjectStore("users");
+  const { getEntity, updateEntity } = useObjectStore("users");
+
+  // States
   const user = getEntity("me") || {};
+  const stats = getEntity("dashboard", "stats");
+
+  const { setField, isLoading, hasError } = useObjectState({
+    hasError: false,
+    isLoading: !stats,
+  });
+
+  // Load dashboard stats
+  const loadDashboardStats = () => {
+    setField("hasError", false);
+    setField("isLoading", true);
+
+    statsApi
+      .getDashboard({ period: "daily", days: 7 })
+      .then(({ code, data }) => {
+        if (code !== "dashboardStatsFetched") throw new Error();
+        updateEntity("dashboard", data, "stats");
+      })
+      .catch(({ message }) => {
+        setField("hasError", true);
+        toast.error(message || "Nimadir xato ketdi");
+      })
+      .finally(() => setField("isLoading", false));
+  };
+
+  useEffect(() => {
+    !stats && loadDashboardStats();
+  }, []);
 
   return (
-    <div className="container pt-8">
-      <div className="space-y-6">
-        {/* Top */}
-        <div className="flex items-center gap-3.5">
-          {/* Title */}
-          <h1>{user.firstName} xush kelibsiz!</h1>
+    <div className="container py-8 space-y-6">
+      {/* Top */}
+      <div className="flex items-center gap-3.5">
+        {/* Title */}
+        <h1>{user.firstName} xush kelibsiz!</h1>
 
-          {/* User role */}
-          <div
-            title="Rolingiz"
-            className="bg-green-50 text-green-500 px-1.5 rounded-md border border-green-200 text-sm"
-          >
-            {user.role}
+        {/* User role */}
+        <div
+          title="Rolingiz"
+          className="bg-green-50 text-green-500 px-1.5 rounded-md border border-green-200 text-sm"
+        >
+          {user.role}
+        </div>
+      </div>
+
+      {/* Summary */}
+      <div className="flex items-center gap-5 flex-wrap">
+        {/* Created Tests */}
+        <div className="space-y-1.5">
+          <h3 className="ml-1.5 text-sm">Yaratilgan testlar</h3>
+          <div className="btn w-44 p-0 bg-gray-700 h-11 rounded-full text-white">
+            {stats?.summary?.testsCreated || 0}ta
           </div>
         </div>
 
-        {/* Tests status */}
-        <div className="flex items-center gap-5 w-2/3">
-          {/* Take */}
-          <div className="space-y-1.5">
-            <h3 className="ml-2">Olingan testlar</h3>
-            <div className="btn w-full p-0 bg-gray-700 h-11 rounded-full text-white">
-              24ta
-            </div>
-          </div>
-
-          {/* Checked */}
-          <div className="space-y-1.5">
-            <h3>Tekshirilgan testlar</h3>
-            <div className="btn w-full p-0 bg-green-100 h-11 rounded-full text-green-950">
-              12ta
-            </div>
-          </div>
-
-          {/* Not checked */}
-          <div className="space-y-1.5">
-            <h3>Tekshirilmagan testlar</h3>
-            <div className="btn w-full p-0 bg-red-100 h-11 rounded-full text-red-950">
-              12ta
-            </div>
-          </div>
-
-          {/* Cancel */}
-          <div className="space-y-1.5">
-            <h3>Bekor qilingan testlar</h3>
-            <div className="btn w-full p-0 bg-orange-100 h-11 rounded-full text-orange-950">
-              4ta
-            </div>
+        {/* Created Submissions */}
+        <div className="space-y-1.5">
+          <h3 className="ml-1.5 text-sm">Yaratilgan javoblar</h3>
+          <div className="btn w-44 p-0 bg-blue-100 h-11 rounded-full text-blue-950">
+            {stats?.summary?.submissionsCreated || 0}ta
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-5">
-          {/* Profile */}
-          <Profile user={user} />
-
-          {/* Tests */}
-          <Tests user={user} />
-
-          {/* Stats */}
-          <Stats user={user} />
+        {/* Graded Submissions */}
+        <div className="space-y-1.5">
+          <h3 className="ml-1.5 text-sm">Baholangan javoblar</h3>
+          <div className="btn w-44 p-0 bg-green-100 h-11 rounded-full text-green-950">
+            {stats?.summary?.submissionsGraded || 0}ta
+          </div>
         </div>
+
+        {/* Ungraded Submissions */}
+        <div className="space-y-1.5">
+          <h3 className="ml-1.5 text-sm">Baholanmagan javoblar</h3>
+          <div className="btn w-44 p-0 bg-red-100 h-11 rounded-full text-red-950">
+            {stats?.summary?.submissionsUngraded || 0}ta
+          </div>
+        </div>
+
+        {/* Activity Score */}
+        <div className="space-y-1.5">
+          <h3 className="ml-1.5 text-sm">Faollik</h3>
+          <div className="btn w-44 p-0 bg-orange-100 h-11 rounded-full text-orange-950">
+            {stats?.summary?.activityScore || 0} ball
+          </div>
+        </div>
+      </div>
+
+      {/* Middle */}
+      <div className="grid grid-cols-4 gap-5">
+        {/* Profile */}
+        <Profile user={user} />
+
+        {/* Tests */}
+        <Tests user={user} />
+
+        {/* Stats */}
+        <SubmissionsStats
+          stats={stats}
+          hasError={hasError}
+          isLoading={isLoading}
+        />
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-2 gap-5">
+        {/* Activity chart */}
+        <ActivityStats
+          stats={stats}
+          hasError={hasError}
+          isLoading={isLoading}
+        />
+
+        {/* Tests chart */}
+        <TestsStats stats={stats} hasError={hasError} isLoading={isLoading} />
       </div>
     </div>
   );
 };
 
+// Helper components
 const Profile = ({ user }) => {
   const avatar = user.avatar?.sizes?.medium?.url;
   const { openModal } = useModal("profile");
@@ -104,7 +171,7 @@ const Profile = ({ user }) => {
   return (
     <section
       style={{ backgroundImage: `url(${avatar || educationBg})` }}
-      className="flex flex-col justify-between overflow-hidden w-full h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square rounded-3xl"
+      className="flex flex-col justify-between overflow-hidden w-full h-auto bg-gray-100 bg-cover bg-no-repeat bg-center aspect-square rounded-3xl"
     >
       {/* Top */}
       <div className="flex items-center justify-end p-5">
@@ -275,26 +342,94 @@ const Tests = ({ user }) => {
   );
 };
 
-const Stats = () => (
-  <section className="flex flex-col justify-between col-span-2 bg-gray-100 bg-cover bg-no-repeat rounded-3xl">
-    {/* Top */}
-    <div className="flex items-center justify-between p-5 pb-1.5">
-      <h2 className="text-xl font-medium">Xaftalik statistika</h2>
+// Stats components
+const SubmissionsStats = ({ stats, isLoading, hasError }) => {
+  const chartData = useMemo(
+    () => [
+      transformLineChartData(
+        stats?.charts?.submissionsCreated,
+        "Yaratilgan javoblar",
+        { x: formatWeek, value: (y) => y + "ta" }
+      ),
+    ],
+    [stats?.charts?.submissionsCreated?.length]
+  );
 
-      {/* Link */}
-      <Link
-        to="/statistics"
-        title="Statistika"
-        aria-label="Statistika"
-        className="btn size-10 p-0 rounded-full bg-white backdrop-blur-sm"
-      >
-        <ArrowUpRight size={20} />
-      </Link>
-    </div>
+  return (
+    <GrayCard
+      className="col-span-2 pb-5"
+      title="So'nggi 7 kunda yaratilgan javoblar"
+    >
+      {isLoading ? (
+        <div className="flex flex-col items-center size-full px-5 animate-pulse">
+          <div className="size-full bg-white/50 rounded-lg mb-5" />
+          <div className="shrink-0 w-32 h-6 bg-white/50 rounded-lg" />
+        </div>
+      ) : (
+        <LineChart enableArea data={chartData} className="size-full" />
+      )}
+    </GrayCard>
+  );
+};
 
-    {/* Chart */}
-    <LineChart className="size-full" />
-  </section>
-);
+const ActivityStats = ({ stats, isLoading, hasError }) => {
+  const chartData = useMemo(
+    () => [
+      transformLineChartData(stats?.charts?.activityScore, "Ball", {
+        x: formatWeek,
+      }),
+    ],
+    [stats?.charts?.activityScore?.length]
+  );
+
+  return (
+    <GrayCard title="So'nggi 7 kunlik faollik" className="pb-5">
+      {isLoading ? (
+        <div className="flex flex-col items-center w-full h-[245px] px-5 animate-pulse">
+          <div className="size-full bg-white/50 rounded-lg mb-5" />
+          <div className="shrink-0 w-32 h-6 bg-white/50 rounded-lg" />
+        </div>
+      ) : (
+        <LineChart
+          enableArea
+          colorIndex={1}
+          data={chartData}
+          className="h-[245px]"
+        />
+      )}
+    </GrayCard>
+  );
+};
+
+const TestsStats = ({ stats, isLoading, hasError }) => {
+  const chartData = useMemo(
+    () => [
+      transformLineChartData(
+        stats?.charts?.testsCreated,
+        "Yaratilgan testlar",
+        { x: formatWeek, value: (y) => y + "ta" }
+      ),
+    ],
+    [stats?.charts?.testsCreated?.length]
+  );
+
+  return (
+    <GrayCard className="pb-5" title="So'nggi 7 kunda yaratilgan testlar">
+      {isLoading ? (
+        <div className="flex flex-col items-center w-full h-[245px] px-5 animate-pulse">
+          <div className="size-full bg-white/50 rounded-lg mb-5" />
+          <div className="shrink-0 w-32 h-6 bg-white/50 rounded-lg" />
+        </div>
+      ) : (
+        <LineChart
+          enableArea
+          colorIndex={2}
+          data={chartData}
+          className="h-[245px]"
+        />
+      )}
+    </GrayCard>
+  );
+};
 
 export default Home;
