@@ -57,6 +57,28 @@ export const formatDate = (input, hideYear = false) => {
   return result;
 };
 
+export const formatWeek = (input, short = false) => {
+  if (!input) return null;
+
+  const date = new Date(input);
+
+  const daysLong = [
+    "Yakshanba",
+    "Dushanba",
+    "Seshanba",
+    "Chorshanba",
+    "Payshanba",
+    "Juma",
+    "Shanba",
+  ];
+
+  const daysShort = ["Ya", "Du", "Se", "Cho", "Pay", "Ju", "Sha"];
+
+  const dayIndex = date.getDay();
+
+  return short ? daysShort[dayIndex] : daysLong[dayIndex];
+};
+
 export const formatTime = (input) => {
   if (!input) return null;
 
@@ -231,4 +253,8 @@ export const isEqualStringArray = (arr1, arr2) => {
   const sorted2 = arr2.map(normalize).sort();
 
   return sorted1.every((val, idx) => val === sorted2[idx]);
+};
+
+export const roundToNearestHalf = (num) => {
+  return Math.round(num * 2) / 2;
 };
