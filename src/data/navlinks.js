@@ -31,7 +31,7 @@ const navlinks = [
   },
   {
     label: "Statistika",
-    link: "statistics",
+    link: "statistics/weekly",
     allowed: ["supervisor", "teacher"],
   },
   {
