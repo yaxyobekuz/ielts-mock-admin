@@ -1,15 +1,16 @@
 // Router
 import { Link } from "react-router-dom";
 
+// Toast
+import { toast } from "@/notification/toast";
+
 // React
-import { useEffect, useMemo } from "react";
+import { useLayoutEffect, useMemo } from "react";
 
 // Api
 import { testsApi } from "@/api/tests.api";
 import { statsApi } from "@/api/stats.api";
-
-// Toast
-import { toast } from "@/notification/toast";
+import { userStatsApi } from "@/api/userStats.api";
 
 // Hooks
 import useModal from "@/hooks/useModal";
@@ -39,38 +40,8 @@ import { transformLineChartData } from "@/lib/chart.helpers";
 import educationBg from "@/assets/backgrounds/education-red.jpg";
 
 const Home = () => {
-  const { getEntity, updateEntity } = useObjectStore("users");
-
-  // States
+  const { getEntity } = useObjectStore("users");
   const user = getEntity("me") || {};
-  const stats = getEntity("dashboard", "stats");
-
-  const { setField, isLoading, hasError } = useObjectState({
-    hasError: false,
-    isLoading: !stats,
-  });
-
-  // Load dashboard stats
-  const loadDashboardStats = () => {
-    setField("hasError", false);
-    setField("isLoading", true);
-
-    statsApi
-      .getDashboard({ period: "daily", days: 7 })
-      .then(({ code, data }) => {
-        if (code !== "dashboardStatsFetched") throw new Error();
-        updateEntity("dashboard", data, "stats");
-      })
-      .catch(({ message }) => {
-        setField("hasError", true);
-        toast.error(message || "Nimadir xato ketdi");
-      })
-      .finally(() => setField("isLoading", false));
-  };
-
-  useEffect(() => {
-    !stats && loadDashboardStats();
-  }, []);
 
   return (
     <div className="container py-8 space-y-6">
@@ -88,48 +59,8 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Summary */}
-      <div className="flex items-center gap-5 flex-wrap">
-        {/* Created Tests */}
-        <div className="space-y-1.5">
-          <h3 className="ml-1.5 text-sm">Yaratilgan testlar</h3>
-          <div className="btn w-44 p-0 bg-gray-700 h-11 rounded-full text-white">
-            {stats?.summary?.testsCreated || 0}ta
-          </div>
-        </div>
-
-        {/* Created Submissions */}
-        <div className="space-y-1.5">
-          <h3 className="ml-1.5 text-sm">Yaratilgan javoblar</h3>
-          <div className="btn w-44 p-0 bg-blue-100 h-11 rounded-full text-blue-950">
-            {stats?.summary?.submissionsCreated || 0}ta
-          </div>
-        </div>
-
-        {/* Graded Submissions */}
-        <div className="space-y-1.5">
-          <h3 className="ml-1.5 text-sm">Baholangan javoblar</h3>
-          <div className="btn w-44 p-0 bg-green-100 h-11 rounded-full text-green-950">
-            {stats?.summary?.submissionsGraded || 0}ta
-          </div>
-        </div>
-
-        {/* Ungraded Submissions */}
-        <div className="space-y-1.5">
-          <h3 className="ml-1.5 text-sm">Baholanmagan javoblar</h3>
-          <div className="btn w-44 p-0 bg-red-100 h-11 rounded-full text-red-950">
-            {stats?.summary?.submissionsUngraded || 0}ta
-          </div>
-        </div>
-
-        {/* Activity Score */}
-        <div className="space-y-1.5">
-          <h3 className="ml-1.5 text-sm">Faollik</h3>
-          <div className="btn w-44 p-0 bg-orange-100 h-11 rounded-full text-orange-950">
-            {stats?.summary?.activityScore || 0} ball
-          </div>
-        </div>
-      </div>
+      {/* User stats */}
+      <UserStats />
 
       {/* Middle */}
       <div className="grid grid-cols-4 gap-5">
@@ -140,30 +71,13 @@ const Home = () => {
         <Tests user={user} />
 
         {/* Stats */}
-        <SubmissionsStats
-          stats={stats}
-          hasError={hasError}
-          isLoading={isLoading}
-        />
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-2 gap-5">
-        {/* Activity chart */}
-        <ActivityStats
-          stats={stats}
-          hasError={hasError}
-          isLoading={isLoading}
-        />
-
-        {/* Tests chart */}
-        <TestsStats stats={stats} hasError={hasError} isLoading={isLoading} />
+        <SubmissionsStats />
       </div>
     </div>
   );
 };
 
-// Helper components
+// Helper omponents
 const Profile = ({ user }) => {
   const avatar = user.avatar?.sizes?.medium?.url;
   const { openModal } = useModal("profile");
@@ -186,8 +100,8 @@ const Profile = ({ user }) => {
       </div>
 
       {/* Bottom */}
-      <div className="w-full p-5 mt-auto bg-gradient-to-b from-transparent to-black">
-        <div className="flex items-center justify-between mb-3">
+      <div className="w-full space-y-3 p-5 mt-auto bg-gradient-to-b from-transparent to-black">
+        <div className="flex items-center justify-between">
           {/* Full name */}
           <h2 className="line-clamp-1 capitalize text-xl font-medium text-white">
             {user.firstName} {user.lastName}
@@ -203,7 +117,7 @@ const Profile = ({ user }) => {
         <Link
           to="/payment"
           title="Hisobni to'ldirish"
-          className="btn p-0 rounded-full border border-white text-gray-200 hover:bg-white/20"
+          className="hidden btn p-0 rounded-full border border-white text-gray-200 hover:bg-white/20"
         >
           <span>{user.balance?.toLocaleString()} so'm</span>
           <Plus size={20} className="ml-2" />
@@ -246,7 +160,7 @@ const Tests = ({ user }) => {
       );
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     isLoading && loadTests();
   }, []);
 
@@ -342,93 +256,179 @@ const Tests = ({ user }) => {
   );
 };
 
-// Stats components
-const SubmissionsStats = ({ stats, isLoading, hasError }) => {
-  const chartData = useMemo(
-    () => [
+const SubmissionsStats = () => {
+  const { getEntity, updateEntity } = useObjectStore("stats");
+  const stats = getEntity("dashboard");
+  const createdSubmissions = stats?.summary?.submissionsCreated || 0;
+  const { setField, isLoading, hasError } = useObjectState({
+    hasError: false,
+    isLoading: !stats,
+  });
+
+  // Load dashboard stats
+  const loadDashboardStats = () => {
+    setField("hasError", false);
+    setField("isLoading", true);
+
+    statsApi
+      .getDashboard({ period: "daily", days: 7 })
+      .then(({ code, data }) => {
+        if (code !== "dashboardStatsFetched") throw new Error();
+        updateEntity("dashboard", data, "stats");
+      })
+      .catch(({ message }) => {
+        setField("hasError", true);
+        toast.error(message || "Nimadir xato ketdi");
+      })
+      .finally(() => setField("isLoading", false));
+  };
+
+  useLayoutEffect(() => {
+    !stats && loadDashboardStats();
+  }, []);
+
+  const { chartData, colorIndex } = useMemo(() => {
+    const chartData = [
       transformLineChartData(
         stats?.charts?.submissionsCreated,
-        "Yaratilgan javoblar",
+        "Javoblar soni",
         { x: formatWeek, value: (y) => y + "ta" }
       ),
-    ],
-    [stats?.charts?.submissionsCreated?.length]
-  );
+    ];
+
+    const colorIndex = (() => {
+      if (createdSubmissions < 11) return 3; // red 👎
+      else if (createdSubmissions < 21) return 1; // green 👍
+      else if (createdSubmissions < 41) return 2; // blue 🙂
+      else return 4; // violet 🤩
+    })();
+
+    return { chartData, colorIndex };
+  }, [isLoading, hasError]);
 
   return (
     <GrayCard
       className="col-span-2 pb-5"
-      title="So'nggi 7 kunda yaratilgan javoblar"
+      title="So'nggi 7 kunda olingan javoblar"
+      icon={
+        <div className="btn h-10 py-0 rounded-full bg-white text-green-950">
+          {createdSubmissions} ta
+        </div>
+      }
     >
       {isLoading ? (
         <div className="flex flex-col items-center size-full px-5 animate-pulse">
           <div className="size-full bg-white/50 rounded-lg mb-5" />
-          <div className="shrink-0 w-32 h-6 bg-white/50 rounded-lg" />
-        </div>
-      ) : (
-        <LineChart enableArea data={chartData} className="size-full" />
-      )}
-    </GrayCard>
-  );
-};
-
-const ActivityStats = ({ stats, isLoading, hasError }) => {
-  const chartData = useMemo(
-    () => [
-      transformLineChartData(stats?.charts?.activityScore, "Ball", {
-        x: formatWeek,
-      }),
-    ],
-    [stats?.charts?.activityScore?.length]
-  );
-
-  return (
-    <GrayCard title="So'nggi 7 kunlik faollik" className="pb-5">
-      {isLoading ? (
-        <div className="flex flex-col items-center w-full h-[245px] px-5 animate-pulse">
-          <div className="size-full bg-white/50 rounded-lg mb-5" />
-          <div className="shrink-0 w-32 h-6 bg-white/50 rounded-lg" />
+          <div className="shrink-0 w-32 h-5 bg-white/50 rounded-full" />
         </div>
       ) : (
         <LineChart
           enableArea
-          colorIndex={1}
           data={chartData}
-          className="h-[245px]"
+          className="size-full"
+          colorIndex={colorIndex}
         />
       )}
     </GrayCard>
   );
 };
 
-const TestsStats = ({ stats, isLoading, hasError }) => {
-  const chartData = useMemo(
-    () => [
-      transformLineChartData(
-        stats?.charts?.testsCreated,
-        "Yaratilgan testlar",
-        { x: formatWeek, value: (y) => y + "ta" }
-      ),
-    ],
-    [stats?.charts?.testsCreated?.length]
-  );
+const UserStats = () => {
+  const { getEntity, updateEntity } = useObjectStore("stats");
+  const stats = getEntity("user");
+  const { setField, isLoading, hasError } = useObjectState({
+    hasError: false,
+    isLoading: !stats,
+  });
 
-  return (
-    <GrayCard className="pb-5" title="So'nggi 7 kunda yaratilgan testlar">
-      {isLoading ? (
-        <div className="flex flex-col items-center w-full h-[245px] px-5 animate-pulse">
-          <div className="size-full bg-white/50 rounded-lg mb-5" />
-          <div className="shrink-0 w-32 h-6 bg-white/50 rounded-lg" />
+  // Load user stats
+  const loadUserStats = () => {
+    setField("hasError", false);
+    setField("isLoading", true);
+
+    userStatsApi
+      .get()
+      .then(({ code, userStats }) => {
+        if (code !== "userStatsFetched") throw new Error();
+        updateEntity("user", userStats);
+      })
+      .catch(({ message }) => {
+        setField("hasError", true);
+        toast.error(message || "Nimadir xato ketdi");
+      })
+      .finally(() => setField("isLoading", false));
+  };
+
+  useLayoutEffect(() => {
+    !stats && loadUserStats();
+  }, []);
+
+  // Loading content
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-5 flex-wrap animate-pulse">
+        <div className="space-y-1.5">
+          <div className="w-28 h-5 bg-gray-100 rounded-full" />
+          <div className="w-44 h-11 bg-gray-100 rounded-full" />
         </div>
-      ) : (
-        <LineChart
-          enableArea
-          colorIndex={2}
-          data={chartData}
-          className="h-[245px]"
-        />
-      )}
-    </GrayCard>
+        <div className="space-y-1.5">
+          <div className="w-28 h-5 bg-gray-100 rounded-full" />
+          <div className="w-44 h-11 bg-gray-100 rounded-full" />
+        </div>
+        <div className="space-y-1.5">
+          <div className="w-28 h-5 bg-gray-100 rounded-full" />
+          <div className="w-44 h-11 bg-gray-100 rounded-full" />
+        </div>
+        <div className="space-y-1.5">
+          <div className="w-28 h-5 bg-gray-100 rounded-full" />
+          <div className="w-44 h-11 bg-gray-100 rounded-full" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error content
+  if (hasError) {
+    return (
+      <p className="text-red-500">Statistikani yuklashda xatolik yuz berdi</p>
+    );
+  }
+
+  // Content
+  return (
+    <div className="flex items-center gap-5 flex-wrap">
+      {/* Active Tests */}
+      <div className="space-y-1.5">
+        <h3 className="ml-1.5 text-sm">Mavjud testlar</h3>
+        <div className="btn w-44 p-0 bg-gray-700 h-11 rounded-full text-white">
+          {stats.tests.active || 0}ta
+        </div>
+      </div>
+
+      {/* Active Submissions */}
+      <div className="space-y-1.5">
+        <h3 className="ml-1.5 text-sm">Olingan javoblar</h3>
+        <div className="btn w-44 p-0 bg-blue-100 h-11 rounded-full text-blue-950">
+          {stats.submissions.active || 0}ta
+        </div>
+      </div>
+
+      {/* Active results */}
+      <div className="space-y-1.5">
+        <h3 className="ml-1.5 text-sm">Mavjud natijalar</h3>
+        <div className="btn w-44 p-0 bg-green-100 h-11 rounded-full text-green-950">
+          {stats.results.active || 0}ta
+        </div>
+      </div>
+
+      {/* Active links */}
+      <div className="space-y-1.5">
+        <h3 className="ml-1.5 text-sm">Aktiv havolalar</h3>
+        <div className="btn w-44 p-0 bg-pink-100 h-11 rounded-full text-pink-950">
+          {stats.links.active || 0}ta
+        </div>
+      </div>
+    </div>
   );
 };
 
