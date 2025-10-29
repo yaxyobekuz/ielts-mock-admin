@@ -4,7 +4,6 @@ export const statsApi = {
   /**
    * Get dashboard stats for homepage
    * @param {Object} params - Query parameters
-   * @param {string} params.period - 'daily' | 'weekly'
    * @param {number} params.days - Number of days to fetch
    */
   getDashboard: async (params) => {
@@ -16,8 +15,6 @@ export const statsApi = {
    * @param {Object} params - Query parameters
    * @param {string} params.startDate - Start date (YYYY-MM-DD)
    * @param {string} params.endDate - End date (YYYY-MM-DD)
-   * @param {string} params.period - 'daily' | 'weekly' | 'monthly'
-   * @param {string} params.userId - Optional user ID (for supervisors/admins)
    */
   getDetailed: async (params) => {
     return await api.get("/api/stats/detailed", { params });
