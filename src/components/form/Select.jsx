@@ -1,3 +1,12 @@
+// UI components
+import {
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger,
+  Select as SelectWrapper,
+} from "@/components/ui/select";
+
 const Select = ({
   value,
   onChange,
@@ -7,6 +16,7 @@ const Select = ({
   options = [],
   border = false,
   className = "",
+  placeholder = "",
   required = false,
   disabled = false,
   variant = "white",
@@ -31,9 +41,7 @@ const Select = ({
     } focus:outline-blue-500
   `;
 
-  const handleChange = (e) => {
-    onChange?.(e.target.value);
-  };
+  const handleChange = (value) => onChange?.(value);
 
   return (
     <div className={`text-left space-y-2 ${className}`}>
@@ -45,28 +53,38 @@ const Select = ({
       )}
 
       {/* Select */}
-      <select
+      <SelectWrapper
         id={name}
         name={name}
         value={value}
         required={required}
         disabled={disabled}
-        onChange={handleChange}
-        className={`${variantClasses[variant]} ${defaultClasses} ${sizeClasses[size]}`}
+        onValueChange={handleChange}
         {...props}
       >
-        {options.map((opt) =>
-          typeof opt === "object" ? (
-            <option key={opt.value} value={opt.value} disabled={opt.disabled}>
-              {opt.label}
-            </option>
-          ) : (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          )
-        )}
-      </select>
+        <SelectTrigger
+          className={`${variantClasses[variant]} ${defaultClasses} ${sizeClasses[size]}`}
+        >
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((opt) =>
+            typeof opt === "object" ? (
+              <SelectItem
+                key={opt.value}
+                value={opt.value}
+                disabled={opt.disabled}
+              >
+                {opt.label}
+              </SelectItem>
+            ) : (
+              <SelectItem key={opt} value={opt}>
+                {opt}
+              </SelectItem>
+            )
+          )}
+        </SelectContent>
+      </SelectWrapper>
     </div>
   );
 };
