@@ -1,5 +1,5 @@
 // Helpers
-import { formatDate } from "@/lib/helpers";
+import { formatDate, formatWeek } from "@/lib/helpers";
 
 // Nivo
 import { ResponsiveLine } from "@nivo/line";
@@ -35,7 +35,7 @@ const LineChart = ({
 
   const renderTooltip = ({ slice }) => {
     return (
-      <div className="w-max bg-white px-3.5 py-2 rounded-xl shadow-lg border">
+      <div className="w-max bg-white px-3.5 py-3 rounded-2xl shadow-lg">
         {/* Points */}
         <ul className="mb-1">
           {slice.points.map((point) => (
@@ -55,8 +55,11 @@ const LineChart = ({
         </ul>
 
         {/* Date */}
-        <p className="text-right text-xs text-gray-500">
-          {formatDate(slice.points[0].data.date)}
+        <p className="text-right text-xs">
+          {formatWeek(slice.points[0].data.date)},{" "}
+          <span className="text-gray-500">
+            {formatDate(slice.points[0].data.date, true)}
+          </span>
         </p>
       </div>
     );

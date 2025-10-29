@@ -13,11 +13,17 @@ const GrayCard = ({
       {/* Top */}
       <div className="flex items-center justify-between p-5">
         <h2 className="text-xl font-medium">{title}</h2>
-        {Icon && (
-          <div className="btn size-10 p-0 rounded-full bg-white backdrop-blur-sm">
-            {<Icon strokeWidth={1.5} size={20} color={color} />}
-          </div>
-        )}
+
+        {/* Render icon */}
+        {typeof Icon === "object" && Icon.$$typeof ? (
+          Icon.$$typeof.toString() === "Symbol(react.forward_ref)" ? (
+            <div className="btn size-10 p-0 rounded-full bg-white">
+              <Icon strokeWidth={1.5} size={20} color={color} />
+            </div>
+          ) : (
+            Icon
+          )
+        ) : null}
       </div>
 
       {/* List */}
