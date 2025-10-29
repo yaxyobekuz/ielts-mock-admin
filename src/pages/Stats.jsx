@@ -192,12 +192,12 @@ const DetailedStats = () => {
             className="h-72"
             data={[
               transformLineChartData(
-                stats?.charts?.tests?.created,
-                "Yaratilgan"
-              ),
-              transformLineChartData(
                 stats?.charts?.tests?.deleted,
                 "O'chirilgan"
+              ),
+              transformLineChartData(
+                stats?.charts?.tests?.created,
+                "Yaratilgan"
               ),
             ]}
           />
@@ -209,12 +209,12 @@ const DetailedStats = () => {
             className="h-72"
             data={[
               transformLineChartData(
-                stats?.charts?.submissions?.created,
-                "Yaratilgan"
-              ),
-              transformLineChartData(
                 stats?.charts?.submissions?.graded,
                 "Tekshirilgan"
+              ),
+              transformLineChartData(
+                stats?.charts?.submissions?.created,
+                "Yaratilgan"
               ),
             ]}
           />
