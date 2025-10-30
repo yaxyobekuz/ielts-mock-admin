@@ -12,19 +12,18 @@ import {
   EllipsisVertical,
 } from "lucide-react";
 
-// Tests api
-import { testsApi } from "@/api/tests.api";
-
 // Toast
 import { toast } from "@/notification/toast";
 
-// React
-import { useCallback, useEffect } from "react";
+// Api
+import { testsApi } from "@/api/tests.api";
+import { teachersApi } from "@/api/teachers.api";
 
 // Components
 import Dropdown from "@/components/Dropdown";
 import PageInfo from "@/components/PageInfo";
 import Button from "@/components/form/Button";
+import Select from "@/components/form/Select";
 import Pagination from "@/components/Pagination";
 
 // Hooks
@@ -38,9 +37,17 @@ import { formatDate, formatTime } from "@/lib/helpers";
 // Router
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
+// React
+import { useCallback, useEffect, useLayoutEffect, useMemo } from "react";
+
 const Tests = () => {
+  const { checkPermission, user } = usePermission();
   const [searchParams, setSearchParams] = useSearchParams();
+  const teacherId = searchParams.get("teacherId") || "all";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
+
+  const isTeacher = user?.role === "teacher";
+  const storeKey = isTeacher ? "tests" : `tests-${teacherId}`;
 
   const {
     setPage,
@@ -50,7 +57,7 @@ const Tests = () => {
     hasCollection,
     setPageErrorState,
     setPageLoadingState,
-  } = useArrayStore("tests");
+  } = useArrayStore(storeKey);
 
   // Initialize collection on mount
   useEffect(() => {
@@ -66,16 +73,13 @@ const Tests = () => {
   const hasNextPage = pageData?.hasNextPage ?? false;
   const hasPrevPage = pageData?.hasPrevPage ?? false;
 
-  const { checkPermission, user } = usePermission();
-  const isTeacher = user?.role === "teacher";
-
   // Load tests for current page
   const loadTests = useCallback(
     (page) => {
       setPageLoadingState(page, true);
 
       testsApi
-        .get({ page, limit: isTeacher ? 11 : 12 })
+        .get({ page, limit: isTeacher ? 11 : 12, teacherId })
         .then(({ tests, code, pagination }) => {
           if (code !== "testsFetched") throw new Error();
           setPage(page, tests, null, pagination);
@@ -92,7 +96,18 @@ const Tests = () => {
   const goToPage = useCallback(
     (page) => {
       if (page < 1) return;
-      setSearchParams({ page: page.toString() });
+      setSearchParams({
+        page: page.toString(),
+        ...(isTeacher ? {} : { teacherId }),
+      });
+    },
+    [setSearchParams]
+  );
+
+  // Navigate to teacher
+  const goToTeacher = useCallback(
+    (teacherId) => {
+      setSearchParams({ ...(isTeacher ? {} : { teacherId }), page: "1" });
     },
     [setSearchParams]
   );
@@ -101,7 +116,7 @@ const Tests = () => {
   useEffect(() => {
     const pageDataExists = getPageData(currentPage);
     if (!pageDataExists) loadTests(currentPage);
-  }, [currentPage, loadTests, getPageData]);
+  }, [currentPage, loadTests, getPageData, teacherId]);
 
   return (
     <div className="container py-8 space-y-6">
@@ -114,9 +129,7 @@ const Tests = () => {
           <div className="flex items-center gap-3 text-gray-500">
             <span>
               Hozirgi sahifa:{" "}
-              <strong className="font-medium text-black">
-                {currentPage}
-              </strong>{" "}
+              <strong className="font-medium text-black">{currentPage}</strong>{" "}
               / {metadata.totalPages}
             </span>
 
@@ -133,13 +146,23 @@ const Tests = () => {
         )}
       </div>
 
+      {/* Filter tests by Teacher */}
+      {!isTeacher && (
+        <div className="flex items-center justify-end">
+          <TeacherSelector value={teacherId} onChange={goToTeacher} />
+        </div>
+      )}
+
       {/* Main */}
       <main>
         {/* Skeleton loader */}
         {isLoading && !hasError ? (
           <ul className="grid grid-cols-4 gap-5 animate-pulse">
             {Array.from({ length: 12 }, (_, index) => (
-              <TestItemSkeleton key={index} />
+              <li
+                key={index}
+                className="w-full min-h-52 bg-gray-100 rounded-3xl"
+              />
             ))}
           </ul>
         ) : null}
@@ -199,10 +222,12 @@ const Tests = () => {
   );
 };
 
+// Helper components
 const AddNew = ({ user, checkPermission }) => {
+  if (user.role !== "teacher") return null;
+
   const { openModal } = useModal("createTest");
-  const canCreateTest =
-    checkPermission("canCreateTest") && user.role === "teacher";
+  const canCreateTest = checkPermission("canCreateTest");
 
   return (
     <Button
@@ -378,8 +403,71 @@ const TestItem = ({
   );
 };
 
-const TestItemSkeleton = () => (
-  <div className="w-full min-h-52 bg-gray-100 rounded-3xl p-5 space-y-5" />
-);
+const TeacherSelector = ({ value, onChange }) => {
+  const {
+    initialize,
+    hasCollection,
+    getCollection,
+    setCollection,
+    getCollectionData,
+    getCollectionError,
+    isCollectionLoading,
+    setCollectionErrorState,
+    setCollectionLoadingState,
+  } = useArrayStore("teachersName");
+
+  const teachers = getCollectionData() || [];
+  const hasError = getCollectionError() || null;
+  const isLoading = isCollectionLoading() || false;
+
+  // Initialize collection on mount
+  useLayoutEffect(() => {
+    if (!hasCollection()) initialize();
+  }, [hasCollection, initialize]);
+
+  // Load teachers name
+  const loadTeachersName = useCallback(() => {
+    setCollectionLoadingState(true);
+
+    teachersApi
+      .getNames()
+      .then(({ teachers, code }) => {
+        if (code !== "teachersNameFetched") throw new Error();
+        setCollection(teachers);
+      })
+      .catch(({ message }) => {
+        toast.error(message || "Nimadir xato ketdi");
+        setCollectionErrorState(message || "Nimadir xato ketdi");
+      });
+  }, [setCollectionLoadingState, setCollection, setCollectionErrorState]);
+
+  // Load tests when page changes
+  useEffect(() => {
+    const dataExists = getCollection();
+    if (!dataExists) loadTeachersName();
+  }, [loadTeachersName, getCollection]);
+
+  const formattedOptions = useMemo(() => {
+    return (
+      teachers?.map((teacher) => ({
+        value: teacher._id,
+        label: `${teacher.firstName} ${teacher.lastName || ""}`?.slice(0, 32),
+      })) || []
+    );
+  }, [teachers?.length]);
+
+  return (
+    <Select
+      value={value}
+      border={false}
+      error={hasError}
+      onChange={onChange}
+      isLoading={isLoading}
+      placeholder="Ustozni tanlash"
+      className="w-48 h-11 bg-gray-100 rounded-full px-5"
+      options={[{ label: "Barchasi", value: "all" }, ...formattedOptions]}
+    />
+  );
+};
 
 export default Tests;
