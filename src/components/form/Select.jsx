@@ -11,15 +11,18 @@ const Select = ({
   value,
   onChange,
   name = "",
-  size = "md",
   label = "",
+  size = "md",
+  error = null,
   options = [],
   border = false,
   className = "",
   placeholder = "",
   required = false,
   disabled = false,
+  isLoading = false,
   variant = "white",
+  onOpenChange = () => {},
   ...props
 }) => {
   const variantClasses = {
@@ -44,7 +47,7 @@ const Select = ({
   const handleChange = (value) => onChange?.(value);
 
   return (
-    <div className={`text-left space-y-2 ${className}`}>
+    <div className={`text-left space-y-2 ${label ? className : ""}`}>
       {/* Label */}
       {label && (
         <label htmlFor={name} className="ml-1 font-medium text-gray-700">
@@ -59,29 +62,41 @@ const Select = ({
         value={value}
         required={required}
         disabled={disabled}
+        onOpenChange={onOpenChange}
         onValueChange={handleChange}
         {...props}
       >
         <SelectTrigger
-          className={`${variantClasses[variant]} ${defaultClasses} ${sizeClasses[size]}`}
+          className={`${variantClasses[variant]} ${defaultClasses} ${
+            sizeClasses[size]
+          } ${!label ? className : ""}`}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {options.map((opt) =>
-            typeof opt === "object" ? (
-              <SelectItem
-                key={opt.value}
-                value={opt.value}
-                disabled={opt.disabled}
-              >
-                {opt.label}
-              </SelectItem>
-            ) : (
-              <SelectItem key={opt} value={opt}>
-                {opt}
-              </SelectItem>
-            )
+          {/* Options */}
+          {!isLoading &&
+            options.map((opt) =>
+              typeof opt === "object" ? (
+                <SelectItem
+                  key={opt.value}
+                  value={opt.value}
+                  disabled={opt.disabled}
+                >
+                  {opt.label}
+                </SelectItem>
+              ) : (
+                <SelectItem key={opt} value={opt}>
+                  {opt}
+                </SelectItem>
+              )
+            )}
+
+          {/* Loading */}
+          {isLoading && (
+            <div className="flex items-center justify-center h-20">
+              <div className="spin-loader size-5" />
+            </div>
           )}
         </SelectContent>
       </SelectWrapper>
