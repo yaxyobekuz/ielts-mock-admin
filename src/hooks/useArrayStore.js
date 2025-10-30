@@ -446,6 +446,16 @@ const useArrayStore = (defaultCollectionName = "") => {
     [dispatch, defaultCollectionName]
   );
 
+  const invalidateCacheByStartsName = useCallback(
+    (startsName, isLoading = false) => {
+      Object.keys(arrayStore).forEach((name) => {
+        if (!name?.startsWith(startsName)) return;
+        dispatch(invalidateCollection({ isLoading, collectionName: name }));
+      });
+    },
+    [dispatch]
+  );
+
   // Get total item count
   const getTotalItemCount = useCallback(
     (collectionName = defaultCollectionName) => {
@@ -551,6 +561,7 @@ const useArrayStore = (defaultCollectionName = "") => {
     hasCollection,
     invalidateCache,
     deleteCollectionData,
+    invalidateCacheByStartsName,
 
     // Page Operations (for paginated collections)
     setPage,
