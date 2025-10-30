@@ -32,7 +32,8 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
   const navigate = useNavigate();
   const { pathSegments } = usePathSegments();
   const { deleteEntity } = useObjectStore("tests");
-  const { invalidateCache } = useArrayStore("tests");
+  const { invalidateCache, invalidateCacheByStartsName } =
+    useArrayStore("tests");
 
   const handleDelete = (e) => {
     e.preventDefault();
@@ -47,10 +48,10 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
         if (code !== "testDeleted") throw new Error();
 
         success = true;
-        invalidateCache();
         deleteEntity(testId);
         toast.success(message);
         invalidateCache("latestTests", true);
+        invalidateCacheByStartsName("tests", true);
 
         // Navigate to tests page if on test page
         if (pathSegments[0] === "tests" && pathSegments[1]) {
