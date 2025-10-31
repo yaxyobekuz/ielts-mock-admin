@@ -39,7 +39,7 @@ const Header = () => {
             width={95.3}
             src={ieltsLogo}
             alt="IELTS logo svg"
-            className="w-[95.3px] h-7"
+            className="w-28 h-[30.5px]"
           />
         </Link>
 
