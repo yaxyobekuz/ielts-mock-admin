@@ -70,7 +70,7 @@ const Dropzone = ({
   }, [coordsKey, hasCoords, allowActions && allowCoords ? allCoords : null]);
 
   useEffect(() => {
-    if (!hasCoords && allowActions) {
+    if (!hasCoords && allowActions && allowCoords) {
       addEntity(coordsKey, null);
     }
   }, [hasCoords, coordsKey, coords, allowActions]);
@@ -91,7 +91,7 @@ const Dropzone = ({
   };
 
   const handleMouseDown = () => {
-    if (!allowActions) return;
+    if (!allowActions || !allowCoords) return;
 
     setIsMoved(true);
     setIsMoving(true);
@@ -107,7 +107,7 @@ const Dropzone = ({
   };
 
   useEffect(() => {
-    if (!isMoving) return;
+    if (!isMoving || !allowCoords) return;
     let coords = { x: 0, y: 0 };
 
     const handleMouseMove = (e) => {

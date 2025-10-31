@@ -139,7 +139,7 @@ const AnswerInput = ({
       <NodeViewWrapper
         style={isMoved ? { top: coords.y, left: coords.x } : {}}
         className={`${
-          isMoved ? "absolute z-10 w-32" : ""
+          isMoved ? "absolute moved-item-container z-10 w-32" : ""
         } inline-block px-1 py-px`}
       >
         <input
@@ -159,7 +159,7 @@ const AnswerInput = ({
       ref={elementRef}
       style={isMoved ? { top: coords.y, left: coords.x } : {}}
       className={`${
-        isMoved ? "absolute z-10 !max-w-32 !w-32 !min-w-0" : ""
+        isMoved ? "absolute moved-item-container z-10 !max-w-32 !w-32 !min-w-0" : ""
       } inline-block px-1 py-px select-none`}
     >
       <div className="flex items-center gap-1.5 relative w-full">
