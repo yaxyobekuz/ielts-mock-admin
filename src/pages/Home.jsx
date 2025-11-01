@@ -51,12 +51,23 @@ const Home = () => {
         <h1>{user.firstName} xush kelibsiz!</h1>
 
         {/* User role */}
-        <div
+        <span
           title="Rolingiz"
-          className="bg-green-50 text-green-500 px-1.5 rounded-md border border-green-200 text-sm"
+          className="bg-blue-50 text-blue-500 px-1.5 rounded-md border border-blue-200 text-sm capitalize"
         >
           {user.role}
-        </div>
+        </span>
+
+        {/* Active status */}
+        <span
+          className={`${
+            user.isActive
+              ? "bg-green-50 text-green-500 border-green-200"
+              : "bg-red-50 text-red-500 border-red-200"
+          }  px-1.5 rounded-md border text-sm`}
+        >
+          {user.isActive ? "Hisob faol" : "Hisob faol emas"}
+        </span>
       </div>
 
       {/* User stats */}
