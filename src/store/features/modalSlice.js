@@ -21,6 +21,7 @@ const initialState = {
   deleteTeacher: initialModal,
   deleteSection: initialModal,
   createTemplate: initialModal,
+  extractSectionDataFromImage: initialModal,
 };
 
 export const modalSlice = createSlice({
