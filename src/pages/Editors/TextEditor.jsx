@@ -50,22 +50,25 @@ const TextEditor = () => {
 
   // State
   const navigate = useNavigate();
+  const [editorKey, setEditorKey] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const { updateEntity, getEntity } = useObjectStore("coords");
-  const [content, setContent] = useDebouncedState(section?.text, setIsSaving);
   const coordsKey = `${pathSegments[1]}-${pathSegments[3]}-${pathSegments[4]}-${pathSegments[5]}-${pathSegments[6]}`;
   const allCoords = getEntity(coordsKey) || section?.coords || {};
+  const [content, setContent, flashUpdateContent] = useDebouncedState(
+    section?.text,
+    setIsSaving
+  );
   const [description, setDescription] = useDebouncedState(
     section?.description || "",
     setIsSaving
   );
-  
+
   // Initialize textAnswers with backward compatibility
-  const initialTextAnswers = section?.textAnswers || 
-    section?.answers?.map(({ text }) => [text]) || 
-    [[""]];
-  
+  const initialTextAnswers = section?.textAnswers ||
+    section?.answers?.map(({ text }) => [text]) || [[""]];
+
   const [textAnswers, setTextAnswers] = useDebouncedState(
     initialTextAnswers,
     setIsSaving
@@ -106,7 +109,7 @@ const TextEditor = () => {
       coords,
       description,
       text: content,
-      textAnswers: textAnswers.filter(variants => variants.some(v => v)),
+      textAnswers: textAnswers.filter((variants) => variants.some((v) => v)),
     };
 
     sectionsApi
@@ -116,17 +119,27 @@ const TextEditor = () => {
         handleNavigate();
         setIsSaving(false);
         updateEntity(coordsKey, null);
-        setOriginal({ content, description, textAnswers: JSON.stringify(textAnswers) });
+        setOriginal({
+          content,
+          description,
+          textAnswers: JSON.stringify(textAnswers),
+        });
         updateSection(partNumber, section, sectionIndex);
       })
       .catch(({ message }) => toast.error(message || "Nimadir xato ketdi"))
       .finally(() => setIsUpdating(false));
   };
 
+  const hanldeAIContentChange = (aiContent) => {
+    setEditorKey((prev) => prev + 1);
+    flashUpdateContent(aiContent?.text || "");
+  };
+
   return (
     <div className="editor-page">
       {/* Header */}
       <EditorHeader
+        allowAIEdit
         isSaving={isSaving}
         isUpdating={isUpdating}
         title="Matnni tahrirlash"
@@ -136,6 +149,7 @@ const TextEditor = () => {
         onDescriptionChange={setDescription}
         hasContentChanged={hasContentChanged}
         handleSaveContent={handleSaveContent}
+        onContentChange={hanldeAIContentChange}
       />
 
       {/* Editor */}
@@ -143,6 +157,7 @@ const TextEditor = () => {
         <div className="flex gap-3.5 w-full pb-5">
           <RichTextEditor
             allowInput
+            key={editorKey}
             coords={allCoords}
             onChange={setContent}
             initialContent={content}
@@ -170,9 +185,7 @@ const Answers = ({ onChange, initialTextAnswers }) => {
   const handleAddVariant = useCallback((answerIndex) => {
     setAnswers((prev) =>
       prev.map((variants, i) =>
-        i === answerIndex && variants.length < 10
-          ? [...variants, ""]
-          : variants
+        i === answerIndex && variants.length < 10 ? [...variants, ""] : variants
       )
     );
   }, []);
@@ -235,7 +248,9 @@ const Answers = ({ onChange, initialTextAnswers }) => {
                   />
                   {variants.length > 1 && (
                     <button
-                      onClick={() => handleDeleteVariant(answerIndex, variantIndex)}
+                      onClick={() =>
+                        handleDeleteVariant(answerIndex, variantIndex)
+                      }
                       className="flex items-center justify-center size-9 mt-1"
                     >
                       <Trash color="gray" size={14} />

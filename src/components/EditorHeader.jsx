@@ -51,8 +51,8 @@ const EditorHeader = ({
 
   const handleExtractData = (extractedData) => {
     if (!extractedData) return;
+    onContentChange?.(extractedData);
     setDescriptionKey((prev) => prev + 1);
-    onContentChange?.(extractedData.text || "");
     handleDescriptionChange(extractedData.description || "");
   };
 
