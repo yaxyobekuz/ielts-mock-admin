@@ -49,13 +49,13 @@ const Header = () => {
           <Nav links={navlinks} />
 
           {/* Settings */}
-          <Link
+          {/* <Link
             to="/settings"
             className="btn gap-1.5 h-11 bg-gray-100 py-0 rounded-full hover:bg-gray-200"
           >
             <Settings size={20} strokeWidth={1.5} />
             Sozlamalar
-          </Link>
+          </Link> */}
 
           {/* Profile */}
           <button
