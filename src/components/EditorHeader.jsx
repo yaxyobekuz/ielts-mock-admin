@@ -1,3 +1,6 @@
+// Hooks
+import useModal from "@/hooks/useModal";
+
 // React
 import { useEffect, useState } from "react";
 
@@ -7,17 +10,24 @@ import RichTextEditor from "./RichTextEditor";
 // Icons
 import { Edit, NotebookPen } from "lucide-react";
 
+// Components
+import ExtractSectionDataFromImageModal from "./modal/ExtractSectionDataFromImageModal";
+
 const EditorHeader = ({
   isSaving,
   isUpdating,
   handleNavigate,
   originalContent,
+  onContentChange,
   hasContentChanged,
   handleSaveContent,
+  allowAIEdit = false,
   onDescriptionChange,
   initialDescription = "",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [descriptionKey, setDescriptionKey] = useState(0);
+  const { openModal } = useModal("extractSectionDataFromImage");
   const allowDescription = initialDescription || onDescriptionChange;
   const [description, setDescription] = useState(initialDescription || "");
 
@@ -37,6 +47,13 @@ const EditorHeader = ({
       window.scrollTo({ top: 0, behavior: "auto" });
       document.body.classList.add("overflow-y-hidden");
     }
+  };
+
+  const handleExtractData = (extractedData) => {
+    if (!extractedData) return;
+    setDescriptionKey((prev) => prev + 1);
+    onContentChange?.(extractedData.text || "");
+    handleDescriptionChange(extractedData.description || "");
   };
 
   useEffect(() => {
@@ -68,6 +85,12 @@ const EditorHeader = ({
                   Bo'lim {isOpen ? "kontent" : "tavsif"}ini tahrirlash
                 </span>
                 {isOpen ? <Edit size={14} /> : <NotebookPen size={14} />}
+              </button>
+            )}
+
+            {allowAIEdit && !isOpen && (
+              <button onClick={() => openModal()} className="ai-btn size-9">
+                AI
               </button>
             )}
 
@@ -110,9 +133,15 @@ const EditorHeader = ({
       {allowDescription && (
         <DescriptionEditor
           isOpen={isOpen}
+          key={descriptionKey}
           description={description}
           onChange={handleDescriptionChange}
         />
+      )}
+
+      {/* AI Edit */}
+      {allowAIEdit && !isOpen && (
+        <ExtractSectionDataFromImageModal onExtract={handleExtractData} />
       )}
     </>
   );
