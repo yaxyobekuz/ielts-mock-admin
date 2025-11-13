@@ -23,7 +23,7 @@ const useDebouncedState = (initialValue, setLoader, delay = 1000) => {
     };
   }, [debouncedSetValue]);
 
-  return [value, updateValue];
+  return [value, updateValue, setValue];
 };
 
 export default useDebouncedState;

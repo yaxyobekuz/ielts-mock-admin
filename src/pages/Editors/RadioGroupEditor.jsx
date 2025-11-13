@@ -48,9 +48,10 @@ const RadioGroupEditor = () => {
 
   // State
   const navigate = useNavigate();
+  const [editorKey, setEditorKey] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [groups, setGroups] = useDebouncedState(
+  const [groups, setGroups, flashUpdateGroups] = useDebouncedState(
     section?.groups || [],
     setIsSaving
   );
@@ -95,10 +96,18 @@ const RadioGroupEditor = () => {
       .finally(() => setIsUpdating(false));
   };
 
+  const hanldeAIContentChange = (content) => {
+    setEditorKey((prev) => prev + 1);
+    flashUpdateGroups(
+      (content?.data || []).map((i) => ({ correctAnswerIndex: 0, ...i }))
+    );
+  };
+
   return (
     <div className="editor-page">
       {/* Header */}
       <EditorHeader
+        allowAIEdit
         isSaving={isSaving}
         isUpdating={isUpdating}
         title="Variantlar guruhi"
@@ -108,11 +117,12 @@ const RadioGroupEditor = () => {
         onDescriptionChange={setDescription}
         hasContentChanged={hasContentChanged}
         handleSaveContent={handleSaveContent}
+        onContentChange={hanldeAIContentChange}
       />
 
       {/* Editor */}
       <div className="container space-y-5">
-        <Groups initialGroups={groups} onChange={setGroups} />
+        <Groups key={editorKey} initialGroups={groups} onChange={setGroups} />
       </div>
     </div>
   );
@@ -252,7 +262,7 @@ const Groups = ({ onChange, initialGroups = [] }) => {
           name="max-answers-count"
           onChange={handleMaxAnswersChange}
           defaultValue={initialMaxAnswersCount}
-          className="btn bg-gray-100 border-2"
+          className="btn max-w-max bg-gray-100 border-2"
         >
           <option>2</option>
           <option>3</option>
