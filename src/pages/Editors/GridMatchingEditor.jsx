@@ -74,8 +74,6 @@ const GridMatchingEditor = () => {
     navigate(path);
   };
 
-  console.log(grid);
-
   // Update section data from store
   const handleSaveContent = () => {
     if (isUpdating) return;
