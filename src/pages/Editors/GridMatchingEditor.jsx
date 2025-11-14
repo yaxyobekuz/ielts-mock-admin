@@ -46,9 +46,13 @@ const GridMatchingEditor = () => {
 
   // State
   const navigate = useNavigate();
+  const [editorKey, setEditorKey] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [grid, setGrid] = useDebouncedState(section?.grid, setIsSaving);
+  const [grid, setGrid, flashUpdateGrid] = useDebouncedState(
+    section?.grid,
+    setIsSaving
+  );
   const [description, setDescription] = useDebouncedState(
     section?.description || "",
     setIsSaving
@@ -70,6 +74,8 @@ const GridMatchingEditor = () => {
     navigate(path);
   };
 
+  console.log(grid);
+
   // Update section data from store
   const handleSaveContent = () => {
     if (isUpdating) return;
@@ -90,10 +96,22 @@ const GridMatchingEditor = () => {
       .finally(() => setIsUpdating(false));
   };
 
+  const hanldeAIContentChange = (content) => {
+    const data = content?.data || {};
+    const dataQuestions = data.questions.map((q) => ({
+      correctAnswerIndex: 0,
+      ...q,
+    }));
+
+    setEditorKey((prev) => prev + 1);
+    flashUpdateGrid({ ...data, questions: dataQuestions });
+  };
+
   return (
     <div className="editor-page">
       {/* Header */}
       <EditorHeader
+        allowAIEdit
         isSaving={isSaving}
         isUpdating={isUpdating}
         title="Kataklar tanlash"
@@ -103,11 +121,12 @@ const GridMatchingEditor = () => {
         onDescriptionChange={setDescription}
         hasContentChanged={hasContentChanged}
         handleSaveContent={handleSaveContent}
+        onContentChange={hanldeAIContentChange}
       />
 
       {/* Editor */}
       <div className="container space-y-5">
-        <GridEditor initialGridData={grid} onChange={setGrid} />
+        <GridEditor key={editorKey} initialGridData={grid} onChange={setGrid} />
       </div>
     </div>
   );
