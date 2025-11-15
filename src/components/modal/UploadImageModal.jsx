@@ -62,7 +62,7 @@ const Content = ({ close, isLoading, setIsLoading }) => {
       <ImageUploader
         label="Rasm"
         progress={progress}
-        isLoading={isLoading}
+        isUploading={isLoading}
         onChange={(files) => setField("file", files[0])}
       />
 
