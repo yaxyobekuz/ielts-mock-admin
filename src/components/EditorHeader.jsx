@@ -156,6 +156,7 @@ const DescriptionEditor = ({ isOpen, description, onChange }) => {
     >
       <div className="container">
         <RichTextEditor
+          allowImage
           onChange={onChange}
           initialContent={description}
           className="bg-white pt-0 p-2.5 rounded-b-3xl"

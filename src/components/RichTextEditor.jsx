@@ -61,10 +61,28 @@ const RichTextEditor = ({
       TableCell,
       TableHeader,
       ...(allowImage ? [ResizableImageNode] : []),
-      StarterKit.configure({ heading: false }),
+      StarterKit.configure({ heading: false, link: false }),
       ...(allowInput ? [AnswerInputNode(1, true, coords, allowCoords)] : []),
       ...(allowDropzone ? [DropzoneNode(1, true, coords, allowCoords)] : []),
     ],
+    editorProps: {
+      handlePaste(view, event) {
+        const text = event.clipboardData?.getData("text/plain");
+        if (!text) return false;
+
+        event.preventDefault();
+
+        view.dispatch(
+          view.state.tr.insertText(
+            text,
+            view.state.selection.from,
+            view.state.selection.to
+          )
+        );
+
+        return true;
+      },
+    },
   });
 
   if (!editor) return <i>Hmmm... Nimadir xato ketdi!</i>;
