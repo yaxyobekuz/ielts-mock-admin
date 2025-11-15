@@ -99,7 +99,11 @@ const CheckboxGroupEditor = () => {
   const hanldeAIContentChange = (content) => {
     setEditorKey((prev) => prev + 1);
     flashUpdateGroups(
-      (content?.data || []).map((i) => ({ correctAnswersIndex: [0, 1], ...i }))
+      (content?.data || []).map((i) => ({
+        maxSelected: 2,
+        correctAnswersIndex: [0, 1],
+        ...i,
+      }))
     );
   };
 
@@ -144,6 +148,8 @@ const Groups = ({ onChange, initialGroups = [] }) => {
   const initialMaxSelected = useMemo(() => {
     return groups ? groups[0]?.maxSelected || 2 : 2;
   }, [initialGroups]);
+
+  // console.log(initialMaxSelected);
 
   // Add new group
   const handleAddGroup = useCallback(() => {
@@ -440,7 +446,7 @@ const Answers = ({
       return (
         <li key={index} className="flex items-center gap-3">
           {/* Correct answer selector */}
-          <label className="cursor-pointer">
+          <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               checked={isChecked}
@@ -451,6 +457,8 @@ const Answers = ({
             <div className="group btn p-0 size-8 bg-gray-200 rounded-md peer-checked:bg-green-500">
               <Check size={18} color="white" className="mt-px" />
             </div>
+
+            <b>{getColumnLabel(index)}</b>
           </label>
 
           {/* Answer text */}
@@ -467,5 +475,6 @@ const Answers = ({
 );
 
 const ErrorContent = () => <i>Hmmm... Nimadir noto'g'ri ketdi!</i>;
+const getColumnLabel = (index) => String.fromCharCode(65 + index);
 
 export default CheckboxGroupEditor;
