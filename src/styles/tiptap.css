@@ -69,4 +69,8 @@
     cursor: ew-resize;
     cursor: col-resize;
   }
+
+  li > ul {
+    list-style: circle;
+  }
 }

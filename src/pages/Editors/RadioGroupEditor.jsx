@@ -340,7 +340,7 @@ const Answers = ({
     {answers.map(({ text }, index) => (
       <li key={index} className="flex items-center gap-3">
         {/* Correct answer selector */}
-        <label className="cursor-pointer">
+        <label className="flex items-center gap-3 cursor-pointer">
           <input
             type="radio"
             className="hidden peer"
@@ -352,6 +352,8 @@ const Answers = ({
           <div className="group btn p-0 size-8 bg-gray-200 rounded-full peer-checked:bg-green-500">
             <Check size={18} color="white" className="mt-px" />
           </div>
+
+          <b>{getColumnLabel(index)}</b>
         </label>
 
         {/* Answer text */}
@@ -367,5 +369,7 @@ const Answers = ({
 );
 
 const ErrorContent = () => <i>Hmmm... Nimadir noto'g'ri ketdi!</i>;
+
+const getColumnLabel = (index) => String.fromCharCode(65 + index);
 
 export default RadioGroupEditor;
