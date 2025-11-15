@@ -181,17 +181,16 @@ const Tests = () => {
         ) : null}
 
         {/* No tests */}
-        {!isLoading && !hasError && tests.length === 0 ? (
+        {!isLoading && !hasError && tests.length === 0 && currentPage !== 1 ? (
           <PageInfo
             className="pt-12"
-            title="Hech qanday test topilmadi"
-            links={{ primary: { to: "/tests", body: "1-sahifaga qaytish" } }}
-            description={`Ushbu ${currentPage}-sahifada hech qanday test topilmadi.`}
+            title="Testlar mavjud emas"
+            links={{ primary: { to: -1, body: "Ortga qaytish" } }}
           />
         ) : null}
 
         {/* Tests */}
-        {!isLoading && !hasError && tests.length > 0 ? (
+        {!isLoading && !hasError && (tests.length > 0 || currentPage == 1) ? (
           <div className="grid grid-cols-4 gap-5">
             <AddNew user={user} checkPermission={checkPermission} />
             {tests.map((test) => (

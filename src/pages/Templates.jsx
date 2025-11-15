@@ -183,9 +183,8 @@ const Templates = () => {
         {!isLoading && !hasError && templates.length === 0 ? (
           <PageInfo
             className="pt-12"
-            title="Shablonlar topilmadi"
+            title="Shablonlar mavjud emas"
             links={{ primary: { to: -1, body: "Ortga qaytish" } }}
-            description="Ushbu sahifada hech qanday shablonlar topilmadi."
           />
         ) : null}
 

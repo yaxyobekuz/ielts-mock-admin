@@ -113,9 +113,7 @@ const Links = () => {
           <div className="flex items-center gap-3 text-gray-500">
             <span>
               Hozirgi sahifa:{" "}
-              <strong className="font-medium text-black">
-                {currentPage}
-              </strong>{" "}
+              <strong className="font-medium text-black">{currentPage}</strong>{" "}
               / {metadata.totalPages}
             </span>
 
@@ -163,9 +161,8 @@ const Links = () => {
         {!isLoading && !hasError && links.length === 0 ? (
           <PageInfo
             className="pt-12"
-            title="Hech qanday havola topilmadi"
-            links={{ primary: { to: "/links", body: "1-sahifaga qaytish" } }}
-            description={`Ushbu ${currentPage}-sahifada hech qanday havola topilmadi.`}
+            title="Havolalar mavjud emas"
+            links={{ primary: { to: -1, body: "Ortga qaytish" } }}
           />
         ) : null}
 

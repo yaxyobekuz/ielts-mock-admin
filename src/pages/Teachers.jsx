@@ -142,7 +142,10 @@ const Teachers = () => {
         ) : null}
 
         {/* No teachers */}
-        {!isLoading && !hasError && teachers.length === 0 ? (
+        {!isLoading &&
+        !hasError &&
+        teachers.length === 0 &&
+        currentPage !== 1 ? (
           <PageInfo
             className="pt-12"
             title="Hech qanday ustoz topilmadi"
@@ -152,7 +155,9 @@ const Teachers = () => {
         ) : null}
 
         {/* Teachers */}
-        {!isLoading && !hasError && teachers.length > 0 ? (
+        {!isLoading &&
+        !hasError &&
+        (teachers.length > 0 || currentPage == 1) ? (
           <div className="grid grid-cols-4 gap-5">
             <AddNew />
             {teachers.map((teacher) => (
