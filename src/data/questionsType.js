@@ -5,6 +5,7 @@ import RadioGroup from "../components/questions/RadioGroup";
 import GridMatching from "../components/questions/GridMatching";
 import CheckboxGroup from "../components/questions/CheckboxGroup";
 import TextDraggable from "../components/questions/TextDraggable";
+import InputFlowchart from "../components/questions/InputFlowchart";
 
 // Images
 import textBg from "../assets/backgrounds/text-preview.jpg";
@@ -32,6 +33,12 @@ const questionsType = [
     image: flowchartBg,
     value: "flowchart",
     component: Flowchart,
+  },
+  {
+    label: "Input Flowchart",
+    image: flowchartBg,
+    value: "input-flowchart",
+    component: InputFlowchart,
   },
   {
     label: "Radio group",
