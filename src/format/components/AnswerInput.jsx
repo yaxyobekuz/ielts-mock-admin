@@ -17,6 +17,7 @@ const AnswerInput = ({
   deleteNode,
   initialNumber = 1,
   initialCoords = {},
+  allowCoords = true,
   allowActions = true,
 }) => {
   const elementRef = useRef(null);
@@ -64,10 +65,10 @@ const AnswerInput = ({
     } catch (error) {
       console.warn("Error calculating input index:", error);
     }
-  }, [coordsKey, hasCoords, allowActions ? allCoords : null]);
+  }, [coordsKey, hasCoords, allowActions && allowCoords ? allCoords : null]);
 
   useEffect(() => {
-    if (!hasCoords && allowActions) {
+    if (!hasCoords && allowActions && allowCoords) {
       addEntity(coordsKey, initialCoords);
     }
   }, [hasCoords, coordsKey, coords, allowActions]);
@@ -88,14 +89,14 @@ const AnswerInput = ({
   };
 
   const handleMouseDown = () => {
-    if (!allowActions) return;
+    if (!allowActions || !allowCoords) return;
 
     setIsMoved(true);
     setIsMoving(true);
   };
 
   const handleDeletePosition = () => {
-    if (!allowActions) return;
+    if (!allowActions || !allowCoords) return;
 
     setIsMoved(false);
     setIsMoving(false);
@@ -104,7 +105,7 @@ const AnswerInput = ({
   };
 
   useEffect(() => {
-    if (!isMoving) return;
+    if (!isMoving || !allowCoords) return;
     let coords = { x: 0, y: 0 };
 
     const handleMouseMove = (e) => {
@@ -159,7 +160,9 @@ const AnswerInput = ({
       ref={elementRef}
       style={isMoved ? { top: coords.y, left: coords.x } : {}}
       className={`${
-        isMoved ? "absolute moved-item-container z-10 !max-w-32 !w-32 !min-w-0" : ""
+        isMoved
+          ? "absolute moved-item-container z-10 !max-w-32 !w-32 !min-w-0"
+          : ""
       } inline-block px-1 py-px select-none`}
     >
       <div className="flex items-center gap-1.5 relative w-full">
@@ -172,17 +175,19 @@ const AnswerInput = ({
 
         <div className="flex items-center gap-px absolute right-0">
           {/* Move */}
-          <button
-            title="Move input"
-            aria-label="Move input"
-            onMouseDown={handleMouseDown}
-            onDoubleClick={handleDeletePosition}
-            className={`${
-              isMoving ? "cursor-grabbing" : "cursor-grab"
-            } btn p-0 size-6 rounded-sm`}
-          >
-            <Move size={16} color={isMoved ? "#3b82f6 " : "#374151"} />
-          </button>
+          {allowCoords && (
+            <button
+              title="Move input"
+              aria-label="Move input"
+              onMouseDown={handleMouseDown}
+              onDoubleClick={handleDeletePosition}
+              className={`${
+                isMoving ? "cursor-grabbing" : "cursor-grab"
+              } btn p-0 size-6 rounded-sm`}
+            >
+              <Move size={16} color={isMoved ? "#3b82f6 " : "#374151"} />
+            </button>
+          )}
 
           {/* Delete input */}
           <button
