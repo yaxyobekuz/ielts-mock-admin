@@ -1,6 +1,3 @@
-// Icons
-import { Trash } from "lucide-react";
-
 // Helpers
 import { isNumber } from "../../lib/helpers";
 
@@ -12,6 +9,27 @@ import { Switch } from "@/components/ui/switch";
 
 // Api
 import { sectionsApi } from "@/api/sections.api";
+
+// Icons
+import { Trash, GripVertical } from "lucide-react";
+
+// DnD Kit
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // React
 import { useState, useCallback, useEffect } from "react";
@@ -186,6 +204,13 @@ const Answers = ({
   const [title, setTitle] = useState(initialTitle);
   const [inputs, setInputs] = useState(initialAnwsers);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   const handleAddInput = useCallback(() => {
     setInputs((prev) => (prev.length < 50 ? [...prev, ""] : prev));
   }, []);
@@ -207,12 +232,24 @@ const Answers = ({
     onTitleChange?.(e.target.value);
   };
 
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      setInputs((items) => {
+        const oldIndex = active.id;
+        const newIndex = over.id;
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
   useEffect(() => {
     onChange?.(inputs);
   }, [String(inputs)]);
 
   return (
-    <div className="sticky top-0 overflow-y-auto w-full max-h-[calc(100vh-20px)] bg-gray-50 p-2.5 rounded-b-xl">
+    <div className="sticky top-0 overflow-y-auto overflow-x-hidden w-full max-h-[calc(100vh-20px)] bg-gray-50 p-2.5 rounded-b-xl">
       <h2 className="mb-3 text-lg font-bold">Javoblar</h2>
 
       {/* Split answers */}
@@ -252,34 +289,29 @@ const Answers = ({
       </div>
 
       {/* Options */}
-      <div className="mb-3 space-y-2">
-        {inputs.map((value, index) => (
-          <div key={index}>
-            <div className="flex items-center justify-between">
-              <label htmlFor={`answer-${index}`} className="inline-block mb-1">
-                Javob {index + 1}
-              </label>
-
-              {/* Delete btn */}
-              <button
-                onClick={() => handleDeleteInput(index)}
-                className="flex items-center justify-center size-6"
-              >
-                <Trash color="red" size={16} />
-              </button>
-            </div>
-
-            <input
-              type="text"
-              value={value}
-              id={`answer-${index}`}
-              placeholder={`Javob ${index + 1}`}
-              className="w-full h-9 border rounded-md px-2"
-              onChange={(e) => handleInputChange(e, index)}
-            />
+      <DndContext
+        sensors={sensors}
+        onDragEnd={handleDragEnd}
+        collisionDetection={closestCenter}
+      >
+        <SortableContext
+          items={inputs.map((_, i) => i)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="mb-3 space-y-2 z-50">
+            {inputs.map((value, index) => (
+              <SortableItem
+                key={index}
+                id={index}
+                value={value}
+                index={index}
+                onDelete={handleDeleteInput}
+                onChange={handleInputChange}
+              />
+            ))}
           </div>
-        ))}
-      </div>
+        </SortableContext>
+      </DndContext>
 
       {/* Add new option */}
       <button
@@ -291,6 +323,63 @@ const Answers = ({
     </div>
   );
 };
+
+const SortableItem = ({ id, value, index, onDelete, onChange }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <div className="flex items-center justify-between">
+        <label htmlFor={`answer-${index}`} className="inline-block mb-1">
+          <strong>{getCharIndex(index)}:</strong> Javob {index + 1}
+        </label>
+
+        <div className="flex items-center gap-1">
+          {/* Drag handle */}
+          <button
+            {...attributes}
+            {...listeners}
+            className="flex items-center justify-center size-6 cursor-grab active:cursor-grabbing"
+          >
+            <GripVertical size={16} className="text-gray-400" />
+          </button>
+
+          {/* Delete btn */}
+          <button
+            onClick={() => onDelete(index)}
+            className="flex items-center justify-center size-6"
+          >
+            <Trash color="red" size={16} />
+          </button>
+        </div>
+      </div>
+
+      <input
+        type="text"
+        value={value}
+        id={`answer-${index}`}
+        placeholder={`Javob ${index + 1}`}
+        className="w-full h-9 border rounded-md px-2"
+        onChange={(e) => onChange(e, index)}
+      />
+    </div>
+  );
+};
+
+const getCharIndex = (index) => String.fromCharCode(65 + index);
 
 const ErrorContent = () => <i>Hmmm... Nimadir noto'g'ri ketdi!</i>;
 
