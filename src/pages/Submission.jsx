@@ -229,56 +229,52 @@ const sortArray = (arr) => {
 };
 
 const processAnswersData = (module, answers, correctAnswers) => {
-  const correctAnswersMap = sortArray(
-    Object.keys(correctAnswers[module] || {})
-  );
-
   let trueAnswers = 0;
   let wrongAnswers = 0;
 
+  const moduleUserAnswers = answers[module];
+  const moduleCorrectAnswers = correctAnswers[module];
+  const correctAnswersMap = sortArray(Object.keys(moduleCorrectAnswers || {}));
+
   const rows = correctAnswersMap.map((key) => {
+    const userAnswerData =
+      moduleUserAnswers[key]?.text ?? moduleUserAnswers[key];
+    const correctAnswerData =
+      moduleCorrectAnswers[key]?.text ?? moduleCorrectAnswers[key];
+
     const correctAnswer = (() => {
-      if (!correctAnswers[module]) return "-";
+      if (!moduleCorrectAnswers) return "-";
 
-      if (
-        typeof correctAnswers[module][key] === "object" &&
-        isNaN(Number(key))
-      ) {
-        return correctAnswers[module][key].join(" & ").trim().toLowerCase();
+      if (Array.isArray(correctAnswerData) && isNaN(Number(key))) {
+        return correctAnswerData.join(" & ").trim().toLowerCase();
       }
 
-      if (typeof correctAnswers[module][key] === "object") {
-        return correctAnswers[module][key].join(" | ").trim().toLowerCase();
+      if (Array.isArray(correctAnswerData)) {
+        return correctAnswerData.join(" | ").trim().toLowerCase();
       }
 
-      return (correctAnswers[module][key] || " ")?.trim()?.toLowerCase();
+      return (correctAnswerData || " ")?.trim()?.toLowerCase();
     })();
 
     const userAnswer = (() => {
-      if (!answers[module]) return "-";
+      if (!moduleUserAnswers) return "-";
 
-      if (typeof answers[module][key] === "object") {
-        return answers[module][key].join(" & ").trim().toLowerCase();
+      if (Array.isArray(userAnswerData)) {
+        return userAnswerData.join(" & ").trim().toLowerCase();
       }
 
-      return (answers[module]?.[key] || "-").trim().toLowerCase();
+      return (userAnswerData || "-").trim().toLowerCase();
     })();
 
     const isCorrect = (() => {
       if (userAnswer === "-" && correctAnswer === "-") return false;
 
-      if (
-        isNaN(Number(key)) &&
-        typeof correctAnswers[module][key] === "object"
-      ) {
-        return isEqualStringArray(
-          answers[module][key],
-          correctAnswers[module][key]
-        );
+      if (Array.isArray(correctAnswerData) && isNaN(Number(key))) {
+        return isEqualStringArray(userAnswerData, correctAnswerData);
       }
 
-      if (typeof correctAnswers[module][key] === "object") {
-        return !!correctAnswers[module][key]?.find(
+      if (Array.isArray(correctAnswerData)) {
+        return !!correctAnswerData?.find(
           (answer) => answer?.trim()?.toLowerCase() == userAnswer
         );
       }
@@ -286,8 +282,8 @@ const processAnswersData = (module, answers, correctAnswers) => {
       return userAnswer === correctAnswer;
     })();
 
-    if (typeof correctAnswers[module][key] === "object" && isNaN(Number(key))) {
-      const totalAnswers = correctAnswers[module][key]?.length || 1;
+    if (Array.isArray(correctAnswerData) && isNaN(Number(key))) {
+      const totalAnswers = correctAnswerData?.length || 1;
       isCorrect
         ? (trueAnswers = totalAnswers + trueAnswers)
         : (wrongAnswers = totalAnswers + wrongAnswers);
@@ -295,12 +291,7 @@ const processAnswersData = (module, answers, correctAnswers) => {
       isCorrect ? trueAnswers++ : wrongAnswers++;
     }
 
-    return {
-      key,
-      isCorrect,
-      userAnswer,
-      correctAnswer,
-    };
+    return { key, isCorrect, userAnswer, correctAnswer };
   });
 
   return { rows, trueAnswers, wrongAnswers };
