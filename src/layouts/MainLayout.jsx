@@ -17,9 +17,11 @@ import usePathSegments from "@/hooks/usePathSegments";
 
 // Components
 import Header from "@/components/Header";
+import PageInfo from "@/components/PageInfo";
 import MainBgLoader from "@/components/loaders/MainBgLoader";
 
 // Animated
+import duckSadOut from "@/assets/animated/duck-sad-out.json";
 import duckShrugging from "@/assets/animated/duck-shrugging.json";
 
 // Modals
@@ -96,8 +98,9 @@ const UnauthenticatedContent = () => (
 const AuthenticatedContent = () => {
   const navigate = useNavigate();
   const { pathSegments } = usePathSegments();
-  const { updateEntity } = useObjectStore("users");
+  const { updateEntity, getEntity } = useObjectStore("users");
   const isAllowedPage = !["preview", "edit"].includes(pathSegments[2]);
+  const isActive = getEntity("me").isActive;
 
   const { isLoading, hasError, setField } = useObjectState({
     hasError: false,
@@ -135,6 +138,24 @@ const AuthenticatedContent = () => {
       <MainBgLoader
         hasError={hasError}
         onButtonClick={() => window.location.reload()}
+      />
+    );
+  }
+
+  // Inactive account content
+  if (!isActive) {
+    return (
+      <PageInfo
+        allowFullScreen
+        animation={duckSadOut}
+        title="Hisobingiz aktivlashtirilmagan"
+        description="Iltimos, hisobingizni administrator orqali aktivlashtiring."
+        links={{
+          primary: {
+            to: "https://t.me/andarov_b",
+            body: "Hisobni aktivlashtirish",
+          },
+        }}
       />
     );
   }
