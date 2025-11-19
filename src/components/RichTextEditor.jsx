@@ -128,10 +128,9 @@ const Toolbar = ({
 }) => {
   const [, forceUpdate] = useState({});
   const { openModal, data, updateModalData } = useModal("uploadImage");
+  const image = data?.image;
 
   useEffect(() => {
-    const image = data?.image;
-
     if (data?.editor && image) {
       let src = "";
       updateModalData({ image: null, editor: false });
@@ -142,10 +141,12 @@ const Toolbar = ({
         src = image.sizes.large.url;
       }
 
-      editor.chain().focus().setImage({ src }).run();
+      console.log(`[Image added] `, data);
+
+      editor?.chain()?.focus()?.setImage({ src })?.run();
       src = "";
     }
-  }, [data?.image]);
+  }, [image, editor]);
 
   useEffect(() => {
     // Force component re-render
