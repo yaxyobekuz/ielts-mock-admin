@@ -19,6 +19,7 @@ import usePathSegments from "@/hooks/usePathSegments";
 // Components
 import { EditButton } from "./Reading";
 import Button from "@/components/form/Button";
+import CopyButton from "@/components/CopyButton";
 import ModulePartHeader from "@/components/ModulePartHeader";
 import RichTextPreviewer from "@/components/RichTextPreviewer";
 
@@ -130,7 +131,15 @@ const Section = ({
           <h2 className="font-bold">
             Questions {initialQuestionNumber} -{" "}
             {initialQuestionNumber + section.questionsCount - 1}{" "}
-            <span className="font-normal text-gray-500">({section.type})</span>
+            <span className="font-normal text-gray-500">
+              <CopyButton
+                text={_id}
+                className="disabled:opacity-50"
+                notificationText="Bo'lim ID raqamidan nusxa olindi"
+              >
+                ({section.type})
+              </CopyButton>
+            </span>
           </h2>
 
           <RichTextPreviewer text={description} />
