@@ -60,7 +60,7 @@ const RichTextEditor = ({
       TableRow,
       TableCell,
       TableHeader,
-      ...(allowImage ? [ResizableImageNode] : []),
+      ResizableImageNode,
       StarterKit.configure({ heading: false, link: false }),
       ...(allowInput ? [AnswerInputNode(1, true, coords, allowCoords)] : []),
       ...(allowDropzone ? [DropzoneNode(1, true, coords, allowCoords)] : []),
