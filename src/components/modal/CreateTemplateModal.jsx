@@ -30,11 +30,10 @@ const CreateTemplateModal = () => (
 const Content = ({ close, isLoading, setIsLoading, testId }) => {
   const { updateEntity } = useObjectStore("tests");
   const { updateItemById, invalidateCache } = useArrayStore("tests");
-  const { progress, images, setField, title, description, step, banner, type } =
+  const { progress, setField, title, description, step, banner, type } =
     useObjectState({
       step: 1,
       title: "",
-      images: [],
       progress: 0,
       banner: null,
       description: "",
@@ -63,7 +62,6 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
     formData.append("description", description?.trim());
 
     if (banner) formData.append("banner", banner);
-    for (const img of images) formData.append("images", img);
 
     templatesApi
       .create(formData, { onUploadProgress })
@@ -87,7 +85,7 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
       });
   };
 
-  const allowNextStep = images.length && title?.trim() && description?.trim();
+  const allowNextStep = title?.trim() && description?.trim();
 
   return (
     <form onSubmit={handleCreateTemplate} className="space-y-5">
@@ -144,15 +142,6 @@ const Content = ({ close, isLoading, setIsLoading, testId }) => {
             name="template-description"
             placeholder="Izohni kiritng"
             onChange={(value) => setField("description", value)}
-          />
-
-          <ImageUploader
-            multiple
-            required
-            progress={progress}
-            initialFiles={images}
-            isUploading={isLoading}
-            onChange={(images) => setField("images", images)}
           />
 
           {/* Action buttons */}

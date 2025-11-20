@@ -137,7 +137,7 @@ const App = () => {
           {/* Templates */}
           <Route path="templates" element={<Outlet />}>
             <Route index element={<Templates />} />
-            <Route path=":templateId" element={<Template />} />
+            {/* <Route path=":templateId" element={<Template />} /> */}
           </Route>
 
           {/* Tools */}

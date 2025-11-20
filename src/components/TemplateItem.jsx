@@ -104,10 +104,10 @@ const TemplateItem = ({
       </div>
 
       {/* Link */}
-      <Link
+      {/* <Link
         to={`/templates/${id}`}
         className="block absolute z-0 -top-5 inset-0 size-full rounded-3xl"
-      />
+      /> */}
     </div>
   );
 };
