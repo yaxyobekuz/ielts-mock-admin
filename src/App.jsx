@@ -11,7 +11,7 @@ import {
 // Toaster
 import { Toaster } from "react-hot-toast";
 
-// Others Pages
+// Other Pages
 import Test from "./pages/Test";
 import Home from "./pages/Home";
 import Link from "./pages/Link";
@@ -52,6 +52,7 @@ import RadioGroupEditor from "./pages/Editors/RadioGroupEditor";
 import GridMatchingEditor from "./pages/Editors/GridMatchingEditor";
 import TextDraggableEditor from "./pages/Editors/TextDraggableEditor";
 import CheckboxGroupEditor from "./pages/Editors/CheckboxGroupEditor";
+import InputFlowchartEditor from "./pages/Editors/InputFlowchartEditor";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -86,6 +87,10 @@ const App = () => {
                 <Route
                   path=":partNumber/text/:sectionIndex"
                   element={<TextEditor />}
+                />
+                <Route
+                  element={<InputFlowchartEditor />}
+                  path=":partNumber/input-flowchart/:sectionIndex"
                 />
                 <Route
                   element={<FlowchartEditor />}
