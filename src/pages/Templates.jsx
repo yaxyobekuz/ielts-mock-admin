@@ -19,6 +19,7 @@ import Nav from "@/components/Nav";
 import PageInfo from "@/components/PageInfo";
 import Pagination from "@/components/Pagination";
 import TemplateItem from "@/components/TemplateItem";
+import usePathSegments from "@/hooks/usePathSegments";
 
 // Get type from query
 const getTypeFromParams = (searchParams) => {
@@ -34,6 +35,11 @@ const getActiveTypeNav = (type, navLinks) => {
 };
 
 const Templates = () => {
+  // Path segments
+  const { pathSegments } = usePathSegments();
+  const isGlobal = !pathSegments[1] || pathSegments[1] === "global";
+  const globalStatus = isGlobal ? "global" : "non-global";
+
   // Search params
   const [searchParams, setSearchParams] = useSearchParams();
   const currentType = getTypeFromParams(searchParams);
@@ -48,7 +54,7 @@ const Templates = () => {
     hasCollection,
     setPageErrorState,
     setPageLoadingState,
-  } = useArrayStore(`templates-${currentType}`);
+  } = useArrayStore(`templates-${globalStatus}-${currentType}`);
 
   // Initialize collection on mount/type change
   useEffect(() => {
@@ -72,6 +78,7 @@ const Templates = () => {
         .get({
           page,
           limit: 12,
+          nonGlobal: !isGlobal,
           type: currentType !== "all" ? currentType : undefined,
         })
         .then(({ templates, code, pagination }) => {
@@ -109,10 +116,10 @@ const Templates = () => {
 
   // Nav links
   const navLinks = [
-    { label: "Barchasi", link: `templates?type=all` },
-    { label: "Cambridge", link: `templates?type=cambridge` },
-    { label: "Prediction", link: `templates?type=prediction` },
-    { label: "Custom", link: `templates?type=custom` },
+    { label: "Barchasi", link: `templates/${globalStatus}?type=all` },
+    { label: "Cambridge", link: `templates/${globalStatus}?type=cambridge` },
+    { label: "Prediction", link: `templates/${globalStatus}?type=prediction` },
+    { label: "Custom", link: `templates/${globalStatus}?type=custom` },
   ];
 
   // Active nav index by type
@@ -122,7 +129,7 @@ const Templates = () => {
     <div className="container py-8 space-y-6">
       {/* Title */}
       <div className="flex items-center justify-between">
-        <h1>Shablonlar</h1>
+        <h1>{globalStatus} Shablonlar</h1>
 
         {/* Pagination Info */}
         {!isLoading && !hasError && templates.length > 0 && metadata && (

@@ -53,6 +53,7 @@ import GridMatchingEditor from "./pages/Editors/GridMatchingEditor";
 import TextDraggableEditor from "./pages/Editors/TextDraggableEditor";
 import CheckboxGroupEditor from "./pages/Editors/CheckboxGroupEditor";
 import InputFlowchartEditor from "./pages/Editors/InputFlowchartEditor";
+import TemplatesLayout from "./layouts/TemplatesLayout";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -135,8 +136,10 @@ const App = () => {
           </Route>
 
           {/* Templates */}
-          <Route path="templates" element={<Outlet />}>
+          <Route path="templates" element={<TemplatesLayout />}>
             <Route index element={<Templates />} />
+            <Route path="global" element={<Templates />} />
+            <Route path="non-global" element={<Templates />} />
             {/* <Route path=":templateId" element={<Template />} /> */}
           </Route>
 
