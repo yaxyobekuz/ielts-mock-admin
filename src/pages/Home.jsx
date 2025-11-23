@@ -173,7 +173,7 @@ const Tests = ({ user }) => {
 
   useLayoutEffect(() => {
     isLoading && loadTests();
-  }, []);
+  }, [isLoading]);
 
   return (
     <section className="flex flex-col justify-between overflow-hidden w-full h-auto bg-gray-100 bg-cover bg-no-repeat aspect-square rounded-3xl">
