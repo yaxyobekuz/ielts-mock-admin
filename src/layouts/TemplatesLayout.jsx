@@ -10,8 +10,8 @@ const TemplatesLayout = () => (
       <Nav
         pagePathIndex={1}
         links={[
-          { label: "Global", link: `templates/global` },
-          { label: "Non-Global", link: `templates/non-global` },
+          { label: "Tizim shablonlari", link: `templates/global` },
+          { label: "Markaz shablonlari", link: `templates/non-global` },
         ]}
       />
     </div>

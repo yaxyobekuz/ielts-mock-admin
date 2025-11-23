@@ -129,7 +129,7 @@ const Templates = () => {
     <div className="container py-8 space-y-6">
       {/* Title */}
       <div className="flex items-center justify-between">
-        <h1>{globalStatus} Shablonlar</h1>
+        <h1>{isGlobal ? "Tizim" : "Markaz"} shablonlari</h1>
 
         {/* Pagination Info */}
         {!isLoading && !hasError && templates.length > 0 && metadata && (
