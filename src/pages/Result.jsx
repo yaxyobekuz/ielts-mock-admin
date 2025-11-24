@@ -84,10 +84,10 @@ const Result = () => {
   // Content
   if (isLoading) return <LoadingContent />;
   if (hasError) return <ErrorContent />;
-  return <Main {...result} />;
+  return <MainContent {...result} />;
 };
 
-const Main = ({
+const MainContent = ({
   test,
   link,
   overall,
@@ -95,6 +95,7 @@ const Main = ({
   reading,
   writing,
   speaking,
+  feedback,
   createdAt,
   listening,
   submission,
@@ -264,6 +265,17 @@ const Main = ({
           </div>
         </section>
       </div>
+
+      {/* Feedback */}
+      <section className="">
+        <h2 className="mb-5 text-2xl font-medium">Feedback</h2>
+        <ul className="grid grid-cols-2 gap-5">
+          <FeedbackCard title="Listening" text={feedback.listening} />
+          <FeedbackCard title="Reading" text={feedback.reading} />
+          <FeedbackCard title="Writing" text={feedback.writing} />
+          <FeedbackCard title="Speaking" text={feedback.speaking} />
+        </ul>
+      </section>
     </div>
   );
 };
@@ -346,6 +358,21 @@ const ErrorContent = () => {
     <div className="container py-8 space-y-6">
       <div>Error</div>
     </div>
+  );
+};
+
+const FeedbackCard = ({ title = "Listening", text = "" }) => {
+  if (!text?.trim()) return null;
+  return (
+    <li className="bg-gray-100 rounded-3xl p-2">
+      {/* Top */}
+      <h3 className="py-1.5 px-2 font-medium text-xl">{title}</h3>
+
+      {/* Body */}
+      <div className="bg-gray-50 px-2 py-3.5 rounded-2xl">
+        <p className="whitespace-break-spaces">{text}</p>
+      </div>
+    </li>
   );
 };
 
