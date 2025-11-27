@@ -12,6 +12,7 @@ import {
 import { Toaster } from "react-hot-toast";
 
 // Other Pages
+import Docs from "./pages/Docs";
 import Test from "./pages/Test";
 import Home from "./pages/Home";
 import Link from "./pages/Link";
@@ -154,6 +155,9 @@ const App = () => {
             <Route index element={<Links />} />
             <Route path=":linkId" element={<Link />} />
           </Route>
+
+          {/* Docs */}
+          <Route path="docs" element={<Docs />} />
 
           {/* Stats */}
           <Route path="statistics" element={<Outlet />}>
