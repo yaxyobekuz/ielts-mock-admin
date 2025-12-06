@@ -22,8 +22,8 @@ This project is built with **React**, **Vite**, and **TailwindCSS** to deliver a
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yaxyobekuz/ielts-mock-admin.git
-   cd ielts-mock-admin
+   git clone https://github.com/yaxyobekuz/cdielts-app.git
+   cd cdielts-app
    ```
 
 2. Install dependencies:

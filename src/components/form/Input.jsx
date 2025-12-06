@@ -68,7 +68,7 @@ const Input = ({
           onChange={handleChange}
           placeholder={placeholder}
           replacement={{ _: /\d/ }}
-          mask="+998 (__) ___-__-__"
+          mask="+___ (__) ___-__-__"
           className={`${variantClasses[variant]} ${defaultClasses} ${sizeClasses[size]}`}
         />
       );

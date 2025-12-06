@@ -1,5 +1,5 @@
 {
-  "name": "ielts-mock-admin",
+  "name": "cdielts-app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -33,11 +33,9 @@
     "lodash": "^4.17.21",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.540.0",
-    "pdfjs-dist": "^3.11.174",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.6.0",
-    "react-pdf": "^7.7.2",
     "react-redux": "^9.2.0",
     "react-resizable": "^3.0.5",
     "react-router-dom": "^6.26.2",
