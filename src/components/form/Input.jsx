@@ -62,7 +62,6 @@ const Input = ({
           {...props}
           name={name}
           value={value}
-          autoComplete="off"
           required={required}
           disabled={disabled}
           onChange={handleChange}
