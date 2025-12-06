@@ -1,12 +1,6 @@
 // Toast
 import { toast } from "@/notification/toast";
 
-// PDF
-import { pdfjs } from "react-pdf";
-import "pdfjs-dist/web/pdf_viewer.css";
-import "react-pdf/dist/Page/TextLayer.css";
-import "react-pdf/dist/Page/AnnotationLayer.css";
-
 // Icons
 import { Upload, AlertCircle } from "lucide-react";
 
@@ -16,12 +10,6 @@ import { useState, useEffect, useRef } from "react";
 // Hooks
 import useObjectStore from "@/hooks/useObjectStore";
 import useDebouncedState from "@/hooks/useDebouncedState";
-
-// Create worker
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.js",
-  import.meta.url
-).toString();
 
 const PdfViewer = () => {
   const { getEntity, updateEntity } = useObjectStore("pdfFile");
